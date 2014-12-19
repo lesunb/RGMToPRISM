@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+    <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            label="Sample Action Set"
+            visible="true"
+            id="org.eclipse.ui.actionSets">
+         <menu
+               id="verificationMenu"
+               label="Formal &amp;Verification">
+            <separator
+                  name="prismGroup">
+            </separator>
+         </menu>
+         <action
+               label="&amp;Generate PRISM Model"
+               icon="src/main/resources/icons/sample.gif"
+               class="br.unb.cic.rtgoretoprism.action.PRISMCodeGenerationAction"
+               tooltip="Generate PRISM Model"
+               menubarPath="verificationMenu/prismGroup"
+               toolbarPath="prismGroup"
+               id="br.unb.cic.rtgoretoprism.action.PRISMCodeGenerationAction">
+         </action>
+      </actionSet>
+   </extension>
+
+</plugin>

@@ -1,0 +1,12 @@
+		<plan name="metaPlan_$NAME">
+			<parameterset name="applicables" class="ICandidateInfo">
+				<goalmapping ref="meta_$NAME.applicables"/>
+			</parameterset>
+			<parameterset name="result" class="ICandidateInfo" direction="out">
+				<goalmapping ref="meta_$NAME.result"/>
+			</parameterset>
+			<body>new MetaPlan_$NAME()</body>
+			<trigger>
+				<goal ref="meta_$NAME"/>
+			</trigger>
+		</plan>

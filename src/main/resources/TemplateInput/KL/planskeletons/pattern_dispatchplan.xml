@@ -1,0 +1,12 @@
+		<plan name="dispatchGoalPlan_$CHILD">
+			<parameter name="param" class="String">
+				$PARAMS
+			</parameter>
+			<parameter name="result" class="String">
+				$RESULTS
+			</parameter>
+			<body>new DispatchGoalPlan("$CHILD")</body>
+			<trigger>
+				$TRIGGERS
+			</trigger>
+		</plan>

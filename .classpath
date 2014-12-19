@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry including="**/*.java" kind="src" output="target/test-classes" path="src/test/java"/>
+	<classpathentry including="**/*.java" kind="src" path="src/main/java"/>
+	<classpathentry including="**/*.java" kind="src" path="target/generated-sources/antlr4"/>
+	<classpathentry excluding="**/*.java" kind="src" path="src/main/resources"/>
+	<classpathentry exported="true" kind="lib" path="lib/antlr4-runtime-4.3.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="M2_REPO/junit/junit/3.8.1/junit-3.8.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/antlr/antlr4-maven-plugin/4.3/antlr4-maven-plugin-4.3.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/maven/maven-plugin-api/3.0.5/maven-plugin-api-3.0.5.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/maven/maven-model/3.0.5/maven-model-3.0.5.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/codehaus/plexus/plexus-utils/1.5.15/plexus-utils-1.5.15.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/maven/maven-artifact/3.0.5/maven-artifact-3.0.5.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/sonatype/sisu/sisu-inject-plexus/2.3.0/sisu-inject-plexus-2.3.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/codehaus/plexus/plexus-component-annotations/1.5.5/plexus-component-annotations-1.5.5.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/codehaus/plexus/plexus-classworlds/2.4/plexus-classworlds-2.4.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/sonatype/sisu/sisu-inject-bean/2.3.0/sisu-inject-bean-2.3.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/sonatype/sisu/sisu-guice/3.1.0/sisu-guice-3.1.0-no_aop.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/sonatype/sisu/sisu-guava/0.9.9/sisu-guava-0.9.9.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/maven/maven-project/2.2.1/maven-project-2.2.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/maven/maven-settings/2.2.1/maven-settings-2.2.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/codehaus/plexus/plexus-interpolation/1.11/plexus-interpolation-1.11.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/codehaus/plexus/plexus-container-default/1.0-alpha-9-stable-1/plexus-container-default-1.0-alpha-9-stable-1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/classworlds/classworlds/1.1-alpha-2/classworlds-1.1-alpha-2.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/maven/maven-profile/2.2.1/maven-profile-2.2.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/maven/maven-artifact-manager/2.2.1/maven-artifact-manager-2.2.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/maven/maven-repository-metadata/2.2.1/maven-repository-metadata-2.2.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/maven/wagon/wagon-provider-api/1.0-beta-6/wagon-provider-api-1.0-beta-6.jar"/>
+	<classpathentry kind="var" path="M2_REPO/backport-util-concurrent/backport-util-concurrent/3.1/backport-util-concurrent-3.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/maven/maven-plugin-registry/2.2.1/maven-plugin-registry-2.2.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/codehaus/plexus/plexus-compiler-api/2.2/plexus-compiler-api-2.2.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/sonatype/plexus/plexus-build-api/0.0.7/plexus-build-api-0.0.7.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/antlr/antlr4/4.3/antlr4-4.3.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/antlr/antlr4-runtime/4.3/antlr4-runtime-4.3.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/abego/treelayout/org.abego.treelayout.core/1.0.1/org.abego.treelayout.core-1.0.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/antlr/antlr4-annotations/4.3/antlr4-annotations-4.3.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/antlr/antlr-runtime/3.5.2/antlr-runtime-3.5.2.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/antlr/ST4/4.0.8/ST4-4.0.8.jar"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>

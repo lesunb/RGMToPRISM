@@ -1,0 +1,8 @@
+		<messageevent name="request_$NAME" direction="receive" type="fipa">
+			<parameter name="performative" class="String" direction="fixed">
+				<value>SFipa.REQUEST</value>
+			</parameter>
+			<parameter name="content-start" class="String" direction="fixed">
+				<value>"$NAME"</value>
+			</parameter>
+		</messageevent>
