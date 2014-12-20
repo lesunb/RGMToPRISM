@@ -207,7 +207,7 @@ public class RTGoreProducer {
 				
 				if(rtSortedGoals != null && rtSortedGoals.containsKey(deccont.getElId())){
 					Integer [] decDeltaPathTime = rtSortedGoals.get(deccont.getElId());
-					if(decDeltaPathTime[0] == 0){
+					if(decDeltaPathTime[0] == 0 || tn.getBooleanDec(dec).isEmpty()){
 						deccont.setTimePath(gc.getTimePath());
 						deccont.setTimeSlot(gc.getTimeSlot() + decDeltaPathTime[1]);
 					}else{
@@ -238,7 +238,7 @@ public class RTGoreProducer {
 				
 				if(rtSortedGoals != null && rtSortedGoals.containsKey(deccont.getElId())){
 					Integer [] decDeltaPathTime = rtSortedGoals.get(deccont.getElId());
-					if(decDeltaPathTime[0] == 0){
+					if(decDeltaPathTime[0] == 0 || tn.getBooleanDec(dec).isEmpty()){
 						deccont.setTimePath(gc.getTimePath());
 						deccont.setTimeSlot(gc.getTimeSlot() + decDeltaPathTime[1]);
 					}else{
