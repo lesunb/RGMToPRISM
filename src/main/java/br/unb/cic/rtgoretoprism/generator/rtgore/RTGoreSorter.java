@@ -66,7 +66,8 @@ public class RTGoreSorter{
 	    return new Object [] 	{rtRegexVisitor.timeMemory, 
 	    						rtRegexVisitor.cardMemory, 
 	    						rtRegexVisitor.altMemory,
-	    						rtRegexVisitor.tryMemory};
+	    						rtRegexVisitor.tryMemory,
+	    						rtRegexVisitor.optMemory};
 	}
 }
 
@@ -120,7 +121,7 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 			for(String gidB : gidBs){				
 				if(ctx.op.getType() == RTRegexParser.ALT){
 					addToAltSet(gidA, gidB);
-					addToAltSet(gidB, gidA);
+					//addToAltSet(gidB, gidA);
 				}
 			}
 		}
@@ -134,8 +135,10 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 	}
 	
 	@Override
-	public String visitGOpt(GOptContext ctx) {		
-		return super.visit(ctx.expr());
+	public String visitGOpt(GOptContext ctx) {
+		String gId = super.visit(ctx.expr());
+		optMemory.put(gId, true);
+		return gId;
 	}
 	
 	@Override

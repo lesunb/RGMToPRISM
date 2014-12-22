@@ -58,6 +58,7 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	private RTContainer tryFailure;
 	private RTContainer tryOriginal;
 	private boolean		successTry;
+	private boolean optional;
 	
 	/**
 	 * Creates a standard achieve goal with request plan.
@@ -217,6 +218,14 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 
 	public void setTimePath(Integer timePath) {
 		this.timePath = timePath;
+	}
+	
+	public boolean isOptional() {
+		return optional;
+	}
+
+	public void setOptional(boolean optional) {
+		this.optional = optional;
 	}
 
 	@Override

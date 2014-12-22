@@ -551,13 +551,22 @@ public class PrismWriter {
 		String xorDecHeaderPattern 		= readFileAsString(input + "pattern_xor_header.pm");
 		String trySDecPattern	 		= readFileAsString(input + "pattern_try_success.pm");
 		String tryFDecPattern	 		= readFileAsString(input + "pattern_try_fail.pm");
-
+		String optDecPattern 			= readFileAsString(input + "pattern_opt.pm");
+		String optHeaderPattern	 		= readFileAsString(input + "pattern_opt_header.pm");
 		
 		List<PlanContainer> runTimeTasks = new ArrayList<PlanContainer>(gb.values());
 		Collections.sort(runTimeTasks);
 
 		for( PlanContainer goal : runTimeTasks ) {
-			writePrismModule(goal, leafGoalPattern, andDecPattern, xorDecPattern, xorDecHeaderPattern, trySDecPattern, tryFDecPattern);
+			writePrismModule(goal, 
+							leafGoalPattern, 
+							andDecPattern, 
+							xorDecPattern, 
+							xorDecHeaderPattern, 
+							trySDecPattern, 
+							tryFDecPattern,
+							optDecPattern,
+							optHeaderPattern);
 		}
 		
 		System.out.println(planModules);
@@ -627,16 +636,19 @@ public class PrismWriter {
 							 String xorPattern, 
 							 String xorHeader, 
 							 String trySPattern, 
-							 String tryFPattern) {
+							 String tryFPattern,
+							 String optPattern,
+							 String optHeader) {
+		
 		String params="", results="", triggers="";		
 		String planModule = pattern.replace(MODULE_NAME_TAG, plan.getClearElId());
 		
 		if(plan.getTryOriginal() != null || plan.getTrySuccess() != null || plan.getTryFailure() != null){
 			if(plan.getTrySuccess() != null || plan.getTryFailure() != null){
 				//Try				
-				appendTryToNoErrorFormula(plan);
 				planModule = planModule.replace(DEC_HEADER_TAG, "");
 				planModule = planModule.replace(DEC_TYPE_TAG, andPattern);
+				appendTryToNoErrorFormula(plan);
 			}else if(plan.isSuccessTry()){
 				//Try success
 				PlanContainer tryPlan = (PlanContainer) plan.getTryOriginal();
@@ -663,6 +675,11 @@ public class PrismWriter {
 			}
 			planModule = planModule.replace(DEC_HEADER_TAG, xorHeader);
 			planModule = planModule.replace(DEC_TYPE_TAG, xorPattern);
+		}else if(plan.isOptional()){
+			//Opt
+			planModule = planModule.replace(DEC_HEADER_TAG, optHeader);
+			planModule = planModule.replace(DEC_TYPE_TAG, optPattern);
+			noErrorFormula += " & s" + plan.getElId() + " < 3";
 		}else{
 			//And/OR			
 			planModule = planModule.replace(DEC_HEADER_TAG, "");

@@ -81,6 +81,7 @@ public class RTGoreProducer {
 	Map<String, Integer> rtCardGoals;
 	Map<String, Set<String>> rtAltGoals;
 	Map<String, String[]> rtTryGoals;
+	Map<String, Boolean> rtOptGoals;
 	
 	/**
 	 * Creates a new Producer instance
@@ -102,6 +103,7 @@ public class RTGoreProducer {
 		this.rtCardGoals = new TreeMap<String, Integer>();
 		this.rtAltGoals = new TreeMap<String, Set<String>>();
 		this.rtTryGoals = new TreeMap<String, String[]>();
+		this.rtOptGoals = new TreeMap<String, Boolean>();
 	}
 	
 	/**
@@ -185,6 +187,8 @@ public class RTGoreProducer {
 			rtCardGoals.putAll((Map<String, Integer>) res [1]);
 			rtAltGoals.putAll((Map<String, Set<String>>) res [2]);
 			rtTryGoals.putAll((Map<String, String[]>) res [3]);
+			rtOptGoals.putAll((Map<String, Boolean>) res[4]);
+			
 		}
 		Integer rootTime = gc.getTimeSlot();
 		List<Goal> declist = tn.getBooleanDec(g);
@@ -364,6 +368,9 @@ public class RTGoreProducer {
 					failurePlan.setSuccessTry(false);
 				}
 			}
+			//Optional
+			if(rtOptGoals.containsKey(elId))
+				dec.setOptional(rtOptGoals.get(elId));
 		}
 		
 	}
