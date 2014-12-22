@@ -537,6 +537,30 @@ public class TroposNavigator {
 		}
 		return plans;
 	}
+	
+	/**
+	 * Get the list of plan that are involved in a means end (as a means/source)
+	 * with the specified root plan.
+	 * 
+	 * @param g the goal to query for
+	 * 
+	 * @return A list of only Plans.
+	 */
+	public List<Plan> getMeansEndMeanPlans(Plan p) {
+		LinkedList<Plan> plans = new LinkedList<Plan>();
+		List<MeansEnd> list = p.getIncomingRelationsInstancesOfType( MeansEnd.class );
+		
+//		List<MeansEnd> list = g.getMeansEndEnd();
+
+		for (MeansEnd me : list) {// jumped if list.size=0
+			if(me.getSource() instanceof Plan )
+				plans.add( (Plan) me.getSource() );
+
+//			if (me.getMeansPlan() != null)
+//				plans.add(me.getMeansPlan());
+		}
+		return plans;
+	}
 
 	/**
 	 * Get the list of goals that are involved in a means end (as a means/source)

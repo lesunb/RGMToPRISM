@@ -1,5 +1,5 @@
 
-const double rGoal$GID$ = 0.9999999;
+const double rGoal$GID$;
 $DEC_HEADER$
 
 module $MODULE_NAME$

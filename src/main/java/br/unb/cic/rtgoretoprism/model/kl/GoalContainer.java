@@ -44,11 +44,7 @@ public class GoalContainer extends RTContainer{
 
 	public Const request;
 
-	// child goals at decompositions
-	private ArrayList<GoalContainer> goals;
 
-	// means end plans
-	private ArrayList<PlanContainer> plans;
 	private ArrayList<String[]> dependencies;
 	private Const decomposition = Const.NONE;
 	private ArrayList<GoalContainer> parentlist;
@@ -71,9 +67,7 @@ public class GoalContainer extends RTContainer{
 		
 		this.achieve = achieve;
 		this.request = Const.NONE;
-		
-		goals = new ArrayList<GoalContainer>();
-		plans = new ArrayList<PlanContainer>();
+	
 		parentlist = new ArrayList<GoalContainer>();
 		dependencies = new ArrayList<String[]>();
 	}
@@ -136,30 +130,6 @@ public class GoalContainer extends RTContainer{
 	 */
 	public Const getDecomposition() {
 		return decomposition;
-	}
-
-	/**
-	 * @return Returns the goals.
-	 */
-	public ArrayList<GoalContainer> getDecompGoals() {
-		return goals;
-	}
-	
-	/**
-	 * @return Returns the goals.
-	 */
-	public GoalContainer getDecompGoal(String gid) {
-		for(GoalContainer dec : goals)
-			if(dec.getElId().equals(gid))
-				return dec;
-		return null;
-	}
-
-	/**
-	 * @return Returns the plans.
-	 */
-	public ArrayList<PlanContainer> getDecompPlans() {
-		return plans;
 	}
 
 	/**

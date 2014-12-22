@@ -55,6 +55,7 @@ import br.unb.cic.rtgoretoprism.model.kl.Const;
 import br.unb.cic.rtgoretoprism.model.kl.ElementContainer;
 import br.unb.cic.rtgoretoprism.model.kl.GoalContainer;
 import br.unb.cic.rtgoretoprism.model.kl.PlanContainer;
+import br.unb.cic.rtgoretoprism.model.kl.RTContainer;
 import br.unb.cic.rtgoretoprism.model.kl.SoftgoalContainer;
 import br.unb.cic.rtgoretoprism.util.NameUtility;
 import br.unb.cic.rtgoretoprism.util.kl.TroposNavigator;
@@ -259,27 +260,10 @@ public class RTGoreProducer {
 				}
 			}
 		}
+		//Set goals alternatives and tries
+		rtIteration(gc, gc.getDecompGoals());
 							
-		for(GoalContainer dec : gc.getDecompGoals()){
-			if(rtAltGoals != null && !rtAltGoals.isEmpty())
-				if(dec.getFirstAlternative() == null && rtAltGoals.get(dec.getElId()) != null)					
-					for(String altGoalId : rtAltGoals.get(dec.getElId())){
-						GoalContainer altGoal = gc.getDecompGoal(altGoalId);
-						if(altGoal != null){
-							dec.getAlternatives().add(altGoal);
-							altGoal.setFirstAlternative(dec);
-						}
-					}
-			if(rtTryGoals != null && rtTryGoals.get(dec.getElId()) != null){	
-				String [] tryGoals = rtTryGoals.get(dec.getElId());
-				if(tryGoals[0] != null)
-					gc.getDecompGoal(tryGoals[0]).setTrySuccess(dec);
-				if(tryGoals[1] != null)
-					gc.getDecompGoal(tryGoals[1]).setTryFailure(dec);
-			}
-		}
-		
-		if (tn.isMeansEndDec(g)) {
+		if (tn.isMeansEndDec(g)){
 			List<Plan> melist = tn.getMeansEndMeanPlans(g);
 			
 			// sets decomposition flag and creates the Metagoal+plan,
@@ -316,7 +300,7 @@ public class RTGoreProducer {
 					gc.setTimeSlot(pc.getTimeSlot());
 				}
 				
-			}
+			}			
 			
 			//The unusual "means-end" with a goal as means:
 			//The "means" goal is afterwards handled like in an OR-decomposition!
@@ -346,6 +330,39 @@ public class RTGoreProducer {
 			}
 		}
 		
+	}
+	
+	private void rtIteration(GoalContainer gc, List<? extends RTContainer> rts){
+		for(RTContainer dec : rts){
+			String elId = dec.getElId();
+			dec = fowardMeansEnd(dec);
+			//Alternatives			
+			if(rtAltGoals.get(elId) != null){				
+				if(dec.getFirstAlternative() == null)
+					for(String altGoalId : rtAltGoals.get(elId)){
+						RTContainer altPlan = fowardMeansEnd(gc.getDecompGoal(altGoalId));
+						if(altPlan != null){
+							dec.getAlternatives().add(altPlan);
+							altPlan.setFirstAlternative(dec);
+						}
+					}
+			}
+			//Try
+			if(rtTryGoals.get(elId) != null){	
+				String [] tryGoals = rtTryGoals.get(elId);
+				if(tryGoals[0] != null)
+					fowardMeansEnd(gc.getDecompGoal(tryGoals[0])).setTrySuccess(dec);
+				if(tryGoals[1] != null)
+					fowardMeansEnd(gc.getDecompGoal(tryGoals[1])).setTryFailure(dec);
+			}
+		}
+		
+	}
+	
+	private RTContainer fowardMeansEnd(RTContainer dec){
+		if(dec.getDecompPlans() != null && !dec.getDecompPlans().isEmpty())
+			dec = dec.getDecompPlans().get(0);
+		return dec;
 	}
 
 	/**

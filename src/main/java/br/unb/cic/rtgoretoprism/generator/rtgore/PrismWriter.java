@@ -147,7 +147,7 @@ public class PrismWriter {
 	private String adfrequestplans = "", adfdispatchplans = "", adfandplans = "";
 	private String adfmetaplans = "", adfrealplans = "", adfevents = "";
 	
-	private String goalModules = "";
+	private String planModules = "";
 
 	/** Has all the informations about the agent. */ 
 	private AgentDefinition ad;
@@ -513,7 +513,7 @@ public class PrismWriter {
 		//body = body.replace(DISPATCHANDPLANS_TAG, adfandplans);
 		//body = body.replace(METAPLANS_TAG, adfmetaplans);
 		//body = body.replace(REALPLANS_TAG, adfrealplans);
-		body = body.replace(GOAL_MODULES_TAG, goalModules);
+		body = body.replace(GOAL_MODULES_TAG, planModules);
 
 		//footer = footer.replace(EVENTS_TAG, adfevents);
 
@@ -632,7 +632,7 @@ public class PrismWriter {
 			//}
 		}
 		
-		System.out.println(goalModules);
+		System.out.println(planModules);
 	}
 
 	/**
@@ -693,7 +693,7 @@ public class PrismWriter {
 	 * @param goal
 	 * @param pattern
 	 */
-	private void writePrismModule(PlanContainer goal, 
+	private void writePrismModule(PlanContainer plan, 
 							 String pattern, 
 							 String andPattern, 
 							 String xorPattern, 
@@ -701,49 +701,49 @@ public class PrismWriter {
 							 String trySPattern, 
 							 String tryFPattern) {
 		String params="", results="", triggers="";		
-		String goalModule = pattern.replace(MODULE_NAME_TAG, goal.getClearElId());
+		String planModule = pattern.replace(MODULE_NAME_TAG, plan.getClearElId());
 		
-		if(goal.getTrySuccess() != null){
+		if(plan.getTrySuccess() != null){
 			//Try success
-			GoalContainer trySGoal = (GoalContainer) goal.getTrySuccess();
-			trySPattern = trySPattern.replace(PREV_GID_TAG, trySGoal.getElId());
-			goalModule = goalModule.replace(DEC_HEADER_TAG, "");
-			goalModule = goalModule.replace(DEC_TYPE_TAG, trySPattern);
-		}else if(goal.getTryFailure() != null){
+			PlanContainer trySplan = (PlanContainer) plan.getTrySuccess();
+			trySPattern = trySPattern.replace(PREV_GID_TAG, trySplan.getElId());
+			planModule = planModule.replace(DEC_HEADER_TAG, "");
+			planModule = planModule.replace(DEC_TYPE_TAG, trySPattern);
+		}else if(plan.getTryFailure() != null){
 			//Try fail
-			GoalContainer tryFGoal = (GoalContainer) goal.getTryFailure();
-			tryFPattern = tryFPattern.replace(PREV_GID_TAG, tryFGoal.getElId());
-			goalModule = goalModule.replace(DEC_HEADER_TAG, "");
-			goalModule = goalModule.replace(DEC_TYPE_TAG, tryFPattern);
+			PlanContainer tryFplan = (PlanContainer) plan.getTryFailure();
+			tryFPattern = tryFPattern.replace(PREV_GID_TAG, tryFplan.getElId());
+			planModule = planModule.replace(DEC_HEADER_TAG, "");
+			planModule = planModule.replace(DEC_TYPE_TAG, tryFPattern);
 		}		
-		else if(goal.getAlternatives().isEmpty() && goal.getFirstAlternative() == null){
+		else if(plan.getAlternatives().isEmpty() && plan.getFirstAlternative() == null){
 			//Alternatives
-			goalModule = goalModule.replace(DEC_HEADER_TAG, "");
-			goalModule = goalModule.replace(DEC_TYPE_TAG, andPattern);
+			planModule = planModule.replace(DEC_HEADER_TAG, "");
+			planModule = planModule.replace(DEC_TYPE_TAG, andPattern);
 		}else{
-			if(!goal.getAlternatives().isEmpty()){
-				xorPattern = xorPattern.replace(XOR_GIDS_TAG, goal.getElId() + "_" + goal.getAltElsId());
-				xorHeader = xorHeader.replace(XOR_GIDS_TAG, goal.getElId() + "_" + goal.getAltElsId());
+			if(!plan.getAlternatives().isEmpty()){
+				xorPattern = xorPattern.replace(XOR_GIDS_TAG, plan.getElId() + "_" + plan.getAltElsId());
+				xorHeader = xorHeader.replace(XOR_GIDS_TAG, plan.getElId() + "_" + plan.getAltElsId());
 				xorPattern = xorPattern.replace(XOR_VALUE_TAG, 0 + "");
 			}else{
-				xorPattern = xorPattern.replace(XOR_GIDS_TAG, goal.getFirstAlternative().getElId() + "_" + goal.getFirstAlternative().getAltElsId());
+				xorPattern = xorPattern.replace(XOR_GIDS_TAG, plan.getFirstAlternative().getElId() + "_" + plan.getFirstAlternative().getAltElsId());
 				xorHeader = "";
-				xorPattern = xorPattern.replace(XOR_VALUE_TAG, goal.getFirstAlternative().getAlternatives().indexOf(goal) + 1 + "");
+				xorPattern = xorPattern.replace(XOR_VALUE_TAG, plan.getFirstAlternative().getAlternatives().indexOf(plan) + 1 + "");
 			}
 			
-			goalModule = goalModule.replace(DEC_HEADER_TAG, xorHeader);
-			goalModule = goalModule.replace(DEC_TYPE_TAG, xorPattern);
+			planModule = planModule.replace(DEC_HEADER_TAG, xorHeader);
+			planModule = planModule.replace(DEC_TYPE_TAG, xorPattern);
 		}			
 		
 		//Time
-		Integer timePath = goal.getTimePath();
-		Integer timeSlot = goal.getTimeSlot() + 1;
-		goalModule = goalModule.replace(PREV_TIME_SLOT_TAG, timePath + "_" + (timeSlot - 1) + "");
-		goalModule = goalModule.replace(TIME_SLOT_TAG, timePath + "_" + timeSlot + "");
+		Integer timePath = plan.getTimePath();
+		Integer timeSlot = plan.getTimeSlot() + 1;
+		planModule = planModule.replace(PREV_TIME_SLOT_TAG, timePath + "_" + (timeSlot - 1) + "");
+		planModule = planModule.replace(TIME_SLOT_TAG, timePath + "_" + timeSlot + "");
 		//GID
-		goalModule = goalModule.replace(GID_TAG, goal.getElId());		
+		planModule = planModule.replace(GID_TAG, plan.getElId());		
 		
-		goalModules = goalModules.concat(goalModule);
+		planModules = planModules.concat(planModule);
 	}
 
 	/**

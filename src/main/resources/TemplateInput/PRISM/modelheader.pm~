@@ -1,1 +1,3 @@
-$GOAL_MODULES$
+dtmc
+
+formula no_error = 

@@ -41,6 +41,12 @@ import java.util.ArrayList;
  */
 public abstract class RTContainer extends ElementContainer implements Comparable<RTContainer>{
 
+	// child goals at decompositions
+	protected ArrayList<GoalContainer> goals;
+
+	// means end plans
+	protected ArrayList<PlanContainer> plans;
+	
 	//RTGore
 	private String elId;
 	private String rtRegex;
@@ -66,9 +72,45 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	 */
 	public RTContainer(TroposIntentional intentional) {
 		super(intentional);
-		
+
+		goals = new ArrayList<GoalContainer>();
+		plans = new ArrayList<PlanContainer>();
 		alternatives = new ArrayList<RTContainer>();
 		firstAlternative = null;
+	}
+	
+	/**
+	 * @return Returns the goals.
+	 */
+	public ArrayList<GoalContainer> getDecompGoals() {
+		return goals;
+	}
+	
+	/**
+	 * @return Returns the goals.
+	 */
+	public GoalContainer getDecompGoal(String elId) {
+		for(GoalContainer dec : goals)
+			if(dec.getElId().equals(elId))
+				return dec;
+		return null;
+	}
+	
+	/**
+	 * @return Returns the goals.
+	 */
+	public PlanContainer getDecompPlan(String elId) {
+		for(PlanContainer dec : plans)
+			if(dec.getElId().equals(elId))
+				return dec;
+		return null;
+	}
+
+	/**
+	 * @return Returns the plans.
+	 */
+	public ArrayList<PlanContainer> getDecompPlans() {
+		return plans;
 	}
 	
 	/**
