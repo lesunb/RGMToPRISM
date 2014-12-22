@@ -49,6 +49,7 @@ import br.unb.cic.rtgoretoprism.generator.kl.CodeGenerator;
 import br.unb.cic.rtgoretoprism.model.kl.ElementContainer;
 import br.unb.cic.rtgoretoprism.model.kl.GoalContainer;
 import br.unb.cic.rtgoretoprism.model.kl.PlanContainer;
+import br.unb.cic.rtgoretoprism.model.kl.RTContainer;
 import br.unb.cic.rtgoretoprism.model.kl.SoftgoalContainer;
 import br.unb.cic.rtgoretoprism.util.FileUtility;
 import br.unb.cic.rtgoretoprism.util.NameUtility;
@@ -100,6 +101,7 @@ public class PrismWriter {
 	private static final String TMP_TAG 				= "TMP";
 	
 	private static final String MODULE_NAME_TAG			= "$MODULE_NAME$";
+	private static final String NO_ERROR_TAG			= "$NO_ERROR$";
 	private static final String TIME_SLOT_TAG			= "$TIME_SLOT$";
 	private static final String PREV_TIME_SLOT_TAG		= "$PREV_TIME_SLOT$";
 	private static final String GID_TAG					= "$GID$";
@@ -147,6 +149,7 @@ public class PrismWriter {
 	private String adfrequestplans = "", adfdispatchplans = "", adfandplans = "";
 	private String adfmetaplans = "", adfrealplans = "", adfevents = "";
 	
+	private String noErrorFormula = "";
 	private String planModules = "";
 
 	/** Has all the informations about the agent. */ 
@@ -211,13 +214,13 @@ public class PrismWriter {
 		//Reads all softgoals from the softgoals list and writes them into the belief base.
 		//writeBBSoftGoals( ad.softgoalbase );
 		//Writes all goals to the ADF file
-		writeGoals( prismInputFolder, ad.planbase, planOutputFolder, basicAgentPackage, utilPkgName, planPkgName );
+		writeTasks( prismInputFolder, ad.planbase, planOutputFolder, basicAgentPackage, utilPkgName, planPkgName );
 		//Writes the plan contributions and the bodies of the real plans
 		//writePlans( planInputFolder, planOutputFolder, ad.planbase, basicAgentPackage, utilPkgName, planPkgName, ad.getAgentName() );
 		//Copies to the output directory all the files where only the package-name changes.
 		//writeDefaultJavaFiles( planInputFolder, planOutputFolder, basicAgentPackage, utilPkgName, planPkgName );
 		//replaces all placeholders in the ADF skeleton and writes the ADF file.
-		printADF( modelFile );
+		printModel( modelFile );
 		//Writes the batch files (Windows) to start the agent.
 		//writeAgentStartingFile( basicOutputFolder, ad.getAgentName(), basicAgentPackage );
 		//Writes the batch files (Windows) to compile the agent.
@@ -498,7 +501,7 @@ public class PrismWriter {
 	 * 
 	 * @param adf the file to be written to
 	 */
-	private void printADF( PrintWriter adf ) {
+	private void printModel( PrintWriter adf ) {
 		//header = header.replace(BBGOALS_TAG, bbgoals);
 		//header = header.replace(BBSOFTGOALS_TAG, bbsoftgoals);
 		//header = header.replace(DECOMP_TAG, bbdecomp);
@@ -513,6 +516,7 @@ public class PrismWriter {
 		//body = body.replace(DISPATCHANDPLANS_TAG, adfandplans);
 		//body = body.replace(METAPLANS_TAG, adfmetaplans);
 		//body = body.replace(REALPLANS_TAG, adfrealplans);
+		header = header.replace(NO_ERROR_TAG, noErrorFormula);
 		body = body.replace(GOAL_MODULES_TAG, planModules);
 
 		//footer = footer.replace(EVENTS_TAG, adfevents);
@@ -523,20 +527,6 @@ public class PrismWriter {
 		adf.close();
 	}
 
-	/**
-	 * Reads all softgoals from the softgoals list and writes them into the belief base.
-	 * 
-	 * @param sgb the agent softgoalbase
-	 */
-	private void writeBBSoftGoals( Hashtable<String,SoftgoalContainer> sgb ) {
-		String pattern = "\t\t\t<fact>Components.createSoftgoal(\"" + NAME_TAG + "\", " + VALUE_TAG + " )</fact>\n";
-		
-		for (SoftgoalContainer goal : sgb.values() ) {
-			String fact = pattern.replace( NAME_TAG, goal.getName() );
-			fact = fact.replace( VALUE_TAG, Double.toString( goal.getImportance() ) );
-			bbsoftgoals = bbsoftgoals.concat(fact);
-		}
-	}
 
 	/**
 	 * Writes all goals to the ADF file (to beliefbase, goals and plans section) and organizes
@@ -552,9 +542,8 @@ public class PrismWriter {
 	 * 
 	 * @throws CodeGenerationException 
 	 */
-	private void writeGoals( String input, Hashtable<String,PlanContainer> gb, 
+	private void writeTasks( String input, Hashtable<String,PlanContainer> gb, 
 			String planOutputFolder, String pkgName, String utilPkgName, String planPkgName ) throws CodeGenerationException {
-		String bbpattern = "\t\t\t<fact>Components.createGoal(\"" + NAME_TAG + "\",\"" +  DECTYPE_TAG + "\")</fact>\n";
 
 		String leafGoalPattern 			= readFileAsString(input + "pattern_leafgoal.pm");
 		String andDecPattern 			= readFileAsString(input + "pattern_and.pm");
@@ -562,74 +551,13 @@ public class PrismWriter {
 		String xorDecHeaderPattern 		= readFileAsString(input + "pattern_xor_header.pm");
 		String trySDecPattern	 		= readFileAsString(input + "pattern_try_success.pm");
 		String tryFDecPattern	 		= readFileAsString(input + "pattern_try_fail.pm");
-		//String metagoalpattern 		= readFileAsString(input + "pattern_metagoal.xml");
-		//String metaplanpattern 		= readFileAsString(input + "pattern_metaplan.xml");
-		//String dispatchplanpattern 	= readFileAsString(input + "pattern_dispatchplan.xml");
-		//String dispatchANDpattern 	= readFileAsString(input + "pattern_dispatchANDplan.xml");
-		//String requestplanpattern 	= readFileAsString(input + "pattern_requestplan.xml");
-		//String eventpattern 		= readFileAsString(input + "pattern_event.xml");
 
-		// from this files multiple files associated to goal/plannames have to be written
-		//String file_MetaPlan = readFileAsString(input + "MetaPlan_" + TMP_TAG + ".java");
-		//String file_ANDGoalPlan = readFileAsString(input + "ANDGoalPlan_" + TMP_TAG + ".java");
 		
-		List<PlanContainer> timedGoals = new ArrayList<PlanContainer>(gb.values());
-		Collections.sort(timedGoals);
+		List<PlanContainer> runTimeTasks = new ArrayList<PlanContainer>(gb.values());
+		Collections.sort(runTimeTasks);
 
-		for( PlanContainer goal : timedGoals ) {
-			// write the goal to the beliefbase
-			String name = goal.getName();
-			String fact = bbpattern.replace(NAME_TAG, name);
-			
-			//fact = fact.replace(DECTYPE_TAG, goal.getDecomposition().toString());
-			
-			bbgoals = bbgoals.concat(fact);
-			
-			//String adfgoal = goalpattern.replace(NAME_TAG, name);
-			//adfgoals = adfgoals.concat(adfgoal);
-			
-			//MM: removed the check in order to allow the possibility of
-			//calling all the goals inside a baloon and not just the 
-			//delegated one
-			//if( goal.request == Const.REQUEST ) {
-				//writeRequestplan(goal, requestplanpattern);
-				//writeEvent(goal, eventpattern);
-			//}//else if Const.NONE, no plan is written.
-				
-			//if (goal.getDecompGoals().size() == 0) {
-				//write the modules representing each leaf-goal
+		for( PlanContainer goal : runTimeTasks ) {
 			writePrismModule(goal, leafGoalPattern, andDecPattern, xorDecPattern, xorDecHeaderPattern, trySDecPattern, tryFDecPattern);
-			//}
-			
-			//if (goal.getParentGoals().size()>0) {
-				//write the dispatch plans and add a trigger for every parent goal
-				//writeDecompositionLinks(goal, dispatchplanpattern);
-			//}
-			//if (goal.getDecomposition() == Const.OR) {
-				//writeMetaGoalPlan(goal, metagoalpattern, metaplanpattern, file_MetaPlan, planOutputFolder, pkgName, utilPkgName, planPkgName );
-				//writeDispatchGoals(goal, dispatchplanpattern);(now made backwards from the child goal)
-			//}
-			//if (goal.getDecomposition() == Const.ME) {
-				//writeMetaGoalPlan(goal, metagoalpattern, metaplanpattern, file_MetaPlan, planOutputFolder, pkgName, utilPkgName, planPkgName );
-				// write the real plans attached to the goal in means-end
-				//writeRealPlans(goal, realplanpattern);(now made backwards from the plan)
-			//}
-			//if (goal.getDecomposition() == Const.AND) {
-				// write the AND plan that dispatches all goals associated in the BB
-				//writeDispatchANDPlan(goal, dispatchANDpattern, file_ANDGoalPlan, planOutputFolder, pkgName, utilPkgName, planPkgName );
-			//}
-			
-			// retrieve softgoal contributions
-			//for (SoftgoalContainer sg : goal.getContributions().keySet()) {
-				//addBBContrib(goal, sg, goal.getContributions().get(sg));
-			//}
-			
-			//create dependencies with other agents
-			//for( String[] dep : goal.getDependencies() ) {
-				//String dependum = goal.getDependumGoalFromDependency(dep);
-				//String dependee = goal.getActorFromDependency(dep);
-				//addBBDependency(goal, dependum, "My"+dependee);
-			//}
 		}
 		
 		System.out.println(planModules);
@@ -703,36 +631,43 @@ public class PrismWriter {
 		String params="", results="", triggers="";		
 		String planModule = pattern.replace(MODULE_NAME_TAG, plan.getClearElId());
 		
-		if(plan.getTrySuccess() != null){
-			//Try success
-			PlanContainer trySplan = (PlanContainer) plan.getTrySuccess();
-			trySPattern = trySPattern.replace(PREV_GID_TAG, trySplan.getElId());
+		if(plan.getTryOriginal() != null || plan.getTrySuccess() != null || plan.getTryFailure() != null){
+			if(plan.getTrySuccess() != null || plan.getTryFailure() != null){
+				//Try				
+				appendTryToNoErrorFormula(plan);
+				planModule = planModule.replace(DEC_HEADER_TAG, "");
+				planModule = planModule.replace(DEC_TYPE_TAG, andPattern);
+			}else if(plan.isSuccessTry()){
+				//Try success
+				PlanContainer tryPlan = (PlanContainer) plan.getTryOriginal();
+				trySPattern = trySPattern.replace(PREV_GID_TAG, tryPlan.getElId());
+				planModule = planModule.replace(DEC_TYPE_TAG, trySPattern);
+			}else{
+				//Try fail
+				PlanContainer tryPlan = (PlanContainer) plan.getTryOriginal();
+				tryFPattern = tryFPattern.replace(PREV_GID_TAG, tryPlan.getElId());
+				planModule = planModule.replace(DEC_TYPE_TAG, tryFPattern);
+			}	
 			planModule = planModule.replace(DEC_HEADER_TAG, "");
-			planModule = planModule.replace(DEC_TYPE_TAG, trySPattern);
-		}else if(plan.getTryFailure() != null){
-			//Try fail
-			PlanContainer tryFplan = (PlanContainer) plan.getTryFailure();
-			tryFPattern = tryFPattern.replace(PREV_GID_TAG, tryFplan.getElId());
-			planModule = planModule.replace(DEC_HEADER_TAG, "");
-			planModule = planModule.replace(DEC_TYPE_TAG, tryFPattern);
-		}		
-		else if(plan.getAlternatives().isEmpty() && plan.getFirstAlternative() == null){
+		}else if(!plan.getAlternatives().isEmpty() || plan.getFirstAlternative() != null){
 			//Alternatives
-			planModule = planModule.replace(DEC_HEADER_TAG, "");
-			planModule = planModule.replace(DEC_TYPE_TAG, andPattern);
-		}else{
 			if(!plan.getAlternatives().isEmpty()){
 				xorPattern = xorPattern.replace(XOR_GIDS_TAG, plan.getElId() + "_" + plan.getAltElsId());
 				xorHeader = xorHeader.replace(XOR_GIDS_TAG, plan.getElId() + "_" + plan.getAltElsId());
 				xorPattern = xorPattern.replace(XOR_VALUE_TAG, 0 + "");
+				appendAlternativesToNoErrorFormula(plan);
 			}else{
 				xorPattern = xorPattern.replace(XOR_GIDS_TAG, plan.getFirstAlternative().getElId() + "_" + plan.getFirstAlternative().getAltElsId());
 				xorHeader = "";
 				xorPattern = xorPattern.replace(XOR_VALUE_TAG, plan.getFirstAlternative().getAlternatives().indexOf(plan) + 1 + "");
 			}
-			
 			planModule = planModule.replace(DEC_HEADER_TAG, xorHeader);
 			planModule = planModule.replace(DEC_TYPE_TAG, xorPattern);
+		}else{
+			//And/OR			
+			planModule = planModule.replace(DEC_HEADER_TAG, "");
+			planModule = planModule.replace(DEC_TYPE_TAG, andPattern);
+			noErrorFormula += " & s" + plan.getElId() + " < 3";
 		}			
 		
 		//Time
@@ -742,8 +677,27 @@ public class PrismWriter {
 		planModule = planModule.replace(TIME_SLOT_TAG, timePath + "_" + timeSlot + "");
 		//GID
 		planModule = planModule.replace(GID_TAG, plan.getElId());		
-		
 		planModules = planModules.concat(planModule);
+	}
+
+	private void appendAlternativesToNoErrorFormula(PlanContainer plan) {
+		noErrorFormula += " & (s" + plan.getElId() + " < 3";
+		for(RTContainer altPlan : plan.getAlternatives())
+			noErrorFormula += " & s" + altPlan.getElId() + " < 3";
+		noErrorFormula += ")";
+	}
+
+	private void appendTryToNoErrorFormula(PlanContainer plan) {
+		noErrorFormula += " & (s" + plan.getElId() + " < 3 | (true ";
+		if(plan.getTrySuccess() != null){
+			RTContainer trySucessPlan = plan.getTrySuccess();			
+			noErrorFormula += " & s" + trySucessPlan.getElId() + " < 3";			
+		}
+		if(plan.getTryFailure() != null){
+			RTContainer tryFailurePlan = plan.getTryFailure();			
+			noErrorFormula += " & s" + tryFailurePlan.getElId() + " < 3";			
+		}
+		noErrorFormula += "))";
 	}
 
 	/**

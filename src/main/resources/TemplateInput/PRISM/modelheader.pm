@@ -1,3 +1,3 @@
 dtmc
 
-formula no_error = $NO_ERROR_TAG$
+formula noError = true$NO_ERROR$;

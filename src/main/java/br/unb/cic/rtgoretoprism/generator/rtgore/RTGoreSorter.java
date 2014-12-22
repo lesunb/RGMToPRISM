@@ -19,6 +19,7 @@ import br.unb.cic.RTRegexParser;
 import br.unb.cic.RTRegexParser.GAltContext;
 import br.unb.cic.RTRegexParser.GCardContext;
 import br.unb.cic.RTRegexParser.GIdContext;
+import br.unb.cic.RTRegexParser.GOptContext;
 import br.unb.cic.RTRegexParser.GSkipContext;
 import br.unb.cic.RTRegexParser.GTimeContext;
 import br.unb.cic.RTRegexParser.GTryContext;
@@ -75,6 +76,7 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 	Map<String, Integer> cardMemory = new HashMap<String, Integer>();
 	Map<String, Set<String>> altMemory = new HashMap<String, Set<String>>();
 	Map<String, String[]> tryMemory = new HashMap<String, String[]>();
+	Map<String, Boolean> optMemory = new HashMap<String, Boolean>();
 	
 	@Override
 	public String visitPrintExpr(PrintExprContext ctx) {
@@ -91,7 +93,6 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 		}
 		return gid;
 	}
-	
 	
 	@Override
 	public String visitGTime(GTimeContext ctx) {
@@ -133,6 +134,11 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 	}
 	
 	@Override
+	public String visitGOpt(GOptContext ctx) {		
+		return super.visit(ctx.expr());
+	}
+	
+	@Override
 	public String visitGCard(GCardContext ctx) {		
 		String gid = visit(ctx.expr(0));
 		Integer card = 0;
@@ -147,8 +153,7 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 		String gidT = visit(ctx.expr(0));
 		String gidS = visit(ctx.expr(1));
 		String gidF = visit(ctx.expr(2));
-		Integer [] pathTimeT, pathTimeS, pathTimeF; 
-		pathTimeT = timeMemory.get(gidS);
+		Integer [] pathTimeS, pathTimeF; 
 		if(gidS != null){
 			pathTimeS = timeMemory.get(gidS);
 			pathTimeS[1] = pathTimeS[1] + 1;

@@ -1,1 +1,1 @@
-const int XOR_$XOR_GIDS$;
+param int XOR_$XOR_GIDS$;

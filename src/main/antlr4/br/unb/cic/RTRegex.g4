@@ -5,6 +5,7 @@ rt:     expr NEWLINE                            # printExpr
 
 expr:   expr op='+' expr			# gCard
     |	expr op='|' expr			# gAlt
+    |	'opt(' expr ')'				# gOpt
     |   'try(' expr ')' '?' expr ':' expr       # gTry
     |	expr op=(';'|'#') expr			# gTime
     |   SKIP					# gSkip

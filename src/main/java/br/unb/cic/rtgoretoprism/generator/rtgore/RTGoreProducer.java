@@ -350,10 +350,19 @@ public class RTGoreProducer {
 			//Try
 			if(rtTryGoals.get(elId) != null){	
 				String [] tryGoals = rtTryGoals.get(elId);
-				if(tryGoals[0] != null)
-					fowardMeansEnd(gc.getDecompGoal(tryGoals[0])).setTrySuccess(dec);
-				if(tryGoals[1] != null)
-					fowardMeansEnd(gc.getDecompGoal(tryGoals[1])).setTryFailure(dec);
+				RTContainer sucessPlan = null;
+				if(tryGoals[0] != null){
+					sucessPlan = fowardMeansEnd(gc.getDecompGoal(tryGoals[0]));
+					dec.setTrySuccess(sucessPlan);
+					sucessPlan.setTryOriginal(dec);
+					sucessPlan.setSuccessTry(true);
+				}
+				if(tryGoals[1] != null){
+					RTContainer failurePlan = fowardMeansEnd(gc.getDecompGoal(tryGoals[1]));
+					dec.setTryFailure(failurePlan);
+					failurePlan.setTryOriginal(dec);
+					failurePlan.setSuccessTry(false);
+				}
 			}
 		}
 		

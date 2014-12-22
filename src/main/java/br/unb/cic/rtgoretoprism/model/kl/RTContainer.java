@@ -53,10 +53,12 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	private Integer timeSlot = 0;
 	private Integer timePath = 0;
 	private ArrayList<RTContainer> alternatives;
-	private RTContainer firstAlternative;
+	private RTContainer firstAlternative;	
 	private RTContainer trySuccess;
-	private RTContainer tryFail;
-
+	private RTContainer tryFailure;
+	private RTContainer tryOriginal;
+	private boolean		successTry;
+	
 	/**
 	 * Creates a standard achieve goal with request plan.
 	 */
@@ -186,11 +188,27 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	}
 
 	public RTContainer getTryFailure() {
-		return tryFail;
+		return tryFailure;
 	}
 
 	public void setTryFailure(RTContainer tryFailure) {
-		this.tryFail = tryFailure;
+		this.tryFailure = tryFailure;
+	}	
+
+	public RTContainer getTryOriginal() {
+		return tryOriginal;
+	}
+
+	public void setTryOriginal(RTContainer tryOriginal) {
+		this.tryOriginal = tryOriginal;
+	}
+
+	public boolean isSuccessTry() {
+		return successTry;
+	}
+
+	public void setSuccessTry(boolean successTry) {
+		this.successTry = successTry;
 	}
 
 	public Integer getTimePath() {
