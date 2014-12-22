@@ -32,6 +32,7 @@ package br.unb.cic.rtgoretoprism.model.kl;
 
 import it.itc.sra.taom4e.model.core.gencore.TroposModelElement;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 
 import br.unb.cic.rtgoretoprism.util.NameUtility;
@@ -45,6 +46,14 @@ import br.unb.cic.rtgoretoprism.util.NameUtility;
 public class ElementContainer {
 	//the name of the contained element
 	private String name="";
+	
+	// child goals at decompositions
+	protected ArrayList<GoalContainer> goals;
+
+	// means end plans
+	protected ArrayList<PlanContainer> plans;
+	
+	protected Const decomposition = Const.NONE;
 	
 	//the container hashtable
 	private Hashtable<SoftgoalContainer, String> contributions;// the softgoal is the key here!
@@ -86,5 +95,26 @@ public class ElementContainer {
 	 */
 	public Hashtable<SoftgoalContainer, String> getContributions() {
 		return contributions;
+	}
+	
+
+	/**
+	 * @param and
+	 */
+	public void createDecomposition(Const decomp) {
+		decomposition = decomp;
+		if (decomp == Const.AND) {
+
+		} else if (decomp == Const.OR || decomp == Const.ME) {
+
+		}
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public Const getDecomposition() {
+		return decomposition;
 	}
 }

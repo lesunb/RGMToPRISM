@@ -43,6 +43,7 @@ import it.itc.sra.taom4e.model.core.informalcore.HardGoal;
 import it.itc.sra.taom4e.model.core.informalcore.MeansEnd;
 import it.itc.sra.taom4e.model.core.informalcore.Plan;
 import it.itc.sra.taom4e.model.core.informalcore.SoftGoal;
+import it.itc.sra.taom4e.model.core.informalcore.TroposIntentional;
 import it.itc.sra.taom4e.model.core.informalcore.formalcore.FContribution;
 import it.itc.sra.taom4e.model.project.Project;
 
@@ -508,7 +509,7 @@ public class TroposNavigator {
 	 * 
 	 * @return 
 	 */
-	public boolean isMeansEndDec(Goal g) {
+	public boolean isMeansEndDec(TroposIntentional g) {
 		return g.getIncomingRelationsInstancesOfType( MeansEnd.class ).size() != 0;
 		
 //		return g.getMeansEndEnd().size() < 1 ? false : true;

@@ -170,7 +170,6 @@ public class RTGoreProducer {
 	 * @param ad
 	 * @throws IOException 
 	 */
-	@SuppressWarnings("unchecked")
 	private void addGoal(Goal g, GoalContainer gc, final AgentDefinition ad) throws IOException {
 		addContributions(g, gc, ad);
 		
@@ -180,16 +179,7 @@ public class RTGoreProducer {
 		gc.setRequest(Const.REQUEST);
 			
 		String rtRegex = gc.getRtRegex();
-		
-		if(rtRegex != null){
-			Object [] res = RTGoreSorter.parseRegex(rtRegex + '\n');
-			rtSortedGoals.putAll((Map<String, Integer[]>) res [0]);
-			rtCardGoals.putAll((Map<String, Integer>) res [1]);
-			rtAltGoals.putAll((Map<String, Set<String>>) res [2]);
-			rtTryGoals.putAll((Map<String, String[]>) res [3]);
-			rtOptGoals.putAll((Map<String, Boolean>) res[4]);
-			
-		}
+		storeRegexResults(rtRegex);
 		Integer rootTime = gc.getTimeSlot();
 		List<Goal> declist = tn.getBooleanDec(g);
 		Collections.sort(declist, new Comparator<Goal>() {
@@ -267,6 +257,7 @@ public class RTGoreProducer {
 		//Set goals alternatives and tries
 		rtIteration(gc, gc.getDecompGoals());
 							
+		
 		if (tn.isMeansEndDec(g)){
 			List<Plan> melist = tn.getMeansEndMeanPlans(g);
 			
@@ -336,7 +327,72 @@ public class RTGoreProducer {
 		
 	}
 	
-	private void rtIteration(GoalContainer gc, List<? extends RTContainer> rts){
+	/**
+	 * @param g
+	 * @param gc
+	 * @param ad
+	 */
+	private void addContributions(TroposModelElement m, ElementContainer ec, AgentDefinition ad) {
+		if (tn.hasContributions(m)) {
+			for (FContribution c : tn.getContributions(m)) {
+				
+				if (c.getTarget() instanceof FSoftGoal) {
+					FSoftGoal sg = (FSoftGoal) c.getTarget();
+					SoftgoalContainer sgcont = ad.createSoftgoal(sg);
+					ec.addContribution(sgcont, c.getMetric());
+				}
+			}
+		}
+	}
+
+	private void addPlan(Plan p, PlanContainer pc, AgentDefinition ad) throws IOException {
+		addContributions(p, pc, ad);
+		
+		Integer rootTime = pc.getTimeSlot();
+		storeRegexResults(pc.getRtRegex());
+
+		if (tn.isMeansEndDec(p)){
+			List<Plan> melist = tn.getMeansEndMeanPlans(p);
+			// sets decomposition flag and creates the Metagoal+plan,
+			// shall be the same than with OR! They could also be mixed in this implementation!
+			pc.createDecomposition(Const.ME);
+			for (Plan dec : melist) {
+				boolean newplan = !ad.containsPlan(p);
+				boolean parPlan = false;
+				
+				PlanContainer deccont = ad.createPlan(dec);
+				
+				if(rtSortedGoals.containsKey(deccont.getElId())){
+					Integer [] decDeltaPathTime = rtSortedGoals.get(deccont.getElId());
+					if(decDeltaPathTime[0] == 0){
+						deccont.setTimePath(pc.getTimePath());
+						deccont.setTimeSlot(pc.getTimeSlot() + decDeltaPathTime[1]);
+					}else{
+						deccont.setTimePath(pc.getTimePath() + decDeltaPathTime[0]);
+						deccont.setTimeSlot(rootTime + decDeltaPathTime[1]);
+						parPlan = true;
+					}
+				}else{
+					deccont.setTimePath(pc.getTimePath());
+					deccont.setTimeSlot(pc.getTimeSlot());
+				}
+				
+				pc.addDecomp(deccont);
+				
+				if (newplan){
+					addPlan(dec, deccont, ad);
+					if(parPlan)
+						deccont.setTimePath(deccont.getTimePath() - 1);
+					pc.setTimePath(deccont.getTimePath());
+					pc.setTimeSlot(deccont.getTimeSlot());
+				}
+			}
+			//Set goals alternatives and tries
+			rtIteration(pc, pc.getDecompPlans());
+		}
+	}
+	
+	private void rtIteration(RTContainer gc, List<? extends RTContainer> rts){
 		for(RTContainer dec : rts){
 			String elId = dec.getElId();
 			dec = fowardMeansEnd(dec);
@@ -371,37 +427,25 @@ public class RTGoreProducer {
 			//Optional
 			if(rtOptGoals.containsKey(elId))
 				dec.setOptional(rtOptGoals.get(elId));
-		}
-		
+		}		
 	}
 	
 	private RTContainer fowardMeansEnd(RTContainer dec){
-		if(dec.getDecompPlans() != null && !dec.getDecompPlans().isEmpty())
-			dec = dec.getDecompPlans().get(0);
+		if(dec.getDecompPlans() != null && dec.getDecompPlans().size() == 1)
+			return fowardMeansEnd(dec = dec.getDecompPlans().get(0));
 		return dec;
 	}
-
-	/**
-	 * @param g
-	 * @param gc
-	 * @param ad
-	 */
-	private void addContributions(TroposModelElement m, ElementContainer ec, AgentDefinition ad) {
-		if (tn.hasContributions(m)) {
-			for (FContribution c : tn.getContributions(m)) {
-				
-				if (c.getTarget() instanceof FSoftGoal) {
-					FSoftGoal sg = (FSoftGoal) c.getTarget();
-					SoftgoalContainer sgcont = ad.createSoftgoal(sg);
-					ec.addContribution(sgcont, c.getMetric());
-				}
-			}
+	
+	@SuppressWarnings("unchecked")
+	private void storeRegexResults(String rtRegex) throws IOException {
+		if(rtRegex != null){
+			Object [] res = RTGoreSorter.parseRegex(rtRegex + '\n');
+			rtSortedGoals.putAll((Map<String, Integer[]>) res [0]);
+			rtCardGoals.putAll((Map<String, Integer>) res [1]);
+			rtAltGoals.putAll((Map<String, Set<String>>) res [2]);
+			rtTryGoals.putAll((Map<String, String[]>) res [3]);
+			rtOptGoals.putAll((Map<String, Boolean>) res[4]);
 		}
-	}
-
-	private void addPlan(Plan p, PlanContainer pc, AgentDefinition ad) {
-		addContributions(p, pc, ad);
-		// RESOURCES (USE/PRODUCE) TO BE IMPLEMENTED, HERE AND IN THE NAVIGATOR!!
 	}
 	
 	private Set<Actor> getSystemActors(){

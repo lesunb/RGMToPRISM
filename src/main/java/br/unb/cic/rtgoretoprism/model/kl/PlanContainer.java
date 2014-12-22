@@ -42,6 +42,7 @@ import java.util.ArrayList;
 public class PlanContainer extends RTContainer{
 	//the list of means_end goal (where this plan is a means to reach them.)
 	private ArrayList<GoalContainer> meGoals;
+	private ArrayList<PlanContainer> parentlist;
 	
 	/**
 	 * Creates a new PlanContainer instance
@@ -52,6 +53,7 @@ public class PlanContainer extends RTContainer{
 		super(p);
 		
 		meGoals = new ArrayList<GoalContainer>();
+		parentlist = new ArrayList<PlanContainer>();
 	}
 
 	/**
@@ -62,6 +64,23 @@ public class PlanContainer extends RTContainer{
 	public void addMEGoal(GoalContainer gc) {
 		meGoals.add(gc);
 	}
+	
+	/**
+	 * @param dec
+	 * @return
+	 */
+	public PlanContainer addDecomp(PlanContainer child) {
+
+		plans.add(child);
+		if (decomposition == Const.OR || decomposition == Const.ME) {
+			//mm: 'assert' commented to make ME goals possible
+			// assert decomposition == Const.OR;// otherwise there is an error elsewhere!
+			// for this goals dispatch-plans are created (not needed for AND-goals)
+			// (needed to add more triggering goals to one dispatch plan)
+			child.addParent(this);
+		}
+		return child;
+	}
 
 	/**
 	 * Get the list of means end goal for this plan
@@ -70,5 +89,12 @@ public class PlanContainer extends RTContainer{
 	 */
 	public ArrayList<GoalContainer> getMEGoals() {
 		return meGoals;
+	}
+	
+	/**
+	 * @param PlanContainer pc
+	 */
+	private void addParent(PlanContainer pc) {
+		parentlist.add(pc);
 	}
 }

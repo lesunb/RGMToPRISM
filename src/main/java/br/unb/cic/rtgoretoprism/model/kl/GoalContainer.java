@@ -45,8 +45,7 @@ public class GoalContainer extends RTContainer{
 	public Const request;
 
 
-	private ArrayList<String[]> dependencies;
-	private Const decomposition = Const.NONE;
+	private ArrayList<String[]> dependencies;	
 	private ArrayList<GoalContainer> parentlist;
 
 	/**
@@ -94,7 +93,7 @@ public class GoalContainer extends RTContainer{
 		}
 		return child;
 	}
-
+	
 	/**
 	 * @param dec
 	 * @return
@@ -110,26 +109,6 @@ public class GoalContainer extends RTContainer{
 			child.addParent(this);
 		}
 		return child;
-	}
-
-	/**
-	 * @param and
-	 */
-	public void createDecomposition(Const decomp) {
-		decomposition = decomp;
-		if (decomp == Const.AND) {
-
-		} else if (decomp == Const.OR || decomp == Const.ME) {
-
-		}
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public Const getDecomposition() {
-		return decomposition;
 	}
 
 	/**

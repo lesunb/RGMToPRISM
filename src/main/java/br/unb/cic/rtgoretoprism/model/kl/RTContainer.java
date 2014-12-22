@@ -41,12 +41,6 @@ import java.util.ArrayList;
  */
 public abstract class RTContainer extends ElementContainer implements Comparable<RTContainer>{
 
-	// child goals at decompositions
-	protected ArrayList<GoalContainer> goals;
-
-	// means end plans
-	protected ArrayList<PlanContainer> plans;
-	
 	//RTGore
 	private String elId;
 	private String rtRegex;
@@ -120,7 +114,7 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	 * Returns the name of the goal without the RTRegex
 	 * @return The name of the goal
 	 */
-	public String getClearElId(){
+	public String getClearElName(){
 		String rtRegex = getRtRegex() != null ? getRtRegex() : "";
 		StringBuilder sb = new StringBuilder();
 		for(String word : getName().split("_")){
@@ -130,7 +124,19 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 			sbb.setCharAt(0, Character.toUpperCase(word.charAt(0)));
 			sb.append(sbb);
 		}
-		return sb.toString().replace(":", "_").replace("[" + rtRegex + "]", "");
+		return sb.toString().replaceAll("[:\\.]", "_").replace("[" + rtRegex + "]", "");
+	}
+	
+	/**
+	 * Returns the name of the goal without the RTRegex
+	 * @return The name of the goal
+	 */
+	public String getClearElId(){
+		if(elId != null)
+			return elId.replace(".", "_");
+		else
+			return null;
+	
 	}
 
 	public String getElId() {
