@@ -42,7 +42,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.IProgressService;
 
 import br.unb.cic.rtgoretoprism.generator.CodeGenerationException;
-import br.unb.cic.rtgoretoprism.generator.kl.Producer;
 
 /**
  * This action let the user to start the process of generating agent code for
@@ -83,17 +82,17 @@ public class KLCodeGenerationAction extends AbstractCodeGeneractionAction {
         			//show user that work is progressing
         			monitor.beginTask("Generating KL Agent' source code", IProgressMonitor.UNKNOWN );
 
-					try {
+					//try {
 						//generate the source code for the KL side
-						Producer producer = new Producer( selectedActors, sourceFolder, targetFolder );
-						producer.run();
+						//Producer producer = new Producer( selectedActors, sourceFolder, targetFolder );
+						//producer.run();
 						
 						//refresh workspace folder
 						refreshWorkspaceFolder( targetFolder, 
 							new SubProgressMonitor( monitor, IProgressMonitor.UNKNOWN ) );
-					} catch( CodeGenerationException cge ) { 
-						throw new InvocationTargetException( cge, cge.getMessage() );
-					}
+					//} catch( CodeGenerationException cge ) { 
+						//throw new InvocationTargetException( cge, cge.getMessage() );
+					//}
 
 					//close the monitor
 					monitor.done();

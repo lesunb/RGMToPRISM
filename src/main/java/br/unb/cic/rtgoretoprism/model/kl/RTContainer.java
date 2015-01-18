@@ -46,6 +46,8 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	private String rtRegex;
 	private Integer timeSlot = 0;
 	private Integer timePath = 0;
+	private Integer prevTimePath = 0;
+	private Integer futTimePath = 0;
 	private ArrayList<RTContainer> alternatives;
 	private RTContainer firstAlternative;	
 	private RTContainer trySuccess;
@@ -84,7 +86,14 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	}
 	
 	/**
-	 * @return Returns the goals.
+	 * @return Returns the plans.
+	 */
+	public ArrayList<PlanContainer> getDecompPlans() {
+		return plans;
+	}
+	
+	/**
+	 * @return Returns a decomposed goal by elId.
 	 */
 	public GoalContainer getDecompGoal(String elId) {
 		for(GoalContainer dec : goals)
@@ -94,7 +103,7 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	}
 	
 	/**
-	 * @return Returns the goals.
+	 * @return Returns a decomposed plan by elId.
 	 */
 	public PlanContainer getDecompPlan(String elId) {
 		for(PlanContainer dec : plans)
@@ -104,10 +113,16 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	}
 
 	/**
-	 * @return Returns the plans.
+	 * @return Returns a decomposed plan by elId.
 	 */
-	public ArrayList<PlanContainer> getDecompPlans() {
-		return plans;
+	public RTContainer getDecompElement(String elId) {
+		for(GoalContainer dec : goals)
+			if(dec.getElId().equals(elId))
+				return dec;
+		for(PlanContainer dec : plans)
+			if(dec.getElId().equals(elId))
+				return dec;
+		return null;
 	}
 	
 	/**
@@ -162,6 +177,24 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	public void setTimeSlot(Integer timeSlot) {
 		this.timeSlot = timeSlot;
 	}
+	
+	public Integer getPrevTimePath() {
+		return prevTimePath;
+	}
+
+	public void setPrevTimePath(Integer prevTimePath) {
+		this.prevTimePath = prevTimePath;
+	}
+	
+	
+
+	public Integer getFutTimePath() {
+		return futTimePath;
+	}
+
+	public void setFutTimePath(Integer futTimePath) {
+		this.futTimePath = futTimePath;
+	}
 
 	public ArrayList<RTContainer> getAlternatives() {
 		return alternatives;
@@ -182,7 +215,7 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	public String getAltElsId(){
 		StringBuilder sb = new StringBuilder();
 		for(RTContainer alternative : getAlternatives())
-			sb.append(alternative.getElId());
+			sb.append(alternative.getClearElId());
 		return sb.toString();
 	}
 
@@ -237,7 +270,7 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	@Override
 	public int compareTo(RTContainer gc) {
 		// TODO Auto-generated method stub
-		int pathC = getTimePath().compareTo(gc.getTimePath());
+		int pathC = getPrevTimePath().compareTo(gc.getPrevTimePath());
 		int timeC = getTimeSlot().compareTo(gc.getTimeSlot());
 		int idC = getElId().compareTo(gc.getElId());
 		return pathC != 0 ? pathC : (timeC != 0 ? timeC : idC);

@@ -271,8 +271,8 @@ public class TroposNavigator {
 	 * 
 	 * @return true if the goal is decomposed, false otherwise
 	 */
-	public boolean isBooleanDec(Goal g) {
-		return getBooleanDec(g).size() == 0 ? false : true;
+	public boolean isBooleanDec(TroposIntentional g) {
+		return getBooleanDec(g, TroposIntentional.class).size() == 0 ? false : true;
 	}
 
 	/**
@@ -282,7 +282,7 @@ public class TroposNavigator {
 	 * 
 	 * @return
 	 */
-	public boolean isBooleanDecAND(Goal g) {
+	public boolean isBooleanDecAND(TroposIntentional g) {
 		if( isBooleanDec(g) ) {
 			BooleanDecomposition bd = 
 				(BooleanDecomposition) g.getSingleOutcomingRelationInstanceOfType(BooleanDecomposition.class);
@@ -303,7 +303,7 @@ public class TroposNavigator {
 	 * 
 	 * @return
 	 */
-	public boolean isBooleanDecOR(Goal g) {
+	public boolean isBooleanDecOR(TroposIntentional g) {
 		if (isBooleanDec(g)) {
 			BooleanDecomposition bd = 
 				(BooleanDecomposition) g.getSingleOutcomingRelationInstanceOfType(BooleanDecomposition.class);
@@ -475,8 +475,8 @@ public class TroposNavigator {
 	 * 
 	 * @return A list of Goals.
 	 */
-	public List<Goal> getBooleanDec(Goal g) {
-		LinkedList<Goal> goals = new LinkedList<Goal>();
+	public List<? extends TroposIntentional> getBooleanDec(TroposIntentional g, Class intentionalClass) {
+		LinkedList<TroposIntentional> elements = new LinkedList<TroposIntentional>();
 
 		BooleanDecomposition bd = 
 			(BooleanDecomposition) g.getSingleOutcomingRelationInstanceOfType(BooleanDecomposition.class);
@@ -484,22 +484,26 @@ public class TroposNavigator {
 //		BooleanDecomposition dec = g.getBooleanDecomposition();
 //		if( dec == null)		
 		if( bd == null )
-			return goals;// goals is empty!
+			return elements;// goals is empty!
 		
-		List children = bd.getTargets();
+		List <TroposIntentional> children = bd.getTargets();
 
 //		List<BooleanDecLink> list = dec.getBooleanDecLink();
 
 //		for (BooleanDecLink link : list) {// jumped if list.size=0
 		for( Object child : children ) {// jumped if list.size=0
-			if( child instanceof Goal ) 
-				goals.add( (Goal) child );
+			if( child instanceof Goal && intentionalClass.equals(Goal.class)) 
+				elements.add( (Goal) child );
+			else if( child instanceof Plan && intentionalClass.equals(Plan.class)) 
+				elements.add( (Plan) child );
+			else if( intentionalClass.equals(TroposIntentional.class)) 
+				elements.add( (TroposIntentional) child );
 			
 //			if (link.getTargetGoal() != null)// I don't want to have Target Plans!
 //				goals.add(link.getTargetGoal());
 		}
 		
-		return goals;
+		return elements;
 	}
 
 	/**

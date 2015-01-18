@@ -116,11 +116,11 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 		String gidAo = visit(ctx.expr(0));
 		String gidBo = visit(ctx.expr(1));
 		String [] gidAs = gidAo.split("-");
-		String [] gidBs = gidBo.split("-");
+		String [] gidBs = gidBo.split("-");		
 		for(String gidA : gidAs){
 			for(String gidB : gidBs){				
 				if(ctx.op.getType() == RTRegexParser.ALT){
-					addToAltSet(gidA, gidB);
+					addToAltSet(gidA, gidB);					
 					//addToAltSet(gidB, gidA);
 				}
 			}

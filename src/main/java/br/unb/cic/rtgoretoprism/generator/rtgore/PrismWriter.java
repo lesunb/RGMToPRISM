@@ -643,55 +643,75 @@ public class PrismWriter {
 		
 		String params="", results="", triggers="";		
 		String planModule = pattern.replace(MODULE_NAME_TAG, plan.getClearElName());
+		StringBuilder sbHeader = new StringBuilder();
+		StringBuilder sbType = new StringBuilder();
 		
-		if(plan.getTryOriginal() != null || plan.getTrySuccess() != null || plan.getTryFailure() != null){
-			if(plan.getTrySuccess() != null || plan.getTryFailure() != null){
-				//Try				
-				planModule = planModule.replace(DEC_HEADER_TAG, "");
-				planModule = planModule.replace(DEC_TYPE_TAG, andPattern);
-				appendTryToNoErrorFormula(plan);
-			}else if(plan.isSuccessTry()){
-				//Try success
-				PlanContainer tryPlan = (PlanContainer) plan.getTryOriginal();
-				trySPattern = trySPattern.replace(PREV_GID_TAG, tryPlan.getClearElId());
-				planModule = planModule.replace(DEC_TYPE_TAG, trySPattern);
-			}else{
-				//Try fail
-				PlanContainer tryPlan = (PlanContainer) plan.getTryOriginal();
-				tryFPattern = tryFPattern.replace(PREV_GID_TAG, tryPlan.getClearElId());
-				planModule = planModule.replace(DEC_TYPE_TAG, tryFPattern);
-			}	
-			planModule = planModule.replace(DEC_HEADER_TAG, "");
-		}else if(!plan.getAlternatives().isEmpty() || plan.getFirstAlternative() != null){
-			//Alternatives
-			if(!plan.getAlternatives().isEmpty()){
-				xorPattern = xorPattern.replace(XOR_GIDS_TAG, plan.getClearElId() + "_" + plan.getAltElsId());
-				xorHeader = xorHeader.replace(XOR_GIDS_TAG, plan.getClearElId() + "_" + plan.getAltElsId());
-				xorPattern = xorPattern.replace(XOR_VALUE_TAG, 0 + "");
-				appendAlternativesToNoErrorFormula(plan);
-			}else{
-				xorPattern = xorPattern.replace(XOR_GIDS_TAG, plan.getFirstAlternative().getClearElId() + "_" + plan.getFirstAlternative().getAltElsId());
-				xorHeader = "";
-				xorPattern = xorPattern.replace(XOR_VALUE_TAG, plan.getFirstAlternative().getAlternatives().indexOf(plan) + 1 + "");
+		if((plan.getTryOriginal() != null || plan.getTrySuccess() != null || plan.getTryFailure() != null) ||
+		   (!plan.getAlternatives().isEmpty() || plan.getFirstAlternative() != null) ||
+		   (plan.isOptional())){			
+			if(plan.getTryOriginal() != null || plan.getTrySuccess() != null || plan.getTryFailure() != null){
+				if(plan.getTrySuccess() != null || plan.getTryFailure() != null){
+					//Try					
+					//planModule = planModule.replace(DEC_TYPE_TAG, andPattern);
+					sbType.append(andPattern + "\n\n");
+					appendTryToNoErrorFormula(plan);
+				}else if(plan.isSuccessTry()){
+					//Try success
+					PlanContainer tryPlan = (PlanContainer) plan.getTryOriginal();
+					trySPattern = trySPattern.replace(PREV_GID_TAG, tryPlan.getClearElId());
+					//planModule = planModule.replace(DEC_TYPE_TAG, trySPattern);
+					sbType.append(trySPattern + "\n\n");
+				}else{
+					//Try fail
+					PlanContainer tryPlan = (PlanContainer) plan.getTryOriginal();
+					tryFPattern = tryFPattern.replace(PREV_GID_TAG, tryPlan.getClearElId());
+					//planModule = planModule.replace(DEC_TYPE_TAG, tryFPattern);
+					sbType.append(tryFPattern + "\n\n");
+				}	
+				//planModule = planModule.replace(DEC_HEADER_TAG, "");				
 			}
-			planModule = planModule.replace(DEC_HEADER_TAG, xorHeader);
-			planModule = planModule.replace(DEC_TYPE_TAG, xorPattern);
-		}else if(plan.isOptional()){
-			//Opt
-			planModule = planModule.replace(DEC_HEADER_TAG, optHeader);
-			planModule = planModule.replace(DEC_TYPE_TAG, optPattern);
-			noErrorFormula += " & s" + plan.getClearElId() + " < 3";
+			if(!plan.getAlternatives().isEmpty() || plan.getFirstAlternative() != null){
+				//Alternatives
+				if(!plan.getAlternatives().isEmpty()){
+					xorHeader = xorHeader.replace(XOR_GIDS_TAG, plan.getClearElId() + "_" + plan.getAltElsId());
+					xorPattern = xorPattern.replace(XOR_GIDS_TAG, plan.getClearElId() + "_" + plan.getAltElsId());
+					xorPattern = xorPattern.replace(XOR_VALUE_TAG, 0 + "");
+					appendAlternativesToNoErrorFormula(plan);
+				}else{
+					xorHeader = "";
+					xorPattern = xorPattern.replace(XOR_GIDS_TAG, plan.getFirstAlternative().getClearElId() + "_" + plan.getFirstAlternative().getAltElsId());
+					xorPattern = xorPattern.replace(XOR_VALUE_TAG, plan.getFirstAlternative().getAlternatives().indexOf(plan) + 1 + "");
+				}
+				//planModule = planModule.replace(DEC_HEADER_TAG, xorHeader);
+				sbHeader.append(xorHeader + "\n\n");
+				//planModule = planModule.replace(DEC_TYPE_TAG, xorPattern);
+				sbType.append(xorPattern + "\n\n");
+			}
+			if(plan.isOptional()){
+				//Opt
+				//planModule = planModule.replace(DEC_HEADER_TAG, optHeader);
+				sbHeader.append(optHeader + "\n\n");
+				//planModule = planModule.replace(DEC_TYPE_TAG, optPattern);
+				sbType.append(optPattern + "\n\n");
+				noErrorFormula += " & s" + plan.getClearElId() + " < 3";
+			}
 		}else{
 			//And/OR			
-			planModule = planModule.replace(DEC_HEADER_TAG, "");
-			planModule = planModule.replace(DEC_TYPE_TAG, andPattern);
+			//planModule = planModule.replace(DEC_HEADER_TAG, "");			
+			//planModule = planModule.replace(DEC_TYPE_TAG, andPattern);
+			sbType.append(andPattern + "\n\n");
 			noErrorFormula += " & s" + plan.getClearElId() + " < 3";
 		}			
 		
+		//Header
+		planModule = planModule.replace(DEC_HEADER_TAG, sbHeader.toString());
+		//Type
+		planModule = planModule.replace(DEC_TYPE_TAG, sbType.toString());
 		//Time
+		Integer prevTimePath = plan.getPrevTimePath();
 		Integer timePath = plan.getTimePath();
 		Integer timeSlot = plan.getTimeSlot() + 1;
-		planModule = planModule.replace(PREV_TIME_SLOT_TAG, timePath + "_" + (timeSlot - 1) + "");
+		planModule = planModule.replace(PREV_TIME_SLOT_TAG, prevTimePath + "_" + (timeSlot - 1) + "");
 		planModule = planModule.replace(TIME_SLOT_TAG, timePath + "_" + timeSlot + "");
 		//GID
 		planModule = planModule.replace(GID_TAG, plan.getClearElId());		
