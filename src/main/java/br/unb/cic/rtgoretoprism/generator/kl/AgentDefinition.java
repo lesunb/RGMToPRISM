@@ -58,7 +58,7 @@ public class AgentDefinition {
 	/** name of the agent we are representing */
 	private String agentname;
 	
-	private LinkedList<GoalContainer> rootlist = new LinkedList<GoalContainer>();
+	public LinkedList<GoalContainer> rootlist = new LinkedList<GoalContainer>();
 	
 	public Hashtable<String, SoftgoalContainer> softgoalbase;
 	public Hashtable<String, GoalContainer> goalbase;

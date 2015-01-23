@@ -653,20 +653,21 @@ public class PrismWriter {
 				if(plan.getTrySuccess() != null || plan.getTryFailure() != null){
 					//Try					
 					//planModule = planModule.replace(DEC_TYPE_TAG, andPattern);
-					sbType.append(andPattern + "\n\n");
+					if(plan.getAlternatives().isEmpty() && plan.getFirstAlternative() == null)
+						sbType.append(andPattern + "\n");
 					appendTryToNoErrorFormula(plan);
 				}else if(plan.isSuccessTry()){
 					//Try success
 					PlanContainer tryPlan = (PlanContainer) plan.getTryOriginal();
 					trySPattern = trySPattern.replace(PREV_GID_TAG, tryPlan.getClearElId());
 					//planModule = planModule.replace(DEC_TYPE_TAG, trySPattern);
-					sbType.append(trySPattern + "\n\n");
+					sbType.append(trySPattern + "\n");
 				}else{
 					//Try fail
 					PlanContainer tryPlan = (PlanContainer) plan.getTryOriginal();
 					tryFPattern = tryFPattern.replace(PREV_GID_TAG, tryPlan.getClearElId());
 					//planModule = planModule.replace(DEC_TYPE_TAG, tryFPattern);
-					sbType.append(tryFPattern + "\n\n");
+					sbType.append(tryFPattern + "\n");
 				}	
 				//planModule = planModule.replace(DEC_HEADER_TAG, "");				
 			}
@@ -683,16 +684,16 @@ public class PrismWriter {
 					xorPattern = xorPattern.replace(XOR_VALUE_TAG, plan.getFirstAlternative().getAlternatives().indexOf(plan) + 1 + "");
 				}
 				//planModule = planModule.replace(DEC_HEADER_TAG, xorHeader);
-				sbHeader.append(xorHeader + "\n\n");
+				sbHeader.append(xorHeader + "\n");
 				//planModule = planModule.replace(DEC_TYPE_TAG, xorPattern);
-				sbType.append(xorPattern + "\n\n");
+				sbType.append(xorPattern + "\n");
 			}
 			if(plan.isOptional()){
 				//Opt
 				//planModule = planModule.replace(DEC_HEADER_TAG, optHeader);
-				sbHeader.append(optHeader + "\n\n");
+				sbHeader.append(optHeader + "\n");
 				//planModule = planModule.replace(DEC_TYPE_TAG, optPattern);
-				sbType.append(optPattern + "\n\n");
+				sbType.append(optPattern + "\n");
 				noErrorFormula += " & s" + plan.getClearElId() + " < 3";
 			}
 		}else{

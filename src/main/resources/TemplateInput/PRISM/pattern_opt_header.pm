@@ -1,1 +1,1 @@
-const bool OPT_$GID$;
+param int OPT_$GID$;
