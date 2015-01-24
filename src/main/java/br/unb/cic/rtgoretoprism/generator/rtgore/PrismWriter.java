@@ -112,6 +112,9 @@ public class PrismWriter {
 	private static final String DEC_HEADER_TAG	 		= "$DEC_HEADER$";
 	private static final String DEC_TYPE_TAG	 		= "$DEC_TYPE$";
 	
+	private static final String PARAMS_BASH_TAG	 		= "$PARAMS_BASH$";
+	private static final String REPLACE_BASH_TAG	 	= "$REPLACE_BASH$";
+	
 	/** where to find BDI related template plan section, inside the templated folder */
 	private final String TEMPLATE_PLAN_PATH = "planskeletons/";
 	/** where to find BDI related template util section, inside the templated folder */
@@ -137,7 +140,7 @@ public class PrismWriter {
 	private String basicAgentPackage;
 	
 	// Strings that contain the parts of the ADF skeleton, read from file
-	private String header, body, footer;
+	private String header, body, footer, evalBash;
 
 	// Strings filled with content, to replace the placeholders in the adf skeleton.
 	//Note: they are used whith concat() function
@@ -151,6 +154,8 @@ public class PrismWriter {
 	
 	private String noErrorFormula = "";
 	private String planModules = "";
+	private String evalFormulaParams = "";
+	private String evalFormulaReplace = "";
 
 	/** Has all the informations about the agent. */ 
 	private AgentDefinition ad;
@@ -196,6 +201,7 @@ public class PrismWriter {
 		//read some of the used template
 		header = readFileAsString( prismInputFolder + "modelheader.pm" );
 		body = readFileAsString( prismInputFolder + "modelbody.pm" );
+		evalBash = readFileAsString( prismInputFolder + "eval_formula.sh" );
 		//footer = readFileAsString( planInputFolder + "agentfooter.xml" );
 
 		//update some template placeholder
@@ -210,17 +216,19 @@ public class PrismWriter {
 		//create the agent plan output dir
 		//writeAnOutputDir( planOutputFolder );
 		//create the output ADF XML file */
-		PrintWriter modelFile = writeModel( ad.getAgentName(), agentOutputFolder );
+		PrintWriter modelFile = createPrismFile( ad.getAgentName(), agentOutputFolder );
+		PrintWriter evalBashFile = createBashFile( "eval_formula", agentOutputFolder );
 		//Reads all softgoals from the softgoals list and writes them into the belief base.
 		//writeBBSoftGoals( ad.softgoalbase );
 		//Writes all goals to the ADF file
-		writeTasks( prismInputFolder, ad.planbase, planOutputFolder, basicAgentPackage, utilPkgName, planPkgName );
+		writeTasks( prismInputFolder, ad.planbase, planOutputFolder, basicAgentPackage, utilPkgName, planPkgName );		
 		//Writes the plan contributions and the bodies of the real plans
 		//writePlans( planInputFolder, planOutputFolder, ad.planbase, basicAgentPackage, utilPkgName, planPkgName, ad.getAgentName() );
 		//Copies to the output directory all the files where only the package-name changes.
 		//writeDefaultJavaFiles( planInputFolder, planOutputFolder, basicAgentPackage, utilPkgName, planPkgName );
 		//replaces all placeholders in the ADF skeleton and writes the ADF file.
 		printModel( modelFile );
+		printEvalBash( evalBashFile );
 		//Writes the batch files (Windows) to start the agent.
 		//writeAgentStartingFile( basicOutputFolder, ad.getAgentName(), basicAgentPackage );
 		//Writes the batch files (Windows) to compile the agent.
@@ -384,7 +392,7 @@ public class PrismWriter {
 	}
 	
 	/**
-	 * Create agent ADF file
+	 * Create agent PRISM file
 	 * 
 	 * @param agentName name of the current agent
 	 * @param output the output dir
@@ -392,9 +400,32 @@ public class PrismWriter {
 	 * @return the created (empyt) ADF file
 	 * @throws CodeGenerationException
 	 */
-	private PrintWriter writeModel( String agentName, String output ) throws CodeGenerationException {
+	private PrintWriter createPrismFile( String agentName, String output ) throws CodeGenerationException {
 		try {
 			String adf = agentName + ".pm";
+			PrintWriter adfFile = new PrintWriter( 
+					new BufferedWriter(	new FileWriter( output + adf ) ) );
+			
+			return adfFile;
+		} catch (IOException e) {
+			String msg = "Error: Can't create output model file.";
+			ATCConsole.println( msg );
+			throw new CodeGenerationException( msg );
+		}
+	}
+	
+	/**
+	 * Create agent BASH file
+	 * 
+	 * @param agentName name of the current agent
+	 * @param output the output dir
+	 * 
+	 * @return the created (empyt) ADF file
+	 * @throws CodeGenerationException
+	 */
+	private PrintWriter createBashFile( String bashName, String output ) throws CodeGenerationException {
+		try {
+			String adf = bashName + ".sh";
 			PrintWriter adfFile = new PrintWriter( 
 					new BufferedWriter(	new FileWriter( output + adf ) ) );
 			
@@ -527,6 +558,14 @@ public class PrismWriter {
 		adf.close();
 	}
 
+	private void printEvalBash( PrintWriter pw ){
+		
+		evalBash = evalBash.replace(PARAMS_BASH_TAG, evalFormulaParams);
+		evalBash = evalBash.replace(REPLACE_BASH_TAG, evalFormulaReplace);
+		
+		pw.print(evalBash + '\n');
+		pw.close();
+	}
 
 	/**
 	 * Writes all goals to the ADF file (to beliefbase, goals and plans section) and organizes
@@ -552,7 +591,7 @@ public class PrismWriter {
 		String trySDecPattern	 		= readFileAsString(input + "pattern_try_success.pm");
 		String tryFDecPattern	 		= readFileAsString(input + "pattern_try_fail.pm");
 		String optDecPattern 			= readFileAsString(input + "pattern_opt.pm");
-		String optHeaderPattern	 		= readFileAsString(input + "pattern_opt_header.pm");
+		String optHeaderPattern	 		= readFileAsString(input + "pattern_opt_header.pm");		
 		
 		List<PlanContainer> runTimeTasks = new ArrayList<PlanContainer>(gb.values());
 		Collections.sort(runTimeTasks);
@@ -695,6 +734,8 @@ public class PrismWriter {
 				//planModule = planModule.replace(DEC_TYPE_TAG, optPattern);
 				sbType.append(optPattern + "\n");
 				noErrorFormula += " & s" + plan.getClearElId() + " < 3";
+				evalFormulaParams += "OPT_" + plan.getClearElId() + "=\"1\";\n";
+				evalFormulaReplace += " -e \"s/OPT_" + plan.getClearElId() + "/$OPT_" + plan.getClearElId() + "/g\""; 
 			}
 		}else{
 			//And/OR			
@@ -703,7 +744,8 @@ public class PrismWriter {
 			sbType.append(andPattern + "\n\n");
 			noErrorFormula += " & s" + plan.getClearElId() + " < 3";
 		}			
-		
+		evalFormulaParams += "rTask" + plan.getClearElId() + "=\"0.999\";\n";
+		evalFormulaReplace += " -e \"s/rTask" + plan.getClearElId() + "/$rTask" + plan.getClearElId() + "/g\"";
 		//Header
 		planModule = planModule.replace(DEC_HEADER_TAG, sbHeader.toString());
 		//Type
@@ -721,9 +763,10 @@ public class PrismWriter {
 
 	private void appendAlternativesToNoErrorFormula(PlanContainer plan) {
 		noErrorFormula += " & (s" + plan.getClearElId() + " < 3";
-		for(RTContainer altPlan : plan.getAlternatives())
-			noErrorFormula += " & s" + altPlan.getClearElId() + " < 3";
-		noErrorFormula += ")";
+		for(RTContainer altPlan : plan.getAlternatives()){
+			noErrorFormula += " & s" + altPlan.getClearElId() + " < 3";			
+		}
+		noErrorFormula += ")";		
 	}
 
 	private void appendTryToNoErrorFormula(PlanContainer plan) {

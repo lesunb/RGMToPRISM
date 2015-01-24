@@ -7,5 +7,5 @@ module $MODULE_NAME$
 	$DEC_TYPE$
 	[] s$GID$ = 1 -> rTask$GID$ : (s$GID$'=2) + (1 - rTask$GID$) : (s$GID$'=3);//running to final state
 	[success$TIME_SLOT$] s$GID$ = 2 -> (s$GID$'=2);//final state success
-	[fail$GID$] sERROR = 0 & s$GID$ = 3 -> (s$GID$'=3);//final state fail
+	[fail$GID$] !noERROR & s$GID$ = 3 -> (s$GID$'=3);//final state fail
 endmodule
