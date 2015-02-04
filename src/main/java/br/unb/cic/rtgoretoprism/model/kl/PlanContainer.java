@@ -30,7 +30,7 @@
 
 package br.unb.cic.rtgoretoprism.model.kl;
 
-import it.itc.sra.taom4e.model.core.informalcore.Plan;
+import it.itc.sra.taom4e.model.core.informalcore.formalcore.FPlan;
 
 import java.util.ArrayList;
 
@@ -49,11 +49,12 @@ public class PlanContainer extends RTContainer{
 	 * 
 	 * @param p the plan to create object for 
 	 */
-	public PlanContainer(Plan p) {
+	public PlanContainer(FPlan p) {
 		super(p);
 		
 		meGoals = new ArrayList<GoalContainer>();
-		parentlist = new ArrayList<PlanContainer>();
+		parentlist = new ArrayList<PlanContainer>();	
+		this.setCreationCondition(p.getCreationProperty());
 	}
 
 	/**

@@ -37,15 +37,19 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import br.unb.cic.rtgoretoprism.console.ATCConsole;
 import br.unb.cic.rtgoretoprism.generator.CodeGenerationException;
 import br.unb.cic.rtgoretoprism.generator.kl.AgentDefinition;
 import br.unb.cic.rtgoretoprism.generator.kl.CodeGenerator;
+import br.unb.cic.rtgoretoprism.model.kl.Const;
 import br.unb.cic.rtgoretoprism.model.kl.ElementContainer;
 import br.unb.cic.rtgoretoprism.model.kl.GoalContainer;
 import br.unb.cic.rtgoretoprism.model.kl.PlanContainer;
@@ -111,6 +115,13 @@ public class PrismWriter {
 	private static final String XOR_VALUE_TAG	 		= "$XOR_VALUE$";
 	private static final String DEC_HEADER_TAG	 		= "$DEC_HEADER$";
 	private static final String DEC_TYPE_TAG	 		= "$DEC_TYPE$";
+	private static final String CARD_TYPE_TAG	 		= "$CARD_TYPE$";
+	private static final String MAX_RETRIES_TAG	 		= "$MAX_RETRIES$";
+	private static final String CONST_PARAM_TAG			= "$CONST_PARAM$";
+	private static final String CONST_PARAM_VAL			= "const";
+	
+	private static final String CTX_CONDITION_TAG		= "$CTX_CONDITION$";
+	private static final String CTX_EFFECT_TAG			= "$CTX_EFFECT$";
 	
 	private static final String PARAMS_BASH_TAG	 		= "$PARAMS_BASH$";
 	private static final String REPLACE_BASH_TAG	 	= "$REPLACE_BASH$";
@@ -153,7 +164,7 @@ public class PrismWriter {
 	private String adfmetaplans = "", adfrealplans = "", adfevents = "";
 	
 	private String noErrorFormula = "";
-	private String planModules = "";
+	private StringBuilder planModules = new StringBuilder();
 	private String evalFormulaParams = "";
 	private String evalFormulaReplace = "";
 
@@ -161,6 +172,8 @@ public class PrismWriter {
 	private AgentDefinition ad;
 	/** the list of plan that are root for a capability of the selected agent */
 	private List<Plan> capabilityPlanList;
+	
+	private Map<String, String> ctxVars;
 
 	/**
 	 * Creates a new AgentWriter instance
@@ -181,14 +194,17 @@ public class PrismWriter {
 		
 		//the package that generated bdi .java files will be put in
 		this.basicAgentPackage = PathLocation.BASIC_AGENT_PACKAGE_PREFIX + ad.getAgentName();
+		
+		this.ctxVars = new TreeMap<String, String>();
 	}
 
 	/**
 	 * Writes the whole Agent (ADF + Java plan bodies).
 	 * 
 	 * @throws CodeGenerationException 
+	 * @throws IOException 
 	 */
-	public void writeModel() throws CodeGenerationException {
+	public void writeModel() throws CodeGenerationException, IOException {
 		String utilPkgName = basicAgentPackage + PathLocation.UTIL_KL_PKG;
 		
 		//String planInputFolder = inputKLFolder + TEMPLATE_PLAN_PATH;
@@ -221,7 +237,7 @@ public class PrismWriter {
 		//Reads all softgoals from the softgoals list and writes them into the belief base.
 		//writeBBSoftGoals( ad.softgoalbase );
 		//Writes all goals to the ADF file
-		writeTasks( prismInputFolder, ad.planbase, planOutputFolder, basicAgentPackage, utilPkgName, planPkgName );		
+		writePrismModel( prismInputFolder, ad.rootlist, planOutputFolder, basicAgentPackage, utilPkgName, planPkgName );		
 		//Writes the plan contributions and the bodies of the real plans
 		//writePlans( planInputFolder, planOutputFolder, ad.planbase, basicAgentPackage, utilPkgName, planPkgName, ad.getAgentName() );
 		//Copies to the output directory all the files where only the package-name changes.
@@ -241,115 +257,7 @@ public class PrismWriter {
 		//writeCapabilityCLSkeleton( ad.getAgentName(), capabilityPlanList, agentOutputFolder, templateInputBaseFolder );
 	}
 	
-	/**
-	 * Create the skeleton component for the CL part that will be used in order to run the KL part
-	 * This skeletons are created only in the case that more specialized one (i.e. the ones coming
-	 * from the UML diagrams) haven't been explicitly created and just in order to allow the KL 
-	 * part to run
-	 *  
-	 * @param agent name of the current agent
-	 * @param plans the list of root plans for this agent' capabilities
-	 * @param outputFolder target folder
-	 * @param templatedInputFolder template input folder
-	 * 
-	 * @throws CodeGenerationException
-	 */	
-	private void writeCapabilityCLSkeleton( String agent, List<Plan> plans, String outputFolder, String templatedInputFolder ) throws CodeGenerationException {
-		//the skeleton for the FSM capabilities agent
-		String capSkeletonName = "EmptyCapabilityTemplate.java";
-		//the utility elements that should be copied
-		String fileNames[] = new String[] { "DSManager.java", "CapabilityFSMBehaviour.java" };
-		//the skeleton for the CapabilitiesAgent
-		String capabilitiesAgentName = PathLocation.CAPABILITY_AGENT_NAME + ".java";
-
-		
-		//true if we have created some new files. We avoid overwriting existing files
-		//since probably they are more specialized than the skeleton we create here.
-		boolean created = false;
-		
-		//current Agent pacakage
-		String currAgentPkg = PathLocation.BASIC_AGENT_PACKAGE_PREFIX + agent;
-		//current capability package
-		String currCapabilityPkg =  currAgentPkg + "." + PathLocation.CAPABILITIES_FOLDER;
-		//current cl utility package
-		String currUtilPkg = currAgentPkg + PathLocation.UTIL_CL_PKG;
 	
-		//create the capability folder if necessary
-		writeAnOutputDir( outputFolder +  PathLocation.CAPABILITIES_FOLDER );
-		
-		//iterate over the capabilities root plans	
-		for( Plan plan : plans ) {
-			//capability agent to be created for this root plan
-			String FSM_Name = PathLocation.BASIC_FSM_PREFIX + NameUtility.adjustName( plan.getName() );
-			//path for the capability agent
-			String FSM_Path = outputFolder +  PathLocation.CAPABILITIES_FOLDER + "/" + FSM_Name + ".java";
-			
-			File currFSM = new File( FSM_Path );
-			
-			//do not overwrite existing one
-			if( !currFSM.exists() ) {
-				//we have created some new files
-				created = true;
-
-				//the template input skeleton part
-				String fsmSkeleton = readFileAsString( templatedInputFolder + TEMPLATE_CL_BASE_PATH +
-						capSkeletonName );
-		
-				//update tags
-				fsmSkeleton = fsmSkeleton.replace( CodeGenerator.CAPABILITIES_PACKAGE_NAME_TAG, currCapabilityPkg );
-				fsmSkeleton = fsmSkeleton.replace( CodeGenerator.UTIL_PACKAGE_NAME_TAG, currUtilPkg );
-				fsmSkeleton = fsmSkeleton.replace( CodeGenerator.FSM_NAME_TAG, FSM_Name );
-				
-				//write it
-				writeFile( fsmSkeleton, FSM_Path  );
-			}
-		}
-		
-		if( created ) {
-			//if something has been created we need to update the utility part too in order
-			//to cope with code dependency
-			
-			//template input folder
-			String templateInputFolder = templatedInputFolder + TEMPLATE_CL_BASE_PATH;
-			//template input util folder
-			String utilInputFolder = templateInputFolder + CodeGenerator.UTIL_INPUT_FOLDER + "/";
-			//target util folder
-			String outputUtilFolder = outputFolder +  CodeGenerator.UTIL_OUTPUT_FOLDER; 
-
-			//create the target util dir if necessary
-			writeAnOutputDir( outputUtilFolder );
-			
-			//create the selected util's file if necessary
-			for( int i = 0; i < fileNames.length; i++ ) {
-				String currName = fileNames[ i ];
-				//target path
-				String out = outputUtilFolder + "/" + currName;
-
-				File curr = new File( out );
-
-				//avoid overwriting
-				if( !curr.exists() ) {
-					//template input skeleton
-					String utilSkeleton = readFileAsString( utilInputFolder + "/" + currName );
-					//update tags
-					utilSkeleton = utilSkeleton.replace( CodeGenerator.UTIL_PACKAGE_NAME_TAG, currUtilPkg );
-					//write it
-					writeFile( utilSkeleton, out );
-				}
-			}
-			
-		
-			//create the CapabilitiesAgent
-			//template input skeleton
-			String capAgSkeleton = readFileAsString( templateInputFolder + capabilitiesAgentName );
-			//update tags
-			capAgSkeleton = capAgSkeleton.replace( CodeGenerator.AGENT_PACKAGE_NAME_TAG, currAgentPkg );
-			capAgSkeleton = capAgSkeleton.replace( CodeGenerator.CAPABILITIES_PACKAGE_NAME_TAG, currCapabilityPkg );
-			capAgSkeleton = capAgSkeleton.replace( CodeGenerator.UTIL_PACKAGE_NAME_TAG, currUtilPkg );
-			//write it
-			writeFile( capAgSkeleton, outputFolder + capabilitiesAgentName);	
-		}
-	}
 	
 	/**
 	 * Create an agent output dir
@@ -368,29 +276,6 @@ public class PrismWriter {
 		}
 	}
 
-	/**
-	 * Create agent ADF file
-	 * 
-	 * @param agentName name of the current agent
-	 * @param output the output dir
-	 * 
-	 * @return the created (empyt) ADF file
-	 * @throws CodeGenerationException
-	 */
-	private PrintWriter writeADF( String agentName, String output ) throws CodeGenerationException {
-		try {
-			String adf = agentName + ".agent.xml";
-			PrintWriter adfFile = new PrintWriter( 
-					new BufferedWriter(	new FileWriter( output + adf ) ) );
-			
-			return adfFile;
-		} catch (IOException e) {
-			String msg = "Error: Can't create output adf file.";
-			ATCConsole.println( msg );
-			throw new CodeGenerationException( msg );
-		}
-	}
-	
 	/**
 	 * Create agent PRISM file
 	 * 
@@ -437,57 +322,7 @@ public class PrismWriter {
 		}
 	}
 	
-	/**
-	 * Writes the batch files (Windows) to start the agent.
-	 * 
-	 *  @param output the output dir
-	 *  @param agentName current Agent name
-	 *  @param agentPkg current base agent package
-	 * 
-	 * @throws CodeGenerationException 
-	 */
-	private void writeAgentStartingFile( String output, String agentName, String agentPkg ) throws CodeGenerationException {
-		String bat = "java jade.Boot -container My" + agentName
-			+ ":jadex.adapter.jade.JadeAgentAdapter" + "(" + agentPkg + "." + 
-			agentName + " default)";
-		
-		writeFile( bat, output + agentName + ".bat");
-	}
 
-	/**
-	 * Create the file to compile all the agent stuff
-	 * 
-	 * @param output target base agent output dir
-	 * 
-	 * @throws CodeGenerationException 
-	 */
-	private void writeAgentCompileFile( String output ) throws CodeGenerationException {
-		//target dir for the util.kl package
-		String utilKLDir = "util\\kl";
-		String plansDir = "plans";
-
-		String bat = 
-			"md build" + "\n" + 
-			"javac -sourcepath ..\\ " + utilKLDir + "\\components" + "\\*.java -d .\\build" + "\n" +
-			"javac -sourcepath ..\\ " + utilKLDir + "\\plans" + "\\*.java -d .\\build" + "\n" +
-			"javac -sourcepath ..\\ " + plansDir + "\\*.java -d .\\build" + "\n";
-
-		writeFile( bat, output + "/compile_kl.bat");
-	}
-
-	/**
-	 * Writes the batch file (Windows) to start the platform
-	 * 
-	 * @param output the output dir
-	 */
-	private void writePlatformStartingFile( String output ) {
-		try {
-			FileUtility.copyFile( inputKLFolder + "platform.ba_", output + "/" + "run_platform_kl.bat" );
-		} catch (IOException e) {
-			String msg = "Warning: platform start batch file not copied correctly.";
-			ATCConsole.println( msg );
-		}
-	}
 		
 	/**
 	 * Copies to the output directory all the files where only the package-name changes.
@@ -580,9 +415,10 @@ public class PrismWriter {
 	 * @param planPkgName 
 	 * 
 	 * @throws CodeGenerationException 
+	 * @throws IOException 
 	 */
-	private void writeTasks( String input, Hashtable<String,PlanContainer> gb, 
-			String planOutputFolder, String pkgName, String utilPkgName, String planPkgName ) throws CodeGenerationException {
+	private void writePrismModel( String input, LinkedList<GoalContainer> rootGoals, 
+			String planOutputFolder, String pkgName, String utilPkgName, String planPkgName ) throws CodeGenerationException, IOException {
 
 		String leafGoalPattern 			= readFileAsString(input + "pattern_leafgoal.pm");
 		String andDecPattern 			= readFileAsString(input + "pattern_and.pm");
@@ -591,97 +427,136 @@ public class PrismWriter {
 		String trySDecPattern	 		= readFileAsString(input + "pattern_try_success.pm");
 		String tryFDecPattern	 		= readFileAsString(input + "pattern_try_fail.pm");
 		String optDecPattern 			= readFileAsString(input + "pattern_opt.pm");
-		String optHeaderPattern	 		= readFileAsString(input + "pattern_opt_header.pm");		
+		String optHeaderPattern	 		= readFileAsString(input + "pattern_opt_header.pm");
+		String seqCardPattern	 		= readFileAsString(input + "pattern_card_seq.pm");
+		String intlCardPattern	 		= readFileAsString(input + "pattern_card_intl.pm");
+		String ctxGoalPattern	 		= readFileAsString(input + "pattern_ctx_goal.pm");
+		String ctxTaskPattern	 		= readFileAsString(input + "pattern_ctx_task.pm");
 		
-		List<PlanContainer> runTimeTasks = new ArrayList<PlanContainer>(gb.values());
-		Collections.sort(runTimeTasks);
+		Collections.sort(rootGoals);
 		
-		for( PlanContainer task : runTimeTasks ) {
-			if(task.getDecompPlans().isEmpty())
-				writePrismModule(task, 
-							leafGoalPattern, 
+		for( GoalContainer root : rootGoals ) {
+			String[] rootFormula = writeElement(root, 
+							leafGoalPattern,							
+							seqCardPattern,
+							intlCardPattern,
 							andDecPattern, 
 							xorDecPattern, 
 							xorDecHeaderPattern, 
 							trySDecPattern, 
 							tryFDecPattern,
 							optDecPattern,
-							optHeaderPattern);
+							optHeaderPattern,
+							ctxGoalPattern,
+							ctxTaskPattern,
+							"true");
+			
+			StringBuilder sbCtxVars = new StringBuilder();
+			for(String ctx : ctxVars.keySet())
+				sbCtxVars.append(CONST_PARAM_VAL + " " + ctxVars.get(ctx) + " " + ctx + ";\n");
+			planModules = planModules.append(sbCtxVars.toString());
 		}
 		
-		System.out.println(planModules);
+		//System.out.println(planModules);
 	}
 
-	/**
-	 * 
-	 * 
-	 * @param g current goalContainer
-	 * @param gpattern
-	 * @param ppattern
-	 * @param file_MetaPlan the current MetaPlan file name
-	 * @param planOutputFolder the outputFolder for the created plans
-	 * @param pkgName current package name
-	 * @param utilPkg current util package name
-	 * @param planPkg current plan package
-	 * 
-	 * @throws CodeGenerationException 
-	 */
-	private void writeMetaGoalPlan(GoalContainer g, String gpattern, String ppattern,
-		String file_MetaPlan, String planOutputFolder, String pkgName, String utilPkg, 
-		String planPkg ) throws CodeGenerationException {
-		
-		String adfgoal = gpattern.replace(NAME_TAG, g.getName());
-		adfmetagoals = adfmetagoals.concat(adfgoal);
-		String adfplan = ppattern.replace(NAME_TAG, g.getName());
-		adfmetaplans = adfmetaplans.concat(adfplan);
-		
-		// copy and rename the plan body
-		String file = file_MetaPlan.replace(PACKAGE_TAG, pkgName);
-		file = file.replace(UTIL_PACKAGE_TAG, utilPkg );
-		file = file.replace(PLAN_PACKAGE_TAG, planPkg );
-		file = file.replace( TMP_TAG, g.getName());
-		
-		writeFile(file, planOutputFolder + "MetaPlan_" + g.getName() + ".java");
-	}
 
-	/**
-	 * 
-	 * @param g the current goalContainer
-	 * @param pattern
-	 */
-	private void writeRequestplan(GoalContainer g, String pattern) {
-		String adfplan = pattern.replace(NAME_TAG, g.getName());
-		adfrequestplans = adfrequestplans.concat(adfplan);
-	}
-
-	/**
-	 * 
-	 * @param g the current goalContainer
-	 * @param pattern
-	 */
-	private void writeEvent(GoalContainer g, String pattern) {
-		String adfevent = pattern.replace(NAME_TAG, g.getName());
-		adfevents = adfevents.concat(adfevent);
-	}
 	
 	/**
 	 * Writes the dispatch plans (with bodies) for every child goal
 	 * 
 	 * @param goal
 	 * @param pattern
+	 * @throws IOException 
 	 */
-	private void writePrismModule(PlanContainer plan, 
+	private String[] writeElement(RTContainer root, 
 							 String pattern, 
+							 String seqCardPattern,
+							 String intlCardPattern,
 							 String andPattern, 
 							 String xorPattern, 
 							 String xorHeader, 
 							 String trySPattern, 
 							 String tryFPattern,
 							 String optPattern,
-							 String optHeader) {
+							 String optHeader,
+							 String ctxGoalPattern,
+							 String ctxTaskPattern,
+							 String prevFormula) throws IOException {
 		
-		String params="", results="", triggers="";		
-		String planModule = pattern.replace(MODULE_NAME_TAG, plan.getClearElName());
+		String operator = root.getDecomposition() == Const.AND  ? " & " : " | ";
+		if(!root.getDecompGoals().isEmpty()){
+			StringBuilder goalFormula = new StringBuilder();
+			String prevGoalFormula = prevFormula;
+			int prevTimeSlot = root.getDecompGoals().get(0).getRootTimeSlot();
+			for(GoalContainer gc : root.getDecompGoals()){
+				String currentFormula;
+				if(prevTimeSlot < gc.getRootTimeSlot())
+					currentFormula = prevGoalFormula;
+				else
+					currentFormula = prevFormula;
+				String childFormula = writeElement(gc, pattern, seqCardPattern, intlCardPattern, andPattern, xorPattern, xorHeader, trySPattern, tryFPattern, optPattern, optHeader, ctxGoalPattern, ctxTaskPattern, currentFormula)[1];												
+				prevGoalFormula = gc.getClearElId();
+				goalFormula.append("(" + childFormula + ")" + operator);							
+			}
+			goalFormula.replace(goalFormula.lastIndexOf(operator), goalFormula.length(), "");
+			planModules = planModules.append("\nformula " + root.getClearElId() + " = " + goalFormula + ";\n");
+			return new String [] {root.getClearElId(), goalFormula.toString()};
+		}else if(!root.getDecompPlans().isEmpty()){
+			StringBuilder taskFormula = new StringBuilder();
+			String prevTaskFormula = prevFormula;
+			for(PlanContainer pc : root.getDecompPlans()){
+				String childFormula = writeElement(pc, pattern, seqCardPattern, intlCardPattern, andPattern, xorPattern, xorHeader, trySPattern, tryFPattern, optPattern, optHeader, ctxGoalPattern, ctxTaskPattern, prevTaskFormula)[1];
+				//prevTaskFormula = pc.getClearElId();
+				taskFormula.append(childFormula + operator);
+			}			
+			taskFormula.replace(taskFormula.lastIndexOf(operator), taskFormula.length(), "");
+			if(root instanceof GoalContainer)
+				planModules = planModules.append("\nformula " + root.getClearElId() + " = " + taskFormula + ";\n");
+			return new String [] {root.getClearElId(), taskFormula.toString()};
+		}else if(root instanceof PlanContainer){
+			return writePrismModule(root, pattern, seqCardPattern, intlCardPattern, andPattern, xorPattern, xorHeader, trySPattern, tryFPattern, optPattern, optHeader, ctxGoalPattern, ctxTaskPattern, prevFormula);
+		}
+		
+		return new String[]{"",""};
+	}
+	
+	@SuppressWarnings("unchecked")
+	private String[] writePrismModule(RTContainer root, 
+							 String singlePattern,
+							 String seqCardPattern,
+							 String intlCardPattern,
+							 String andPattern, 
+							 String xorPattern, 
+							 String xorHeader, 
+							 String trySPattern, 
+							 String tryFPattern,
+							 String optPattern,
+							 String optHeader,
+							 String ctxGoalPattern,
+							 String ctxTaskPattern,
+							 String prevFormula) throws IOException{
+		
+		singlePattern = new String(singlePattern);
+		seqCardPattern = new String(seqCardPattern);
+		intlCardPattern = new String(intlCardPattern);
+		andPattern = new String(andPattern);
+		xorPattern = new String(xorPattern);
+		xorHeader = new String(xorHeader);
+		trySPattern = new String(trySPattern);
+		tryFPattern = new String(tryFPattern);
+		optPattern = new String(optPattern);
+		
+		PlanContainer plan = (PlanContainer) root;
+		String planModule;
+					
+		if(plan.getCardNumber() > 1 && plan.getCardType() == Const.SEQ)
+			planModule = seqCardPattern.replace(MODULE_NAME_TAG, plan.getClearElName());
+		else if(plan.getCardNumber() > 1 && plan.getCardType() == Const.INTL)
+			planModule = intlCardPattern.replace(MODULE_NAME_TAG, plan.getClearElName());
+		else
+			planModule = singlePattern.replace(MODULE_NAME_TAG, plan.getClearElName());
+		
 		StringBuilder sbHeader = new StringBuilder();
 		StringBuilder sbType = new StringBuilder();
 		
@@ -693,20 +568,20 @@ public class PrismWriter {
 					//Try					
 					//planModule = planModule.replace(DEC_TYPE_TAG, andPattern);
 					if(plan.getAlternatives().isEmpty() && plan.getFirstAlternative() == null)
-						sbType.append(andPattern + "\n");
+						sbType.append(andPattern);
 					appendTryToNoErrorFormula(plan);
 				}else if(plan.isSuccessTry()){
 					//Try success
 					PlanContainer tryPlan = (PlanContainer) plan.getTryOriginal();
 					trySPattern = trySPattern.replace(PREV_GID_TAG, tryPlan.getClearElId());
 					//planModule = planModule.replace(DEC_TYPE_TAG, trySPattern);
-					sbType.append(trySPattern + "\n");
+					sbType.append(trySPattern);
 				}else{
 					//Try fail
 					PlanContainer tryPlan = (PlanContainer) plan.getTryOriginal();
 					tryFPattern = tryFPattern.replace(PREV_GID_TAG, tryPlan.getClearElId());
 					//planModule = planModule.replace(DEC_TYPE_TAG, tryFPattern);
-					sbType.append(tryFPattern + "\n");
+					sbType.append(tryFPattern);
 				}	
 				//planModule = planModule.replace(DEC_HEADER_TAG, "");				
 			}
@@ -723,17 +598,17 @@ public class PrismWriter {
 					xorPattern = xorPattern.replace(XOR_VALUE_TAG, plan.getFirstAlternative().getAlternatives().indexOf(plan) + 1 + "");
 				}
 				//planModule = planModule.replace(DEC_HEADER_TAG, xorHeader);
-				sbHeader.append(xorHeader + "\n");
+				sbHeader.append(xorHeader);
 				//planModule = planModule.replace(DEC_TYPE_TAG, xorPattern);
-				sbType.append(xorPattern + "\n");
+				sbType.append(xorPattern);
 			}
 			if(plan.isOptional()){
 				//Opt
 				//planModule = planModule.replace(DEC_HEADER_TAG, optHeader);
-				sbHeader.append(optHeader + "\n");
+				sbHeader.append(optHeader);
 				//planModule = planModule.replace(DEC_TYPE_TAG, optPattern);
-				sbType.append(optPattern + "\n");
-				noErrorFormula += " & s" + plan.getClearElId() + " < 3";
+				sbType.append(optPattern);
+				noErrorFormula += " & s" + plan.getClearElId() + " < 4";
 				evalFormulaParams += "OPT_" + plan.getClearElId() + "=\"1\";\n";
 				evalFormulaReplace += " -e \"s/OPT_" + plan.getClearElId() + "/$OPT_" + plan.getClearElId() + "/g\""; 
 			}
@@ -742,14 +617,27 @@ public class PrismWriter {
 			//planModule = planModule.replace(DEC_HEADER_TAG, "");			
 			//planModule = planModule.replace(DEC_TYPE_TAG, andPattern);
 			sbType.append(andPattern + "\n\n");
-			noErrorFormula += " & s" + plan.getClearElId() + " < 3";
-		}			
+			noErrorFormula += " & s" + plan.getClearElId() + " < 4";
+		}
+		
 		evalFormulaParams += "rTask" + plan.getClearElId() + "=\"0.999\";\n";
-		evalFormulaReplace += " -e \"s/rTask" + plan.getClearElId() + "/$rTask" + plan.getClearElId() + "/g\"";
+		evalFormulaReplace += " -e \"s/rTask" + plan.getClearElId() + "/$rTask" + plan.getClearElId() + "/g\"";		
 		//Header
-		planModule = planModule.replace(DEC_HEADER_TAG, sbHeader.toString());
+		planModule = planModule.replace(DEC_HEADER_TAG, sbHeader.toString() + "\n");
 		//Type
 		planModule = planModule.replace(DEC_TYPE_TAG, sbType.toString());
+		//CONTEXT CONDITION
+		if(plan.getCreationCondition() != null){
+			Object [] parsedCtxs = CtxParser.parseRegex(plan.getCreationCondition());
+			addCtxVar((Set<String>)parsedCtxs[0]);
+			planModule = planModule.replace(CTX_EFFECT_TAG, ctxTaskPattern);
+			planModule = planModule.replace(CTX_CONDITION_TAG, "(" + parsedCtxs[1] + ")" + " &");
+		}else{
+			planModule = planModule.replace(CTX_EFFECT_TAG, "");
+			planModule = planModule.replace(CTX_CONDITION_TAG, "");
+		}
+		//Prev Success Guard Condition		
+		planModule = planModule.replace("$PREV_SUCCESS$", prevFormula);
 		//Time
 		Integer prevTimePath = plan.getPrevTimePath();
 		Integer timePath = plan.getTimePath();
@@ -757,243 +645,43 @@ public class PrismWriter {
 		planModule = planModule.replace(PREV_TIME_SLOT_TAG, prevTimePath + "_" + (timeSlot - 1) + "");
 		planModule = planModule.replace(TIME_SLOT_TAG, timePath + "_" + timeSlot + "");
 		//GID
-		planModule = planModule.replace(GID_TAG, plan.getClearElId());		
-		planModules = planModules.concat(planModule);
+		planModule = planModule.replace(GID_TAG, plan.getClearElId());
+		//CONST OR PARAM
+		planModule = planModule.replace(CONST_PARAM_TAG, CONST_PARAM_VAL);
+		//MAX RETRIES
+		planModule = planModule.replace(MAX_RETRIES_TAG, plan.getCardNumber() + "");				
+		planModules = planModules.append(planModule);				
+		return new String[]{plan.getClearElId(), processTaskFormula(plan)};
+	}
+	
+	private void addCtxVar(Set<String> vars){
+		for(String var : vars)
+			ctxVars.put(var, "double");
+	}
+	
+	private String processTaskFormula(PlanContainer plan){
+		return "s" + plan.getClearElId() + "=2";
 	}
 
 	private void appendAlternativesToNoErrorFormula(PlanContainer plan) {
-		noErrorFormula += " & (s" + plan.getClearElId() + " < 3";
+		noErrorFormula += " & (s" + plan.getClearElId() + " < 4";
 		for(RTContainer altPlan : plan.getAlternatives()){
-			noErrorFormula += " & s" + altPlan.getClearElId() + " < 3";			
+			noErrorFormula += " & s" + altPlan.getClearElId() + " < 4";			
 		}
 		noErrorFormula += ")";		
 	}
 
 	private void appendTryToNoErrorFormula(PlanContainer plan) {
-		noErrorFormula += " & (s" + plan.getClearElId() + " < 3 | (true ";
+		noErrorFormula += " & (s" + plan.getClearElId() + " < 4 | (true ";
 		if(plan.getTrySuccess() != null){
 			RTContainer trySucessPlan = plan.getTrySuccess();			
-			noErrorFormula += " & s" + trySucessPlan.getClearElId() + " < 3";			
+			noErrorFormula += " & s" + trySucessPlan.getClearElId() + " < 4";			
 		}
 		if(plan.getTryFailure() != null){
 			RTContainer tryFailurePlan = plan.getTryFailure();			
-			noErrorFormula += " & s" + tryFailurePlan.getClearElId() + " < 3";			
+			noErrorFormula += " & s" + tryFailurePlan.getClearElId() + " < 4";			
 		}
 		noErrorFormula += "))";
-	}
-
-	/**
-	 * Writes the dispatch plans (with bodies) for every child goal
-	 * 
-	 * @param goal
-	 * @param pattern
-	 */
-	private void writeDecompositionLinks(GoalContainer goal, String pattern) {
-		String params="", results="", triggers="";
-		
-		for (GoalContainer parent : goal.getParentGoals()) {
-			params=params.concat("<goalmapping ref=\""+parent.getName()+".param\"/>");
-			results=results.concat("<goalmapping ref=\""+parent.getName()+".result\"/>");
-			triggers=triggers.concat("<goal ref=\""+parent.getName()+"\"/>");
-			
-			addBBDecomp(parent, goal);
-		}
-		
-		String adfplan = pattern.replace(PARAMS_TAG, params);
-		adfplan = adfplan.replace(RESULTS_TAG, results);
-		adfplan = adfplan.replace(TRIGGERS_TAG, triggers);
-		
-		adfplan = adfplan.replace(CHILD_TAG, goal.getName());
-		
-		adfdispatchplans = adfdispatchplans.concat(adfplan);
-	}
-
-	/**
-	 * 
-	 * 
-	 * @param g the current goalContainer
-	 * @param pattern
-	 * @param file_ANDGoalPlan
-	 * @param planOutputFolder the output folder for generated plans
-	 * @param pkgName the current package name
-	 * @param utilPkgName the current util package name
-	 * @param planPkgName the current plan package name
-	 * 
-	 * @throws CodeGenerationException 
-	 */
-	private void writeDispatchANDPlan(GoalContainer g, String pattern, String file_ANDGoalPlan, 
-			String planOutputFolder, String pkgName, String utilPkgName, String planPkgName ) throws CodeGenerationException {
-		String adfplan = pattern.replace(NAME_TAG, g.getName());
-		
-		adfandplans = adfandplans.concat(adfplan);
-		
-		for (GoalContainer child : g.getDecompGoals()) {
-			addBBDecomp(g, child, 1/* g.getPriority() */);
-		}
-		
-		// copy and rename the plan body
-		String file = file_ANDGoalPlan.replace(PACKAGE_TAG, pkgName);
-		file = file.replace(UTIL_PACKAGE_TAG, utilPkgName);
-		file = file.replace(PLAN_PACKAGE_TAG, planPkgName );
-		file = file.replace( TMP_TAG, g.getName());
-		
-		writeFile(file, planOutputFolder + "ANDGoalPlan_" + g.getName() + ".java");
-	}
-
-	/**
-	 * 
-	 * @param src
-	 * @param dest
-	 */
-	private void addBBDecomp(ElementContainer src, ElementContainer dest) {
-		String pattern = "\t\t\t<fact>new TLink(\"" + SRC_TAG + "\",\"" + DEST_TAG + "\")</fact>\n";
-		
-		String fact = pattern.replace(SRC_TAG, src.getName());
-		fact = fact.replace(DEST_TAG, dest.getName());
-		bbdecomp = bbdecomp.concat(fact);
-	}
-
-	/**
-	 * 
-	 * @param src
-	 * @param dest
-	 * @param priority
-	 */
-	private void addBBDecomp(ElementContainer src, ElementContainer dest, int priority) {
-		String pattern = "\t\t\t<fact>new TLink(\"" + SRC_TAG + "\",\"" + DEST_TAG + "\"," + PRIO_TAG + ")</fact>\n";
-		
-		String fact = pattern.replace(SRC_TAG, src.getName());
-		fact = fact.replace(DEST_TAG, dest.getName());
-		fact = fact.replace(PRIO_TAG, "" + priority);
-		bbdecomp = bbdecomp.concat(fact);
-	}
-
-	/**
-	 * 
-	 * @param src
-	 * @param dest
-	 */
-	private void addBBMeansEnd(ElementContainer src, ElementContainer dest) {
-		String pattern = "\t\t\t<fact>new TLink(\"" + SRC_TAG + "\",\"" + DEST_TAG + "\")</fact>\n";
-		
-		String fact = pattern.replace(SRC_TAG, src.getName());
-		fact = fact.replace(DEST_TAG, dest.getName());
-		bbmeansend = bbmeansend.concat(fact);
-	}
-
-	/**
-	 * 
-	 * @param src
-	 * @param dest
-	 * @param value
-	 */
-	private void addBBContrib(ElementContainer src, ElementContainer dest, String value) {
-		String pattern = "\t\t\t<fact>new TContrib(\"" + SRC_TAG + "\",\"" + DEST_TAG + "\",\"" + VAL_TAG + "\")</fact>\n";
-		
-		String fact = pattern.replace(SRC_TAG, src.getName());
-		fact = fact.replace(DEST_TAG, dest.getName());
-		fact = fact.replace(VAL_TAG, value);
-		bbcontrib = bbcontrib.concat(fact);
-	}
-	
-	/**
-	 * 
-	 * @param goal The 'why' for the dependency, our starting point.
-	 * @param dependum The dependum Goal.
-	 * @param dependee The dependee Actor.
-	 */
-	private void addBBDependency(GoalContainer goal, String dependum, String dependee) {
-		//the dependencies actually work only if the source goal is AND-decomposed. 
-		String pattern = "\t\t\t<fact>new TDependency(\"" + SRC_TAG + "\",\"" + DEPENDUM_TAG + "\",\"" + DEST_TAG + "\")</fact>\n";
-		
-		String fact = pattern.replace(SRC_TAG, goal.getName());
-		fact = fact.replace(DEPENDUM_TAG, dependum);
-		fact = fact.replace(DEST_TAG, dependee);
-		bbdepend = bbdepend.concat(fact);	
-	}
-
-	/**
-	 * Writes the plan contributions and the bodies of the real plans.
-	 * 
-	 * @param input the template input folder
-	 * @param output the target dir
-	 * @param pb the beliefe base plan
-	 * @param pkgName the current package name
-	 * @param utilPkg the current util package name
-	 * @param planPkg the current plan package name
-	 * @param agentName the current agent name 
-	 * 
-	 * @throws CodeGenerationException 
-	 */
-	private void writePlans( String input, String output, Hashtable<String,PlanContainer> pb, String pkgName,
-			String utilPkg, String planPkg, String agentName ) throws CodeGenerationException {
-		String file_RealPlan = readFileAsString(input + "RealPlan_" + TMP_TAG + ".java");
-		
-		String realplanpattern = readFileAsString(input + "pattern_realplan.xml");
-
-		for (PlanContainer plan : pb.values()) {
-			// retrieve softgoal contributions
-			for (SoftgoalContainer sg : plan.getContributions().keySet()) {
-				addBBContrib(plan, sg, plan.getContributions().get(sg));
-			}
-			
-			writeMeansEndLink(plan, realplanpattern);
-			
-			// copy and rename the real plan body
-			String newfile = file_RealPlan.replace(PACKAGE_TAG, pkgName);
-			newfile = newfile.replace(UTIL_PACKAGE_TAG, utilPkg );
-			newfile = newfile.replace( PLAN_PACKAGE_TAG, planPkg );
-			newfile = newfile.replace( TMP_TAG, plan.getName());
-			newfile = newfile.replace( AGENT_NAME_TAG, agentName );
-			
-			writeFile(newfile, output + "RealPlan_" + plan.getName() + ".java");
-//TODO: add access to resources in plan body!
-		}
-	}
-	
-	/**
-	 * Writes the dispatch plans (with bodies) for every child goal
-	 * 
-	 * @param goal
-	 * @param pattern
-	 */
-	private void writeMeansEndLink(PlanContainer plan, String pattern) {
-		String params="", results="", triggers="";
-		
-		for (GoalContainer meansEnd:plan.getMEGoals()) {
-			params=params.concat("<goalmapping ref=\""+meansEnd.getName()+".param\"/>");
-			results=results.concat("<goalmapping ref=\""+meansEnd.getName()+".result\"/>");
-			triggers=triggers.concat("<goal ref=\""+meansEnd.getName()+"\"/>");
-			
-			addBBMeansEnd(meansEnd, plan);
-		}
-		
-		String adfplan = pattern.replace(PARAMS_TAG, params);
-		adfplan = adfplan.replace(RESULTS_TAG, results);
-		adfplan = adfplan.replace(TRIGGERS_TAG, triggers);
-		
-		adfplan = adfplan.replace(PLANNAME_TAG, plan.getName());
-		
-		adfrealplans = adfrealplans.concat(adfplan);
-	}
-
-	/**
-	 * Write out a 'copy' of the templateinput util directory for the bdi agents
-	 * 
-	 * @param input the templateinput 'util' dir
-	 * @param output target base agent output dir
-	 * @param utilKLPkg name of the current utility package
-	 * 
-	 * @throws CodeGenerationException
-	 */
-	private void writeUtilDir( String input, String output, String utilKLPkg ) throws CodeGenerationException {
-		//target dir for the util.kl package
-		String utilKLDir = "util/kl";
-		
-		//export 'components' side
-		copyDir( input + "/" + "components" + "/", output + utilKLDir + "/components/", utilKLPkg );
-		//export 'plans' side
-		copyDir( input + "/" + "plans" + "/", output + utilKLDir + "/plans/", utilKLPkg );
 	}
 	
 	/**

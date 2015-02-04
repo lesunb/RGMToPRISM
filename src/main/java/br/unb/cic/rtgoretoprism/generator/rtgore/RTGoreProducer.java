@@ -34,10 +34,11 @@ import it.itc.sra.taom4e.model.core.gencore.TroposModelElement;
 import it.itc.sra.taom4e.model.core.informalcore.Actor;
 import it.itc.sra.taom4e.model.core.informalcore.Dependency;
 import it.itc.sra.taom4e.model.core.informalcore.Goal;
-import it.itc.sra.taom4e.model.core.informalcore.HardGoal;
 import it.itc.sra.taom4e.model.core.informalcore.Plan;
 import it.itc.sra.taom4e.model.core.informalcore.TroposIntentional;
 import it.itc.sra.taom4e.model.core.informalcore.formalcore.FContribution;
+import it.itc.sra.taom4e.model.core.informalcore.formalcore.FHardGoal;
+import it.itc.sra.taom4e.model.core.informalcore.formalcore.FPlan;
 import it.itc.sra.taom4e.model.core.informalcore.formalcore.FSoftGoal;
 
 import java.io.IOException;
@@ -129,7 +130,7 @@ public class RTGoreProducer {
 			AgentDefinition ad = new AgentDefinition( a );
 			
 			// analyse all root goals
-			for( HardGoal rootgoal : tn.getRootGoals(a) ) {
+			for( FHardGoal rootgoal : tn.getRootGoals(a) ) {
 				Const type, request;
 				
 				if( tn.isDelegated(rootgoal) ) {
@@ -172,7 +173,7 @@ public class RTGoreProducer {
 	 * @throws IOException 
 	 */
 	@SuppressWarnings("unchecked")
-	private void addGoal(Goal g, GoalContainer gc, final AgentDefinition ad) throws IOException {
+	private void addGoal(FHardGoal g, GoalContainer gc, final AgentDefinition ad) throws IOException {
 		addContributions(g, gc, ad);
 		
 		//TODO: uncomment if needed!
@@ -185,7 +186,7 @@ public class RTGoreProducer {
 		Integer prevPath = gc.getPrevTimePath();
 		Integer rootPath = gc.getTimePath();
 		Integer rootTime = gc.getTimeSlot();
-		List<Goal> declist = (List<Goal>) tn.getBooleanDec(g, Goal.class);
+		List<FHardGoal> declist = (List<FHardGoal>) tn.getBooleanDec(g, FHardGoal.class);
 		sortIntentionalElements(declist, ad);
 		if (tn.isBooleanDecAND(g))
 			// sets decomposition flag and creates the AND-Plan (call only one time!)
@@ -200,12 +201,12 @@ public class RTGoreProducer {
 							
 		
 		if (tn.isMeansEndDec(g)){
-			List<Plan> melist = tn.getMeansEndMeanPlans(g);
+			List<FPlan> melist = tn.getMeansEndMeanPlans(g);
 			sortIntentionalElements(melist, ad);
 			// sets decomposition flag and creates the Metagoal+plan,
 			// shall be the same than with OR! They could also be mixed in this implementation!
 			gc.createDecomposition(Const.ME);
-			for (Plan p : melist) {
+			for (FPlan p : melist) {
 				boolean newplan = !ad.containsPlan(p);
 				boolean parPlan = false;
 				
@@ -238,6 +239,13 @@ public class RTGoreProducer {
 					pc.setTimeSlot(gc.getTimeSlot());
 				}
 				
+				if(gc.getCreationCondition() != null)
+					if(pc.getCreationCondition() != null)
+						pc.setCreationCondition(gc.getCreationCondition() + " & " + pc.getCreationCondition());
+					else
+						pc.setCreationCondition(gc.getCreationCondition());
+
+				
 				gc.addMERealPlan(pc);
 				
 				if (newplan){
@@ -254,12 +262,12 @@ public class RTGoreProducer {
 			
 			//The unusual "means-end" with a goal as means:
 			//The "means" goal is afterwards handled like in an OR-decomposition!
-			List<Goal> megoallist = tn.getMeansEndMeanGoals(g);
+			List<FHardGoal> megoallist = tn.getMeansEndMeanGoals(g);
 			
 			// sets decomposition flag and creates the Metagoal+plan,
 			// shall be the same than with OR! They could also be mixed in this implementation!
 			// gc.createDecomposition(Const.ME);
-			for (Goal go : megoallist) {
+			for (FHardGoal go : megoallist) {
 				boolean newgoal = !ad.containsGoal(go);
 				
 				GoalContainer pc = ad.createGoal(go, Const.ACHIEVE);
@@ -282,13 +290,14 @@ public class RTGoreProducer {
 		
 	}
 	
-	private void iterateGoals(AgentDefinition ad, GoalContainer gc, List<Goal> decList) throws IOException{
+	private void iterateGoals(AgentDefinition ad, GoalContainer gc, List<FHardGoal> decList) throws IOException{
 		
 		Integer prevPath = gc.getPrevTimePath();
 		Integer rootPath = gc.getTimePath();
 		Integer rootTime = gc.getTimeSlot();
+		gc.setRootTimeSlot(rootTime);
 		
-		for (Goal dec : decList) {
+		for (FHardGoal dec : decList) {
 			boolean newgoal = !ad.containsGoal(dec);
 			boolean parDec = false;
 			// addDecomp adds the new goal to container and goalbase and, if needed (OR, M-E)
@@ -316,6 +325,12 @@ public class RTGoreProducer {
 					deccont.setTimeSlot(rootTime);
 				}
 			}
+			
+			if(gc.getCreationCondition() != null)
+				if(deccont.getCreationCondition() != null)
+					deccont.setCreationCondition(gc.getCreationCondition() + " & " + deccont.getCreationCondition());
+				else
+					deccont.setCreationCondition(gc.getCreationCondition());
 
 			gc.addDecomp(deccont);
 			
@@ -358,7 +373,7 @@ public class RTGoreProducer {
 		storeRegexResults(pc.getRtRegex());
 
 		if (tn.isMeansEndDec(p)){
-			List<Plan> melist = tn.getMeansEndMeanPlans(p);
+			List<FPlan> melist = tn.getMeansEndMeanPlans(p);
 			sortIntentionalElements(melist, ad);
 			// sets decomposition flag and creates the Metagoal+plan,
 			// shall be the same than with OR! They could also be mixed in this implementation!
@@ -368,7 +383,7 @@ public class RTGoreProducer {
 			iterateRts(pc, pc.getDecompPlans());
 		}
 		else if (tn.isBooleanDecAND(p)){			
-			List<Plan> decList = (List<Plan>) tn.getBooleanDec(p, Plan.class);
+			List<FPlan> decList = (List<FPlan>) tn.getBooleanDec(p, FPlan.class);
 			sortIntentionalElements(decList, ad);
 			// sets decomposition flag and creates the Metagoal+plan,
 			// shall be the same than with OR! They could also be mixed in this implementation!
@@ -382,12 +397,12 @@ public class RTGoreProducer {
 		}
 	}
 	
-	private void iteratePlans(AgentDefinition ad, PlanContainer pc, List<Plan> decList) throws IOException{
+	private void iteratePlans(AgentDefinition ad, PlanContainer pc, List<FPlan> decList) throws IOException{
 		
 		Integer prevPath = pc.getPrevTimePath();
 		Integer rootPath = pc.getTimePath();
 		Integer rootTime = pc.getTimeSlot();
-		for (Plan dec : decList) {
+		for (FPlan dec : decList) {
 			boolean newplan = !ad.containsPlan(dec);
 			boolean parPlan = false;
 					
@@ -418,6 +433,12 @@ public class RTGoreProducer {
 				deccont.setTimePath(pc.getTimePath());
 				deccont.setTimeSlot(pc.getTimeSlot());
 			}
+			
+			if(pc.getCreationCondition() != null)
+				if(deccont.getCreationCondition() != null)
+					deccont.setCreationCondition(pc.getCreationCondition() + " & " + deccont.getCreationCondition());
+				else
+					deccont.setCreationCondition(pc.getCreationCondition());
 			
 			pc.addDecomp(deccont);
 			if (newplan){
@@ -468,6 +489,11 @@ public class RTGoreProducer {
 			//Optional
 			if(rtOptGoals.containsKey(elId))
 				dec.setOptional(rtOptGoals.get(elId));
+			//Cardinality
+			if(rtCardGoals.containsKey(elId)){
+				Integer cardNumber = rtCardGoals.get(elId);
+				dec.setCardNumber(cardNumber);
+			}
 		}		
 	}
 	

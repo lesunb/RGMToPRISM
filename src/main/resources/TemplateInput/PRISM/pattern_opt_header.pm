@@ -1,1 +1,1 @@
-param int OPT_$GID$;
+$CONST_PARAM$ int OPT_$GID$;

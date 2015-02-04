@@ -32,7 +32,7 @@ package br.unb.cic.rtgoretoprism.model.kl;
 
 import it.itc.sra.taom4e.model.core.gencore.TroposModelElement;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Hashtable;
 
 import br.unb.cic.rtgoretoprism.util.NameUtility;
@@ -48,10 +48,10 @@ public class ElementContainer {
 	private String name="";
 	
 	// child goals at decompositions
-	protected ArrayList<GoalContainer> goals;
+	protected LinkedList<GoalContainer> goals;
 
 	// means end plans
-	protected ArrayList<PlanContainer> plans;
+	protected LinkedList<PlanContainer> plans;
 	
 	protected Const decomposition = Const.NONE;
 	

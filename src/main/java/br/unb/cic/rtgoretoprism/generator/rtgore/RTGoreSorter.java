@@ -90,7 +90,7 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 		String gid = ctx.GID().getText();
 		if ( !timeMemory.containsKey(gid) ){
 			timeMemory.put(gid, new Integer[]{0,0});			
-			cardMemory.put(gid, 0);
+			//cardMemory.put(gid, 1);
 		}
 		return gid;
 	}
@@ -144,10 +144,10 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 	@Override
 	public String visitGCard(GCardContext ctx) {		
 		String gid = visit(ctx.expr(0));
-		Integer card = 0;
-		if(cardMemory.containsKey(gid))
-			card = cardMemory.get(gid);
-		cardMemory.put(gid, card + Integer.parseInt(ctx.expr(1).getText()));
+		//Integer card = 1;
+		//if(cardMemory.containsKey(gid))
+		//card = cardMemory.get(gid);
+		cardMemory.put(gid, Integer.parseInt(ctx.expr(1).getText()));
 		return gid;
 	}
 	

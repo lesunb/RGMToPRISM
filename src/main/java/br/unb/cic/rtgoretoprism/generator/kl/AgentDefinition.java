@@ -33,6 +33,8 @@ package br.unb.cic.rtgoretoprism.generator.kl;
 import it.itc.sra.taom4e.model.core.informalcore.Actor;
 import it.itc.sra.taom4e.model.core.informalcore.Goal;
 import it.itc.sra.taom4e.model.core.informalcore.Plan;
+import it.itc.sra.taom4e.model.core.informalcore.formalcore.FHardGoal;
+import it.itc.sra.taom4e.model.core.informalcore.formalcore.FPlan;
 import it.itc.sra.taom4e.model.core.informalcore.formalcore.FSoftGoal;
 
 import java.util.Hashtable;
@@ -124,7 +126,7 @@ public class AgentDefinition {
 	 * 
 	 * @return the (possibly) created goalcontainer
 	 */
-	public GoalContainer createGoal(Goal goal, Const type) {
+	public GoalContainer createGoal(FHardGoal goal, Const type) {
 		GoalContainer gc = new GoalContainer(goal, type);
 		setRTAttributes(gc);
 		
@@ -145,7 +147,7 @@ public class AgentDefinition {
 	 * 
 	 * @return the (possibliy) created plancontainer
 	 */
-	public PlanContainer createPlan(Plan p) {
+	public PlanContainer createPlan(FPlan p) {
 		PlanContainer pc = new PlanContainer(p);
 		
 		setRTAttributes(pc);
@@ -224,6 +226,8 @@ public class AgentDefinition {
 		gc.setElId(parseElId(gc.getName()));
 		gc.setRtRegex(parseRTRegex(gc.getName()));
 	}
+	
+	
 	
 	public Hashtable<String, GoalContainer>  getGoalBase(){
 		return goalbase;

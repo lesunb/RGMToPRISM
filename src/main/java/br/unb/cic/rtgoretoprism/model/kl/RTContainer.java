@@ -32,7 +32,7 @@ package br.unb.cic.rtgoretoprism.model.kl;
 
 import it.itc.sra.taom4e.model.core.informalcore.TroposIntentional;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 /**
  * A container for Goal object
@@ -45,17 +45,21 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	private String elId;
 	private String rtRegex;
 	private Integer timeSlot = 0;
+	private Integer rootTimeSlot = 0;
 	private Integer timePath = 0;
 	private Integer prevTimePath = 0;
 	private Integer futTimePath = 0;
-	private ArrayList<RTContainer> alternatives;
+	private Integer cardNumber = 1;
+	private Const cardType = Const.INTL;
+	private LinkedList<RTContainer> alternatives;
 	private RTContainer firstAlternative;	
 	private RTContainer trySuccess;
 	private RTContainer tryFailure;
 	private RTContainer tryOriginal;
 	private boolean		successTry;
 	private boolean optional;
-	
+	//Contexts
+	private String creationCondition;
 	/**
 	 * Creates a standard achieve goal with request plan.
 	 */
@@ -72,23 +76,23 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	public RTContainer(TroposIntentional intentional) {
 		super(intentional);
 
-		goals = new ArrayList<GoalContainer>();
-		plans = new ArrayList<PlanContainer>();
-		alternatives = new ArrayList<RTContainer>();
-		firstAlternative = null;
+		goals = new LinkedList<GoalContainer>();
+		plans = new LinkedList<PlanContainer>();
+		alternatives = new LinkedList<RTContainer>();
+		firstAlternative = null;		
 	}
 	
 	/**
 	 * @return Returns the goals.
 	 */
-	public ArrayList<GoalContainer> getDecompGoals() {
+	public LinkedList<GoalContainer> getDecompGoals() {
 		return goals;
 	}
 	
 	/**
 	 * @return Returns the plans.
 	 */
-	public ArrayList<PlanContainer> getDecompPlans() {
+	public LinkedList<PlanContainer> getDecompPlans() {
 		return plans;
 	}
 	
@@ -139,7 +143,7 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 			sbb.setCharAt(0, Character.toUpperCase(word.charAt(0)));
 			sb.append(sbb);
 		}
-		return sb.toString().replaceAll("[:\\.]", "_").replace("[" + rtRegex + "]", "");
+		return sb.toString().replaceAll("[:\\.-]", "_").replace("[" + rtRegex + "]", "");
 	}
 	
 	/**
@@ -178,6 +182,14 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 		this.timeSlot = timeSlot;
 	}
 	
+	public Integer getRootTimeSlot() {
+		return rootTimeSlot;
+	}
+
+	public void setRootTimeSlot(Integer rootTimeSlot) {
+		this.rootTimeSlot = rootTimeSlot;
+	}
+
 	public Integer getPrevTimePath() {
 		return prevTimePath;
 	}
@@ -196,11 +208,11 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 		this.futTimePath = futTimePath;
 	}
 
-	public ArrayList<RTContainer> getAlternatives() {
+	public LinkedList<RTContainer> getAlternatives() {
 		return alternatives;
 	}
 	
-	public void setAlternatives(ArrayList<RTContainer> alternatives) {
+	public void setAlternatives(LinkedList<RTContainer> alternatives) {
 		this.alternatives = alternatives;
 	}
 	
@@ -214,8 +226,8 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 
 	public String getAltElsId(){
 		StringBuilder sb = new StringBuilder();
-		for(RTContainer alternative : getAlternatives())
-			sb.append(alternative.getClearElId());
+		for(int i = 0; i < getAlternatives().size(); i++)
+			sb.append(getAlternatives().get(i).getClearElId() + (i < getAlternatives().size() - 1 ? "_" : ""));
 		return sb.toString();
 	}
 
@@ -265,6 +277,31 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 
 	public void setOptional(boolean optional) {
 		this.optional = optional;
+	}
+	
+	public Integer getCardNumber() {
+		return cardNumber;
+	}
+
+	public void setCardNumber(Integer cardNumber) {
+		this.cardNumber = cardNumber;
+	}
+
+	public Const getCardType() {
+		return cardType;
+	}
+
+	public void setCardType(Const cardType) {
+		this.cardType = cardType;
+	}
+		
+	public String getCreationCondition() {
+		return creationCondition;
+	}
+
+	public void setCreationCondition(String creationCondition) {
+		if(creationCondition != null && !creationCondition.isEmpty())
+			this.creationCondition = creationCondition;
 	}
 
 	@Override

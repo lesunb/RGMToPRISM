@@ -30,7 +30,7 @@
 
 package br.unb.cic.rtgoretoprism.model.kl;
 
-import it.itc.sra.taom4e.model.core.informalcore.Goal;
+import it.itc.sra.taom4e.model.core.informalcore.formalcore.FHardGoal;
 
 import java.util.ArrayList;
 
@@ -61,7 +61,7 @@ public class GoalContainer extends RTContainer{
 	 * @param goal
 	 * @param achieve
 	 */
-	public GoalContainer(Goal goal, Const achieve) {
+	public GoalContainer(FHardGoal goal, Const achieve) {
 		super(goal);
 		
 		this.achieve = achieve;
@@ -69,6 +69,8 @@ public class GoalContainer extends RTContainer{
 	
 		parentlist = new ArrayList<GoalContainer>();
 		dependencies = new ArrayList<String[]>();
+		
+		this.setCreationCondition(goal.getCreationProperty());
 	}
 
 	/**

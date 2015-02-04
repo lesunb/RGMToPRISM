@@ -45,6 +45,8 @@ import it.itc.sra.taom4e.model.core.informalcore.Plan;
 import it.itc.sra.taom4e.model.core.informalcore.SoftGoal;
 import it.itc.sra.taom4e.model.core.informalcore.TroposIntentional;
 import it.itc.sra.taom4e.model.core.informalcore.formalcore.FContribution;
+import it.itc.sra.taom4e.model.core.informalcore.formalcore.FHardGoal;
+import it.itc.sra.taom4e.model.core.informalcore.formalcore.FPlan;
 import it.itc.sra.taom4e.model.project.Project;
 
 import java.util.Iterator;
@@ -156,9 +158,9 @@ public class TroposNavigator {
 	 * 
 	 * @return the list of hardgoal
 	 */
-	public List<HardGoal> getHardGoals(Actor a) {
-		LinkedList<HardGoal> hglist = new LinkedList<HardGoal>();
-		hglist.addAll( a.getOwnedElementsInstancesOfType( HardGoal.class ) );
+	public List<FHardGoal> getHardGoals(Actor a) {
+		LinkedList<FHardGoal> hglist = new LinkedList<FHardGoal>();
+		hglist.addAll( a.getOwnedElementsInstancesOfType( FHardGoal.class ) );
 		
 		return hglist;
 	}
@@ -170,11 +172,11 @@ public class TroposNavigator {
 	 * 
 	 * @return All root hardgoals.
 	 */
-	public List<HardGoal> getRootGoals(Actor a) {
-		LinkedList<HardGoal> rootgoals = new LinkedList<HardGoal>();
-		List<HardGoal> list = getHardGoals(a);
+	public List<FHardGoal> getRootGoals(Actor a) {
+		LinkedList<FHardGoal> rootgoals = new LinkedList<FHardGoal>();
+		List<FHardGoal> list = getHardGoals(a);
 		
-		for( HardGoal hg : list ) { // jumped if list.size=0
+		for( FHardGoal hg : list ) { // jumped if list.size=0
 			List allInc = hg.getIncomingRelationsInstancesOfType(BooleanDecLink.class);
 
 			if( allInc.size() == 0 )
@@ -194,7 +196,7 @@ public class TroposNavigator {
 	 * @return A list of Plans
 	 */
 	public List<Plan> getPlans(Actor a) {
-		List<Plan> list = a.getOwnedElementsInstancesOfType( Plan.class );
+		List<Plan> list = a.getOwnedElementsInstancesOfType( FPlan.class );
 		
 		return list;
 	}
@@ -492,9 +494,9 @@ public class TroposNavigator {
 
 //		for (BooleanDecLink link : list) {// jumped if list.size=0
 		for( Object child : children ) {// jumped if list.size=0
-			if( child instanceof Goal && intentionalClass.equals(Goal.class)) 
+			if( child instanceof Goal && intentionalClass.equals(FHardGoal.class)) 
 				elements.add( (Goal) child );
-			else if( child instanceof Plan && intentionalClass.equals(Plan.class)) 
+			else if( child instanceof Plan && intentionalClass.equals(FPlan.class)) 
 				elements.add( (Plan) child );
 			else if( intentionalClass.equals(TroposIntentional.class)) 
 				elements.add( (TroposIntentional) child );
@@ -527,15 +529,15 @@ public class TroposNavigator {
 	 * 
 	 * @return A list of only Plans.
 	 */
-	public List<Plan> getMeansEndMeanPlans(Goal g) {
-		LinkedList<Plan> plans = new LinkedList<Plan>();
+	public List<FPlan> getMeansEndMeanPlans(Goal g) {
+		LinkedList<FPlan> plans = new LinkedList<FPlan>();
 		List<MeansEnd> list = g.getIncomingRelationsInstancesOfType( MeansEnd.class );
 		
 //		List<MeansEnd> list = g.getMeansEndEnd();
 
 		for (MeansEnd me : list) {// jumped if list.size=0
-			if(me.getSource() instanceof Plan )
-				plans.add( (Plan) me.getSource() );
+			if(me.getSource() instanceof FPlan )
+				plans.add( (FPlan) me.getSource() );
 
 //			if (me.getMeansPlan() != null)
 //				plans.add(me.getMeansPlan());
@@ -551,15 +553,15 @@ public class TroposNavigator {
 	 * 
 	 * @return A list of only Plans.
 	 */
-	public List<Plan> getMeansEndMeanPlans(Plan p) {
-		LinkedList<Plan> plans = new LinkedList<Plan>();
+	public List<FPlan> getMeansEndMeanPlans(Plan p) {
+		LinkedList<FPlan> plans = new LinkedList<FPlan>();
 		List<MeansEnd> list = p.getIncomingRelationsInstancesOfType( MeansEnd.class );
 		
 //		List<MeansEnd> list = g.getMeansEndEnd();
 
 		for (MeansEnd me : list) {// jumped if list.size=0
-			if(me.getSource() instanceof Plan )
-				plans.add( (Plan) me.getSource() );
+			if(me.getSource() instanceof FPlan )
+				plans.add( (FPlan) me.getSource() );
 
 //			if (me.getMeansPlan() != null)
 //				plans.add(me.getMeansPlan());
@@ -575,15 +577,15 @@ public class TroposNavigator {
 	 * 
 	 * @return A list of only Goals.
 	 */
-	public List<Goal> getMeansEndMeanGoals(Goal g) {
-		LinkedList<Goal> goals = new LinkedList<Goal>();
+	public List<FHardGoal> getMeansEndMeanGoals(FHardGoal g) {
+		LinkedList<FHardGoal> goals = new LinkedList<FHardGoal>();
 		List<MeansEnd> list = g.getIncomingRelationsInstancesOfType( MeansEnd.class );
 		
 //		List<MeansEnd> list = g.getMeansEndEnd();
 
 		for (MeansEnd me : list) {// jumped if list.size=0
 			if(me.getSource() instanceof Goal )
-				goals.add( (Goal) me.getSource() );
+				goals.add( (FHardGoal) me.getSource() );
 
 //			if (me.getMeansPlan() != null)
 //				plans.add(me.getMeansPlan());

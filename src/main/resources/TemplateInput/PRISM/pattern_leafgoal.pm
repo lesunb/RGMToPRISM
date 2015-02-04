@@ -1,11 +1,12 @@
+$DEC_HEADER$$CONST_PARAM$ double rTask$GID$=0.98;
 
-param double rTask$GID$;
-$DEC_HEADER$
 module $MODULE_NAME$
-	s$GID$ :[0..3] init 0;
+	s$GID$ :[0..4] init 0;
 	
 	$DEC_TYPE$
-	[] s$GID$ = 1 -> rTask$GID$ : (s$GID$'=2) + (1 - rTask$GID$) : (s$GID$'=3);//running to final state
+	[] s$GID$ =  1 -> rTask$GID$ : (s$GID$'=2) + (1 - rTask$GID$) : (s$GID$'=4);//running to final state
 	[success$TIME_SLOT$] s$GID$ = 2 -> (s$GID$'=2);//final state success
-	[fail$GID$] !noERROR & s$GID$ = 3 -> (s$GID$'=3);//final state fail
+	[success$TIME_SLOT$] s$GID$ = 3 -> (s$GID$'=3);//final state skipped
+	[fail$GID$] s$GID$ = 4 -> (s$GID$'=4);//final state failure
 endmodule
+
