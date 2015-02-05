@@ -33,6 +33,8 @@ package br.unb.cic.rtgoretoprism.model.kl;
 import it.itc.sra.taom4e.model.core.informalcore.TroposIntentional;
 
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * A container for Goal object
@@ -50,9 +52,9 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	private Integer prevTimePath = 0;
 	private Integer futTimePath = 0;
 	private Integer cardNumber = 1;
-	private Const cardType = Const.INTL;
-	private LinkedList<RTContainer> alternatives;
-	private RTContainer firstAlternative;	
+	private Const cardType = Const.SEQ;
+	private Map <RTContainer, LinkedList<RTContainer>> alternatives;
+	private LinkedList<RTContainer> firstAlternatives;
 	private RTContainer trySuccess;
 	private RTContainer tryFailure;
 	private RTContainer tryOriginal;
@@ -78,8 +80,8 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 
 		goals = new LinkedList<GoalContainer>();
 		plans = new LinkedList<PlanContainer>();
-		alternatives = new LinkedList<RTContainer>();
-		firstAlternative = null;		
+		alternatives = new TreeMap<RTContainer,LinkedList<RTContainer>>();
+		firstAlternatives = new LinkedList<RTContainer>();		
 	}
 	
 	/**
@@ -208,26 +210,26 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 		this.futTimePath = futTimePath;
 	}
 
-	public LinkedList<RTContainer> getAlternatives() {
+	public LinkedList<RTContainer> getFirstAlternatives() {
+		return firstAlternatives;
+	}
+
+	public void setFirstAlternatives(LinkedList<RTContainer> firstAlternatives) {
+		this.firstAlternatives = firstAlternatives;
+	}
+	
+	public Map<RTContainer, LinkedList<RTContainer>> getAlternatives() {
 		return alternatives;
 	}
-	
-	public void setAlternatives(LinkedList<RTContainer> alternatives) {
+
+	public void setAlternatives(Map<RTContainer, LinkedList<RTContainer>> alternatives) {
 		this.alternatives = alternatives;
 	}
-	
-	public RTContainer getFirstAlternative() {
-		return firstAlternative;
-	}
 
-	public void setFirstAlternative(RTContainer firstAlt) {
-		this.firstAlternative = firstAlt;
-	}
-
-	public String getAltElsId(){
+	public String getAltElsId(RTContainer altFirst){
 		StringBuilder sb = new StringBuilder();
-		for(int i = 0; i < getAlternatives().size(); i++)
-			sb.append(getAlternatives().get(i).getClearElId() + (i < getAlternatives().size() - 1 ? "_" : ""));
+		for(int i = 0; i < getAlternatives().get(altFirst).size(); i++)
+			sb.append(getAlternatives().get(altFirst).get(i).getClearElId() + (i < getAlternatives().get(altFirst).size() - 1 ? "_" : ""));
 		return sb.toString();
 	}
 

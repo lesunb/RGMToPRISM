@@ -33,7 +33,6 @@ package br.unb.cic.rtgoretoprism.generator.rtgore;
 import it.itc.sra.taom4e.model.core.gencore.TroposModelElement;
 import it.itc.sra.taom4e.model.core.informalcore.Actor;
 import it.itc.sra.taom4e.model.core.informalcore.Dependency;
-import it.itc.sra.taom4e.model.core.informalcore.Goal;
 import it.itc.sra.taom4e.model.core.informalcore.Plan;
 import it.itc.sra.taom4e.model.core.informalcore.TroposIntentional;
 import it.itc.sra.taom4e.model.core.informalcore.formalcore.FContribution;
@@ -45,6 +44,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -457,52 +457,72 @@ public class RTGoreProducer {
 	private void iterateRts(RTContainer gc, List<? extends RTContainer> rts){
 		for(RTContainer dec : rts){
 			String elId = dec.getElId();
-			dec = fowardMeansEnd(dec);
+			LinkedList <RTContainer> decPlans = fowardMeansEnd(dec, new LinkedList<RTContainer>());
 			//Alternatives			
 			if(rtAltGoals.get(elId) != null){		
-				if(dec.getFirstAlternative() == null)
+				if(!dec.getFirstAlternatives().contains(rts.get(0))){
 					for(String altGoalId : rtAltGoals.get(elId)){
-						RTContainer altPlan = fowardMeansEnd(gc.getDecompElement(altGoalId));
-						if(altPlan != null){
-							dec.getAlternatives().add(altPlan);
-							altPlan.setFirstAlternative(dec);
-						}
-					}			
+						RTContainer altDec = gc.getDecompElement(altGoalId);						
+						if(altDec != null){
+							LinkedList <RTContainer> decAltPlans = fowardMeansEnd(altDec, new LinkedList<RTContainer>());
+							if(!decPlans.contains(dec)){
+								if(dec.getAlternatives().get(dec) == null)
+									dec.getAlternatives().put(dec, new LinkedList<RTContainer>());
+								dec.getAlternatives().get(dec).add(altDec);
+							}
+							if(!decAltPlans.contains(altDec))
+								altDec.getFirstAlternatives().add(dec);							
+							for(RTContainer decPlan : decPlans){
+								if(decPlan.getAlternatives().get(dec) == null)
+									decPlan.getAlternatives().put(dec, new LinkedList<RTContainer>());
+								decPlan.getAlternatives().get(dec).add(altDec);
+								break;
+							}
+							for(RTContainer decAltPlan : decAltPlans)
+								decAltPlan.getFirstAlternatives().add(dec);
+						}			
+					}
+				}
 			}				
 			//Try
 			if(rtTryGoals.get(elId) != null){	
 				String [] tryGoals = rtTryGoals.get(elId);
 				RTContainer sucessPlan = null;
 				if(tryGoals[0] != null){
-					sucessPlan = fowardMeansEnd(gc.getDecompElement(tryGoals[0]));
-					dec.setTrySuccess(sucessPlan);
-					sucessPlan.setTryOriginal(dec);
+					sucessPlan = fowardMeansEnd(gc.getDecompElement(tryGoals[0]), new LinkedList<RTContainer>()).get(0);
+					decPlans.get(0).setTrySuccess(sucessPlan);
+					sucessPlan.setTryOriginal(decPlans.get(0));
 					sucessPlan.setSuccessTry(true);
 				}
 				if(tryGoals[1] != null){
-					RTContainer failurePlan = fowardMeansEnd(gc.getDecompElement(tryGoals[1]));
-					dec.setTryFailure(failurePlan);
-					failurePlan.setTryOriginal(dec);
+					RTContainer failurePlan = fowardMeansEnd(gc.getDecompElement(tryGoals[1]), new LinkedList<RTContainer>()).get(0);
+					decPlans.get(0).setTryFailure(failurePlan);
+					failurePlan.setTryOriginal(decPlans.get(0));
 					failurePlan.setSuccessTry(false);
 				}
 			}
 			//Optional
 			if(rtOptGoals.containsKey(elId))
-				dec.setOptional(rtOptGoals.get(elId));
+				decPlans.get(0).setOptional(rtOptGoals.get(elId));
 			//Cardinality
 			if(rtCardGoals.containsKey(elId)){
 				Integer cardNumber = rtCardGoals.get(elId);
-				dec.setCardNumber(cardNumber);
+				decPlans.get(0).setCardNumber(cardNumber);
 			}
 		}		
 	}
 	
-	private RTContainer fowardMeansEnd(RTContainer dec){
+	private LinkedList<RTContainer> fowardMeansEnd(RTContainer dec, LinkedList<RTContainer> decs){
 		if(dec.getDecompGoals() != null && !dec.getDecompGoals().isEmpty())
-			return fowardMeansEnd(dec = dec.getDecompGoals().get(0));
-		if(dec.getDecompPlans() != null && !dec.getDecompPlans().isEmpty())
-			return fowardMeansEnd(dec = dec.getDecompPlans().get(0));
-		return dec;
+			for(RTContainer subDec : dec.getDecompGoals())				
+				fowardMeansEnd(subDec, decs);
+		else if(dec.getDecompPlans() != null && !dec.getDecompPlans().isEmpty())
+			for(RTContainer subDec : dec.getDecompPlans())	
+				fowardMeansEnd(subDec, decs);
+		else
+			decs.add(dec);
+		
+		return decs;
 	}
 	
 	@SuppressWarnings("unchecked")

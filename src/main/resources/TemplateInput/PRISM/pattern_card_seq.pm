@@ -4,7 +4,7 @@ const double maxRetries$GID$=$MAX_RETRIES$;
 
 module $MODULE_NAME$
 	s$GID$ :[0..4] init 0;
-	tries$GID$ : [0..$GID$=$MAX_RETRIES$] init 0;
+	tries$GID$ : [0..$MAX_RETRIES$] init 0;
 
 	$DEC_TYPE$
 	[] s$GID$ = 1 & tries$GID$ < maxRetries$GID$ -> rTask$GID$ : (s$GID$'=2) + (1 - rTask$GID$) : (tries$GID$'=tries$GID$+1);//try
