@@ -1,0 +1,1 @@
+XOR_$XOR_GIDS$!=$XOR_VALUE$

@@ -229,7 +229,8 @@ public class RTGoreProducer {
 							pc.setTimePath(gc.getTimePath() + decDeltaPathTime[0]);						
 						pc.setTimeSlot(rootTime + decDeltaPathTime[1]);
 						parPlan = true;
-					}else{						
+					}else{		
+						pc.setPrevTimePath(prevPath);//testing to solve T8.0 problem
 						pc.setTimePath(rootPath);
 						pc.setTimeSlot(rootTime);
 					}
