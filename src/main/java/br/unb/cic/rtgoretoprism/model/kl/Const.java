@@ -36,5 +36,5 @@ package br.unb.cic.rtgoretoprism.model.kl;
  *
  */
 public enum Const { 
-	OR, AND, ME, ACHIEVE, MAINTAIN, REQUEST, NONE, DELEGATION, SEQ, INTL, XOR, TRY, TRY_S, TRY_F, OPT, ROOT
+	OR, AND, ME, ACHIEVE, MAINTAIN, REQUEST, NONE, DELEGATION, SEQ, INT, XOR, TRY, TRY_S, TRY_F, RTRY, OPT, ROOT
 }

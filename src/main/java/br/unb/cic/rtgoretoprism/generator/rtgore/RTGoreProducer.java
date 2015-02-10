@@ -80,7 +80,7 @@ public class RTGoreProducer {
 	private Set<Actor> allActors;
 	
 	Map<String, Integer[]> rtSortedGoals;
-	Map<String, Integer> rtCardGoals;
+	Map<String, Object[]> rtCardGoals;
 	Map<String, Set<String>> rtAltGoals;
 	Map<String, String[]> rtTryGoals;
 	Map<String, Boolean> rtOptGoals;
@@ -102,7 +102,7 @@ public class RTGoreProducer {
 		this.allActors = allActors;
 		
 		this.rtSortedGoals = new TreeMap<String, Integer[]>();
-		this.rtCardGoals = new TreeMap<String, Integer>();
+		this.rtCardGoals = new TreeMap<String, Object[]>();
 		this.rtAltGoals = new TreeMap<String, Set<String>>();
 		this.rtTryGoals = new TreeMap<String, String[]>();
 		this.rtOptGoals = new TreeMap<String, Boolean>();
@@ -193,10 +193,11 @@ public class RTGoreProducer {
 			gc.createDecomposition(Const.AND);			
 		else if (tn.isBooleanDecOR(g))
 			// sets decomposition flag and creates the Metagoal+plan (call only one time!)
-			gc.createDecomposition(Const.OR);			
+			gc.createDecomposition(Const.OR);	
+		
 		
 		iterateGoals(ad, gc, declist);
-		//Set goals alternatives and tries
+		//Set goals alternatives, tries, optional and cardinalities
 		iterateRts(gc, gc.getDecompGoals());
 							
 		
@@ -293,7 +294,7 @@ public class RTGoreProducer {
 	
 	private void iterateGoals(AgentDefinition ad, GoalContainer gc, List<FHardGoal> decList) throws IOException{
 		
-		Integer prevPath = gc.getPrevTimePath();
+		//Integer prevPath = gc.getPrevTimePath();
 		Integer rootPath = gc.getTimePath();
 		Integer rootTime = gc.getTimeSlot();
 		gc.setRootTimeSlot(rootTime);
@@ -321,10 +322,18 @@ public class RTGoreProducer {
 						deccont.setTimePath(gc.getTimePath() + decDeltaPathTime[0]);					
 					deccont.setTimeSlot(rootTime);
 					parDec = true;
-				}else{					
+				}else{				
 					deccont.setTimePath(rootPath);
 					deccont.setTimeSlot(rootTime);
 				}
+			}
+			if(rtCardGoals.containsKey(deccont.getElId())){
+				Object[] card = rtCardGoals.get(deccont.getElId());
+				Const cardType = (Const) card[0];
+				Integer cardNumber = (Integer) card[1];
+				deccont.setCardType(cardType);
+				if(cardType.equals(Const.SEQ))
+					deccont.setTimeSlot(deccont.getTimeSlot() + cardNumber - 1);
 			}
 			
 			if(gc.getCreationCondition() != null)
@@ -368,9 +377,9 @@ public class RTGoreProducer {
 	private void addPlan(Plan p, PlanContainer pc, final AgentDefinition ad) throws IOException {
 		addContributions(p, pc, ad);
 		
-		Integer prevPath = pc.getPrevTimePath();
-		Integer rootPath = pc.getTimePath();
-		Integer rootTime = pc.getTimeSlot();
+		//Integer prevPath = pc.getPrevTimePath();
+		//Integer rootPath = pc.getTimePath();
+		//Integer rootTime = pc.getTimeSlot();
 		storeRegexResults(pc.getRtRegex());
 
 		if (tn.isMeansEndDec(p)){
@@ -400,7 +409,7 @@ public class RTGoreProducer {
 	
 	private void iteratePlans(AgentDefinition ad, PlanContainer pc, List<FPlan> decList) throws IOException{
 		
-		Integer prevPath = pc.getPrevTimePath();
+		//Integer prevPath = pc.getPrevTimePath();
 		Integer rootPath = pc.getTimePath();
 		Integer rootTime = pc.getTimeSlot();
 		for (FPlan dec : decList) {
@@ -433,6 +442,14 @@ public class RTGoreProducer {
 			}else{
 				deccont.setTimePath(pc.getTimePath());
 				deccont.setTimeSlot(pc.getTimeSlot());
+			}
+			
+			if(rtCardGoals.containsKey(deccont.getElId())){
+				Object[] card = rtCardGoals.get(deccont.getElId());
+				Const cardType = (Const) card[0];
+				Integer cardNumber = (Integer) card[1];
+				if(cardType.equals(Const.SEQ))
+					deccont.setTimeSlot(deccont.getTimeSlot() + cardNumber - 1);
 			}
 			
 			if(pc.getCreationCondition() != null)
@@ -488,27 +505,42 @@ public class RTGoreProducer {
 			//Try
 			if(rtTryGoals.get(elId) != null){	
 				String [] tryGoals = rtTryGoals.get(elId);
-				RTContainer sucessPlan = null;
 				if(tryGoals[0] != null){
-					sucessPlan = fowardMeansEnd(gc.getDecompElement(tryGoals[0]), new LinkedList<RTContainer>()).get(0);
-					decPlans.get(0).setTrySuccess(sucessPlan);
-					sucessPlan.setTryOriginal(decPlans.get(0));
-					sucessPlan.setSuccessTry(true);
+					RTContainer successPlan = gc.getDecompElement(tryGoals[0]);
+					LinkedList<RTContainer> decSucessPlans = fowardMeansEnd(successPlan, new LinkedList<RTContainer>());
+					for(RTContainer decPlan : decPlans){
+						decPlan.setTrySuccess(successPlan);
+					}
+					for(RTContainer decSucessPlan : decSucessPlans){						
+						decSucessPlan.setTryOriginal(dec);
+						decSucessPlan.setSuccessTry(true);
+					}
 				}
 				if(tryGoals[1] != null){
-					RTContainer failurePlan = fowardMeansEnd(gc.getDecompElement(tryGoals[1]), new LinkedList<RTContainer>()).get(0);
-					decPlans.get(0).setTryFailure(failurePlan);
-					failurePlan.setTryOriginal(decPlans.get(0));
-					failurePlan.setSuccessTry(false);
+					RTContainer failurePlan = gc.getDecompElement(tryGoals[1]);
+					LinkedList<RTContainer> decFailurePlans = fowardMeansEnd(failurePlan, new LinkedList<RTContainer>());
+					for(RTContainer decPlan : decPlans){
+						decPlan.setTryFailure(failurePlan);
+					}
+					for(RTContainer decFailurePlan : decFailurePlans){						
+						decFailurePlan.setTryOriginal(dec);
+						decFailurePlan.setSuccessTry(false);
+					}
 				}
 			}
 			//Optional
 			if(rtOptGoals.containsKey(elId))
-				decPlans.get(0).setOptional(rtOptGoals.get(elId));
+				for(RTContainer decPlan : decPlans)
+					decPlan.setOptional(rtOptGoals.get(elId));
 			//Cardinality
 			if(rtCardGoals.containsKey(elId)){
-				Integer cardNumber = rtCardGoals.get(elId);
-				decPlans.get(0).setCardNumber(cardNumber);
+				Object[] card = rtCardGoals.get(dec.getElId());
+				Const cardType = (Const) card[0];
+				Integer cardNumber = (Integer) card[1];
+				for(RTContainer decPlan : decPlans){
+					decPlan.setCardType(cardType);
+					decPlan.setCardNumber(cardNumber);
+				}
 			}
 		}		
 	}
@@ -531,7 +563,7 @@ public class RTGoreProducer {
 		if(rtRegex != null){
 			Object [] res = RTGoreSorter.parseRegex(rtRegex + '\n');
 			rtSortedGoals.putAll((Map<String, Integer[]>) res [0]);
-			rtCardGoals.putAll((Map<String, Integer>) res [1]);
+			rtCardGoals.putAll((Map<String, Object[]>) res [1]);
 			rtAltGoals.putAll((Map<String, Set<String>>) res [2]);
 			rtTryGoals.putAll((Map<String, String[]>) res [3]);
 			rtOptGoals.putAll((Map<String, Boolean>) res[4]);

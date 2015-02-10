@@ -25,6 +25,7 @@ import br.unb.cic.RTRegexParser.GTimeContext;
 import br.unb.cic.RTRegexParser.GTryContext;
 import br.unb.cic.RTRegexParser.ParensContext;
 import br.unb.cic.RTRegexParser.PrintExprContext;
+import br.unb.cic.rtgoretoprism.model.kl.Const;
 
 
 
@@ -74,7 +75,7 @@ public class RTGoreSorter{
 class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 
 	Map<String, Integer[]> timeMemory = new HashMap<String, Integer[]>();		
-	Map<String, Integer> cardMemory = new HashMap<String, Integer>();
+	Map<String, Object[]> cardMemory = new HashMap<String, Object[]>();
 	Map<String, Set<String>> altMemory = new HashMap<String, Set<String>>();
 	Map<String, String[]> tryMemory = new HashMap<String, String[]>();
 	Map<String, Boolean> optMemory = new HashMap<String, Boolean>();
@@ -103,7 +104,7 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 		String [] gidBs = gidBo.split("-");
 		for(String gidB : gidBs){
 			Integer [] pathTimeB = timeMemory.get(gidB);			
-			if(ctx.op.getType() == RTRegexParser.PAR){
+			if(ctx.op.getType() == RTRegexParser.INT){
 				pathTimeB[0]++;
 			}else if(ctx.op.getType() == RTRegexParser.SEQ)
 				pathTimeB[1]++;
@@ -144,10 +145,12 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 	@Override
 	public String visitGCard(GCardContext ctx) {		
 		String gid = visit(ctx.expr(0));
-		//Integer card = 1;
-		//if(cardMemory.containsKey(gid))
-		//card = cardMemory.get(gid);
-		cardMemory.put(gid, Integer.parseInt(ctx.expr(1).getText()));
+		if(ctx.op.getType() == RTRegexParser.C_INT)
+			cardMemory.put(gid, new Object[]{Const.INT,Integer.parseInt(ctx.expr(1).getText())});
+		else if(ctx.op.getType() == RTRegexParser.C_SEQ)
+			cardMemory.put(gid, new Object[]{Const.SEQ,Integer.parseInt(ctx.expr(1).getText())});
+		else
+			cardMemory.put(gid, new Object[]{Const.RTRY,Integer.parseInt(ctx.expr(1).getText())});
 		return gid;
 	}
 	

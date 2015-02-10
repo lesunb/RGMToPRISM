@@ -101,8 +101,8 @@ public class PrismWriter {
 	
 	private static final String MODULE_NAME_TAG			= "$MODULE_NAME$";
 	private static final String NO_ERROR_TAG			= "$NO_ERROR$";
-	private static final String TIME_SLOT_TAG			= "$TIME_SLOT$";
-	private static final String PREV_TIME_SLOT_TAG		= "$PREV_TIME_SLOT$";
+	private static final String TIME_SLOT_TAG			= "$TIME_SLOT";
+	private static final String PREV_TIME_SLOT_TAG		= "$PREV_TIME_SLOT";
 	private static final String GID_TAG					= "$GID$";
 	private static final String PREV_GID_TAG			= "$PREV_GID$";
 	private static final String GOAL_MODULES_TAG 		= "$GOAL_MODULES$";
@@ -167,6 +167,7 @@ public class PrismWriter {
 	
 	/** PRISM patterns */
 	private String xorSkippedPattern;
+	private String seqRenamePattern;
 
 	/** Has all the informations about the agent. */ 
 	private AgentDefinition ad;
@@ -425,12 +426,13 @@ public class PrismWriter {
 		String xorDecPattern 			= readFileAsString(input + "pattern_xor.pm");
 		String xorDecHeaderPattern 		= readFileAsString(input + "pattern_xor_header.pm");
 		xorSkippedPattern	 			= readFileAsString(input + "pattern_skip_xor.pm");
+		seqRenamePattern				= readFileAsString(input + "pattern_seq_rename.pm");
 		String trySDecPattern	 		= readFileAsString(input + "pattern_try_success.pm");
 		String tryFDecPattern	 		= readFileAsString(input + "pattern_try_fail.pm");
 		String optDecPattern 			= readFileAsString(input + "pattern_opt.pm");
 		String optHeaderPattern	 		= readFileAsString(input + "pattern_opt_header.pm");
 		String seqCardPattern	 		= readFileAsString(input + "pattern_card_seq.pm");
-		String intlCardPattern	 		= readFileAsString(input + "pattern_card_intl.pm");
+		String intlCardPattern	 		= readFileAsString(input + "pattern_card_retry.pm");//TODO: create retry in a separate pattern
 		String ctxGoalPattern	 		= readFileAsString(input + "pattern_ctx_goal.pm");
 		String ctxTaskPattern	 		= readFileAsString(input + "pattern_ctx_task.pm");
 		Collections.sort(rootGoals);
@@ -559,11 +561,26 @@ public class PrismWriter {
 		String planModule;
 		StringBuilder planFormula = new StringBuilder();
 					
-		if(plan.getCardNumber() > 1 && plan.getCardType() == Const.SEQ)
-			planModule = seqCardPattern.replace(MODULE_NAME_TAG, plan.getClearElName());
-		else if(plan.getCardNumber() > 1 && plan.getCardType() == Const.INTL)
-			planModule = intlCardPattern.replace(MODULE_NAME_TAG, plan.getClearElName());
-		else
+		if(plan.getCardNumber() > 1){
+			StringBuilder seqRenames = new StringBuilder();
+			if(plan.getCardType() == Const.SEQ){
+				for(int i = 2; i <= plan.getCardNumber(); i++){
+					String seqRename = new String(seqRenamePattern);
+					seqRename = seqRename.replace("$CARD_N$", i + "");
+					seqRenames.append(seqRename);
+				}
+				seqCardPattern = seqCardPattern.replace("$SEQ_RENAMES$", seqRenames);
+				planModule = seqCardPattern.replace(MODULE_NAME_TAG, plan.getClearElName());
+			}else{
+				for(int i = 2; i <= plan.getCardNumber(); i++){
+					String seqRename = new String(seqRenamePattern);
+					seqRename = seqRename.replace("$CARD_N$", i + "");
+					seqRenames.append(seqRename);
+				}
+				intlCardPattern = intlCardPattern.replace("$SEQ_RENAMES$", seqRenames);
+				planModule = intlCardPattern.replace(MODULE_NAME_TAG, plan.getClearElName());
+			}
+		}else
 			planModule = singlePattern.replace(MODULE_NAME_TAG, plan.getClearElName());
 		
 		StringBuilder sbHeader = new StringBuilder();
@@ -666,9 +683,13 @@ public class PrismWriter {
 		//Time
 		Integer prevTimePath = plan.getPrevTimePath();
 		Integer timePath = plan.getTimePath();
-		Integer timeSlot = plan.getTimeSlot() + 1;
-		planModule = planModule.replace(PREV_TIME_SLOT_TAG, prevTimePath + "_" + (timeSlot - 1) + "");
-		planModule = planModule.replace(TIME_SLOT_TAG, timePath + "_" + timeSlot + "");
+		Integer timeSlot = plan.getTimeSlot();
+		if(plan.getCardType().equals(Const.SEQ))
+			timeSlot -= plan.getCardNumber() - 1; 
+		for(int i = plan.getCardNumber(); i > 0; i--){
+			planModule = planModule.replace(PREV_TIME_SLOT_TAG + (i > 1 ? "_N" + i : "") + "$", prevTimePath + "_" + (timeSlot - 1 + i) + "");
+			planModule = planModule.replace(TIME_SLOT_TAG + (i > 1 ? "_N" + i : "") + "$", timePath + "_" + (timeSlot + i) + "");
+		}
 		//GID
 		planModule = planModule.replace(GID_TAG, plan.getClearElId());
 		//CONST OR PARAM

@@ -9,4 +9,3 @@ module $MODULE_NAME$
 	[success$TIME_SLOT$] s$GID$ = 3 -> (s$GID$'=3);//final state skipped
 	[fail$GID$] s$GID$ = 4 -> (s$GID$'=4);//final state failure
 endmodule
-
