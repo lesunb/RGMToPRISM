@@ -1,3 +1,2 @@
-[success$PREV_TIME_SLOT$] $PREV_SUCCESS$ & $CTX_CONDITION$ $NOT_SKIPPED$s$GID$ = 0 -> (s$GID$'=1);//init to running
-	[success$PREV_TIME_SLOT$] $CTX_CONDITION$ $SKIPPED$ & s$GID$ = 0 -> (s$GID$'=3);//not used, skip running
+[success$PREV_TIME_SLOT$] $PREV_SUCCESS$ & $CTX_CONDITION$ s$GID$ = 0 -> $NOT_SKIPPED$ : (s$GID$'=1) + $SKIPPED$ : (s$GID$'=3);//init to running or skip
 	$CTX_EFFECT$

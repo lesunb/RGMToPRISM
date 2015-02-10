@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -80,7 +81,7 @@ public class CtxParser{
 
 class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 
-	Set<String> ctxVars = new TreeSet<String>();
+	Set<String[]> ctxVars = new HashSet<String[]>();
 	List<ContextCondition> memory = new ArrayList<ContextCondition>();
 	
 	@Override
@@ -91,7 +92,12 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 	@Override
 	public String visitCVar(CVarContext ctx) {
 		String var = ctx.VAR().getText();
-		ctxVars.add(var);
+		if(ctx.getParent() instanceof CAndContext ||
+		   ctx.getParent() instanceof COrContext){
+			ctxVars.add(new String[]{var, "bool"});
+			memory.add(new ContextCondition(var, CtxSymbols.BOOL, "true"));
+		}else
+			ctxVars.add(new String[]{var, "double"});
 		return var;
 	}	
 	

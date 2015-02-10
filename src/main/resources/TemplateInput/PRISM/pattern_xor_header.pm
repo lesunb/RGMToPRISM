@@ -1,1 +1,1 @@
-const int XOR_$XOR_GIDS$=0;
+$CONST_PARAM$ int XOR_$GID$;

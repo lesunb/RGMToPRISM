@@ -167,6 +167,7 @@ public class PrismWriter {
 	
 	/** PRISM patterns */
 	private String xorSkippedPattern;
+	private String xorNotSkippedPattern;
 	private String seqRenamePattern;
 
 	/** Has all the informations about the agent. */ 
@@ -426,6 +427,7 @@ public class PrismWriter {
 		String xorDecPattern 			= readFileAsString(input + "pattern_xor.pm");
 		String xorDecHeaderPattern 		= readFileAsString(input + "pattern_xor_header.pm");
 		xorSkippedPattern	 			= readFileAsString(input + "pattern_skip_xor.pm");
+		xorNotSkippedPattern	 		= readFileAsString(input + "pattern_skip_not_xor.pm");
 		seqRenamePattern				= readFileAsString(input + "pattern_seq_rename.pm");
 		String trySDecPattern	 		= readFileAsString(input + "pattern_try_success.pm");
 		String tryFDecPattern	 		= readFileAsString(input + "pattern_try_fail.pm");
@@ -612,39 +614,64 @@ public class PrismWriter {
 			}
 			if(!plan.getAlternatives().isEmpty() || !plan.getFirstAlternatives().isEmpty()){
 				//Alternatives
-				String xorSkippeds = "";
+				String xorNotSkippeds = new String();
 				if(!plan.getAlternatives().isEmpty()){
+					StringBuilder xorHeaders = new StringBuilder();
 					for(RTContainer altFirst : plan.getAlternatives().keySet()){
-						String xorFirstSkipped = new String(xorSkippedPattern);
-						String xorGIDs = altFirst.getClearElId() + "_" + plan.getAltElsId(altFirst);
-						xorHeader = xorHeader.replace(XOR_GIDS_TAG, xorGIDs);						
-						xorPattern = xorPattern.replace(XOR_GIDS_TAG, xorGIDs);
-						xorPattern = xorPattern.replace(XOR_VALUE_TAG, 0 + "");
-						xorFirstSkipped = xorFirstSkipped.replace(XOR_GIDS_TAG, xorGIDs);
-						xorFirstSkipped = xorFirstSkipped.replace(XOR_VALUE_TAG, 0 + "");					
-						xorSkippeds = xorSkippeds.concat(xorFirstSkipped + " | ");
+						//String xorGIDs = altFirst.getClearElId() + "_" + plan.getAltElsId(altFirst);
+						//String firstGid = altFirst.getClearElId();
+						String xorVar = new String(xorHeader);
+						xorHeaders.append(xorVar.replace(GID_TAG, altFirst.getClearElId()));
+						String xorSkipped = new String(xorSkippedPattern);
+						String xorNotSkipped = new String(xorNotSkippedPattern);
+						xorSkipped = xorSkipped.replace(GID_TAG, altFirst.getClearElId());
+						xorNotSkipped = xorNotSkipped.replace(GID_TAG, altFirst.getClearElId());
+						xorNotSkippeds = xorNotSkippeds.concat(xorNotSkipped + "*");
+						LinkedList<RTContainer> alts = plan.getAlternatives().get(altFirst);
+						for(RTContainer alt : alts){
+							xorSkipped = new String(xorSkippedPattern);
+							xorNotSkipped = new String(xorNotSkippedPattern);
+							xorVar = new String(xorHeader);
+							xorHeaders.append(xorVar.replace(GID_TAG, alt.getClearElId()));																		
+							xorSkipped = xorSkipped.replace(GID_TAG, alt.getClearElId());											
+							xorNotSkipped = xorNotSkipped.replace(GID_TAG, alt.getClearElId());
+							xorNotSkippeds = xorNotSkippeds.concat(xorSkipped + "*");
+						}
 						//appendAlternativesToNoErrorFormula(plan);
-					}
-					sbHeader.append(xorHeader);
+					}					
+					sbHeader.append(xorHeaders);
 				}
 				if(!plan.getFirstAlternatives().isEmpty()){
 					for(int i = 0; i < plan.getFirstAlternatives().size(); i++){
 						RTContainer firstAlt = plan.getFirstAlternatives().get(i);
-						String xorAltSkipped = new String(xorSkippedPattern);
-						String xorGIDs = firstAlt.getClearElId() + "_" + firstAlt.getAltElsId(firstAlt);
-						String xorValue = calcAltIndex(firstAlt.getAlternatives().get(firstAlt), plan) + 1 + "";
+						String xorSkipped = new String(xorSkippedPattern);
+						String xorNotSkipped = new String(xorNotSkippedPattern);
+						//String xorGIDs = firstAlt.getClearElId() + "_" + firstAlt.getAltElsId(firstAlt);
+						//String xorValue = calcAltIndex(firstAlt.getAlternatives().get(firstAlt), plan) + 1 + "";
 						//if(plan.getAlternatives().isEmpty()){
-							xorPattern = xorPattern.replace(XOR_GIDS_TAG, xorGIDs);
-							xorPattern = xorPattern.replace(XOR_VALUE_TAG,  xorValue);
+							//xorPattern = xorPattern.replace(XOR_GIDS_TAG, xorGIDs);
+							//xorPattern = xorPattern.replace(XOR_VALUE_TAG,  xorValue);
 						//}
-						xorAltSkipped = xorAltSkipped.replace(XOR_GIDS_TAG, xorGIDs);
-						xorAltSkipped = xorAltSkipped.replace(XOR_VALUE_TAG, xorValue);
-						xorSkippeds = xorSkippeds.concat(xorAltSkipped + " | ");
+						xorSkipped = xorSkipped.replace(GID_TAG, firstAlt.getClearElId());
+						xorNotSkipped = xorNotSkipped.replace(GID_TAG, firstAlt.getClearElId());
+						xorNotSkippeds = xorNotSkippeds.concat(xorSkipped + "*");
+						for(RTContainer alt : firstAlt.getAlternatives().get(firstAlt)){
+							if(alt.equals(plan) || calcAltIndex(firstAlt.getAlternatives().get(firstAlt), plan) == 0){
+								xorNotSkipped = new String(xorNotSkippedPattern);
+								xorNotSkipped = xorNotSkipped.replace(GID_TAG, alt.getClearElId());
+								xorNotSkippeds = xorNotSkippeds.concat(xorNotSkipped + "*");
+							}else{								
+								xorSkipped = new String(xorSkippedPattern);
+								xorSkipped = xorSkipped.replace(GID_TAG, alt.getClearElId());
+								xorNotSkippeds = xorNotSkippeds.concat(xorSkipped + "*");
+							}							
+						}
 					}
 				}
 				planFormula.append(processTaskFormula(plan, Const.XOR));
-				xorPattern = xorPattern.replace(NOT_SKIPPED_TAG, xorSkippeds.replaceAll(" \\| ", " & ").replaceAll("[\n!]", ""));
-				sbType.append(xorPattern.replace(SKIPPED_TAG, xorSkippeds.substring(0, xorSkippeds.lastIndexOf(" | ")).replace("\n", "")));
+				xorNotSkippeds = xorNotSkippeds.substring(0, xorNotSkippeds.lastIndexOf("*")).replaceAll("[\n]", "");
+				xorPattern = xorPattern.replace(NOT_SKIPPED_TAG, xorNotSkippeds);
+				sbType.append(xorPattern.replace(SKIPPED_TAG, "(1 - " + xorNotSkippeds + ")"));
 			}
 			if(plan.isOptional()){
 				//Opt
@@ -671,7 +698,7 @@ public class PrismWriter {
 		//CONTEXT CONDITION
 		if(plan.getCreationCondition() != null && CONST_PARAM_VAL.equals("const")){
 			Object [] parsedCtxs = CtxParser.parseRegex(plan.getCreationCondition());
-			addCtxVar((Set<String>)parsedCtxs[0]);
+			addCtxVar((Set<String[]>)parsedCtxs[0]);
 			planModule = planModule.replace(CTX_EFFECT_TAG, ctxTaskPattern);
 			planModule = planModule.replace(CTX_CONDITION_TAG, "(" + parsedCtxs[1] + ")" + " &");
 		}else{
@@ -705,16 +732,15 @@ public class PrismWriter {
 			if(!alt.getDecompGoals().isEmpty() && calcAltIndex(alt.getDecompGoals(), plan) >= 0)
 				return alts.indexOf(alt);
 			if(!alt.getDecompPlans().isEmpty() && calcAltIndex(alt.getDecompPlans(), plan) >= 0)
-				return alts.indexOf(alt);
-			if(alt.equals(plan))
-				return alts.indexOf(plan);
+				return alts.indexOf(alt);			
+			return alts.indexOf(plan) + 1;
 		}
 		return alts.indexOf(plan);		
 	}
 	
-	private void addCtxVar(Set<String> vars){
-		for(String var : vars)
-			ctxVars.put(var, "double");
+	private void addCtxVar(Set<String[]> vars){
+		for(String[] var : vars)
+		ctxVars.put(var[0], var[1]);
 	}
 	
 	private String processTaskFormula(PlanContainer plan, Const decType){

@@ -1,1 +1,1 @@
-XOR_$XOR_GIDS$!=$XOR_VALUE$
+(1 - XOR_$GID$)
