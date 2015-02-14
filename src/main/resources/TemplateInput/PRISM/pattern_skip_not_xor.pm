@@ -1,1 +1,1 @@
-(XOR_$GID$)
+XOR_$GID$

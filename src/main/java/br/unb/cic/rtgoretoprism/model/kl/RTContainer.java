@@ -44,6 +44,7 @@ import java.util.TreeMap;
 public abstract class RTContainer extends ElementContainer implements Comparable<RTContainer>{
 
 	//RTGore
+	private RTContainer root;
 	private String elId;
 	private String rtRegex;
 	private Integer timeSlot = 0;
@@ -68,6 +69,10 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	//public GoalContainer(Goal goal) {
 	//	this(goal, Const.REQUEST, Const.ACHIEVE);
 	//}
+	
+	public boolean isAlternative(){
+		return !firstAlternatives.isEmpty() || !alternatives.isEmpty();
+	}
 
 	/**
 	 * Creates a new GoalContainer instance
@@ -146,6 +151,19 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 			sb.append(sbb);
 		}
 		return sb.toString().replaceAll("[:\\.-]", "_").replace("[" + rtRegex + "]", "");
+	}
+	
+	public static LinkedList<RTContainer> fowardMeansEnd(RTContainer dec, LinkedList<RTContainer> decs){
+		if(dec.getDecompGoals() != null && !dec.getDecompGoals().isEmpty())
+			for(RTContainer subDec : dec.getDecompGoals())				
+				fowardMeansEnd(subDec, decs);
+		else if(dec.getDecompPlans() != null && !dec.getDecompPlans().isEmpty())
+			for(RTContainer subDec : dec.getDecompPlans())	
+				fowardMeansEnd(subDec, decs);
+		else
+			decs.add(dec);
+		
+		return decs;
 	}
 	
 	/**
@@ -304,6 +322,14 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	public void setCreationCondition(String creationCondition) {
 		if(creationCondition != null && !creationCondition.isEmpty())
 			this.creationCondition = creationCondition;
+	}
+	
+	public RTContainer getRoot() {
+		return root;
+	}
+
+	public void setRoot(RTContainer root) {
+		this.root = root;
 	}
 
 	@Override

@@ -475,14 +475,14 @@ public class RTGoreProducer {
 	private void iterateRts(RTContainer gc, List<? extends RTContainer> rts){
 		for(RTContainer dec : rts){
 			String elId = dec.getElId();
-			LinkedList <RTContainer> decPlans = fowardMeansEnd(dec, new LinkedList<RTContainer>());
+			LinkedList <RTContainer> decPlans = RTContainer.fowardMeansEnd(dec, new LinkedList<RTContainer>());
 			//Alternatives			
 			if(rtAltGoals.get(elId) != null){		
 				if(!dec.getFirstAlternatives().contains(rts.get(0))){
 					for(String altGoalId : rtAltGoals.get(elId)){
 						RTContainer altDec = gc.getDecompElement(altGoalId);						
 						if(altDec != null){
-							LinkedList <RTContainer> decAltPlans = fowardMeansEnd(altDec, new LinkedList<RTContainer>());
+							LinkedList <RTContainer> decAltPlans = RTContainer.fowardMeansEnd(altDec, new LinkedList<RTContainer>());
 							if(!decPlans.contains(dec)){
 								if(dec.getAlternatives().get(dec) == null)
 									dec.getAlternatives().put(dec, new LinkedList<RTContainer>());
@@ -507,7 +507,7 @@ public class RTGoreProducer {
 				String [] tryGoals = rtTryGoals.get(elId);
 				if(tryGoals[0] != null){
 					RTContainer successPlan = gc.getDecompElement(tryGoals[0]);
-					LinkedList<RTContainer> decSucessPlans = fowardMeansEnd(successPlan, new LinkedList<RTContainer>());
+					LinkedList<RTContainer> decSucessPlans = RTContainer.fowardMeansEnd(successPlan, new LinkedList<RTContainer>());
 					for(RTContainer decPlan : decPlans){
 						decPlan.setTrySuccess(successPlan);
 					}
@@ -518,7 +518,7 @@ public class RTGoreProducer {
 				}
 				if(tryGoals[1] != null){
 					RTContainer failurePlan = gc.getDecompElement(tryGoals[1]);
-					LinkedList<RTContainer> decFailurePlans = fowardMeansEnd(failurePlan, new LinkedList<RTContainer>());
+					LinkedList<RTContainer> decFailurePlans = RTContainer.fowardMeansEnd(failurePlan, new LinkedList<RTContainer>());
 					for(RTContainer decPlan : decPlans){
 						decPlan.setTryFailure(failurePlan);
 					}
@@ -544,24 +544,12 @@ public class RTGoreProducer {
 			}
 		}		
 	}
-	
-	private LinkedList<RTContainer> fowardMeansEnd(RTContainer dec, LinkedList<RTContainer> decs){
-		if(dec.getDecompGoals() != null && !dec.getDecompGoals().isEmpty())
-			for(RTContainer subDec : dec.getDecompGoals())				
-				fowardMeansEnd(subDec, decs);
-		else if(dec.getDecompPlans() != null && !dec.getDecompPlans().isEmpty())
-			for(RTContainer subDec : dec.getDecompPlans())	
-				fowardMeansEnd(subDec, decs);
-		else
-			decs.add(dec);
-		
-		return decs;
-	}
+
 	
 	@SuppressWarnings("unchecked")
 	private void storeRegexResults(String rtRegex) throws IOException {
 		if(rtRegex != null){
-			Object [] res = RTGoreSorter.parseRegex(rtRegex + '\n');
+			Object [] res = RTParser.parseRegex(rtRegex + '\n');
 			rtSortedGoals.putAll((Map<String, Integer[]>) res [0]);
 			rtCardGoals.putAll((Map<String, Object[]>) res [1]);
 			rtAltGoals.putAll((Map<String, Set<String>>) res [2]);

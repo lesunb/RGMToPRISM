@@ -498,7 +498,7 @@ public class PrismWriter {
 			String prevGoalFormula = prevFormula;
 			int prevTimeSlot = root.getDecompGoals().get(0).getRootTimeSlot();
 			for(GoalContainer gc : root.getDecompGoals()){
-				operator = root.getDecomposition() == Const.AND && (gc.getAlternatives().isEmpty()) ? " & " : " | ";
+				operator = root.getDecomposition() == Const.AND && !gc.isAlternative() ? " & " : " | ";
 				String currentFormula;
 				if(prevTimeSlot < gc.getRootTimeSlot())
 					currentFormula = prevGoalFormula;
@@ -506,7 +506,7 @@ public class PrismWriter {
 					currentFormula = prevFormula;
 				String childFormula = writeElement(root.getDecomposition(), gc, pattern, seqCardPattern, intlCardPattern, andPattern, xorPattern, xorHeader, trySPattern, tryFPattern, optPattern, optHeader, ctxGoalPattern, ctxTaskPattern, currentFormula)[1];												
 				prevGoalFormula = gc.getClearElId();
-				goalFormula.append("(" + childFormula + ")" + operator);							
+				goalFormula.append("(" + prevGoalFormula + ")" + operator);							
 			}
 			goalFormula.replace(goalFormula.lastIndexOf(operator), goalFormula.length(), "");
 			planModules = planModules.append("\nformula " + root.getClearElId() + " = " + goalFormula + ";\n");
@@ -515,10 +515,10 @@ public class PrismWriter {
 			StringBuilder taskFormula = new StringBuilder();
 			String prevTaskFormula = prevFormula;
 			for(PlanContainer pc : root.getDecompPlans()){
-				operator = root.getDecomposition() == Const.AND && (pc.getAlternatives().isEmpty()) ? " & " : " | ";
+				operator = root.getDecomposition() == Const.AND && !pc.isAlternative() ? " & " : " | ";
 				String childFormula = writeElement(root.getDecomposition(), pc, pattern, seqCardPattern, intlCardPattern, andPattern, xorPattern, xorHeader, trySPattern, tryFPattern, optPattern, optHeader, ctxGoalPattern, ctxTaskPattern, prevTaskFormula)[1];
 				//prevTaskFormula = pc.getClearElId();
-				taskFormula.append(childFormula + operator);
+				taskFormula.append("(" + childFormula + ")" + operator);
 			}			
 			taskFormula.replace(taskFormula.lastIndexOf(operator), taskFormula.length(), "");
 			if(root instanceof GoalContainer)
@@ -615,56 +615,61 @@ public class PrismWriter {
 			if(!plan.getAlternatives().isEmpty() || !plan.getFirstAlternatives().isEmpty()){
 				//Alternatives
 				String xorNotSkippeds = new String();
-				if(!plan.getAlternatives().isEmpty()){
-					StringBuilder xorHeaders = new StringBuilder();
-					for(RTContainer altFirst : plan.getAlternatives().keySet()){
-						//String xorGIDs = altFirst.getClearElId() + "_" + plan.getAltElsId(altFirst);
-						//String firstGid = altFirst.getClearElId();
-						String xorVar = new String(xorHeader);
-						xorHeaders.append(xorVar.replace(GID_TAG, altFirst.getClearElId()));
-						String xorSkipped = new String(xorSkippedPattern);
-						String xorNotSkipped = new String(xorNotSkippedPattern);
-						xorSkipped = xorSkipped.replace(GID_TAG, altFirst.getClearElId());
-						xorNotSkipped = xorNotSkipped.replace(GID_TAG, altFirst.getClearElId());
-						xorNotSkippeds = xorNotSkippeds.concat(xorNotSkipped + "*");
-						LinkedList<RTContainer> alts = plan.getAlternatives().get(altFirst);
-						for(RTContainer alt : alts){
+				StringBuilder xorHeaders = new StringBuilder();
+				String xorSkipped = new String(xorSkippedPattern);
+				String xorNotSkipped = new String(xorNotSkippedPattern);
+				if(true || CONST_PARAM_VAL.equals("param")){
+					String xorVar = new String(xorHeader);
+					evalFormulaParams += "XOR_" + plan.getClearElId() + "=\"0\";\n";
+					evalFormulaReplace += " -e \"s/XOR_" + plan.getClearElId() + "/$XOR_" + plan.getClearElId() + "/g\"";
+					xorHeaders.append(xorVar.replace(GID_TAG, plan.getClearElId()));
+					sbHeader.append(xorHeaders);
+					xorNotSkippeds = xorNotSkippeds.concat(xorNotSkipped.replace(GID_TAG, plan.getClearElId()) + "*");
+				}else{				
+					if(!plan.getAlternatives().isEmpty()){
+						for(RTContainer altFirst : plan.getAlternatives().keySet()){
+							String xorVar = new String(xorHeader);
+							evalFormulaParams += "XOR_" + altFirst.getClearElId() + "=\"0\";\n";
+							evalFormulaReplace += " -e \"s/XOR_" + altFirst.getClearElId() + "/$XOR_" + altFirst.getClearElId() + "/g\"";
+							xorHeaders.append(xorVar.replace(GID_TAG, altFirst.getClearElId()));
+							xorSkipped = xorSkipped.replace(GID_TAG, altFirst.getClearElId());
+							xorNotSkipped = xorNotSkipped.replace(GID_TAG, altFirst.getClearElId());
+							xorNotSkippeds = xorNotSkippeds.concat(xorNotSkipped + "*");
+							LinkedList<RTContainer> alts = plan.getAlternatives().get(altFirst);
+							for(RTContainer alt : alts){
+								xorSkipped = new String(xorSkippedPattern);
+								xorNotSkipped = new String(xorNotSkippedPattern);
+								xorVar = new String(xorHeader);
+								evalFormulaParams += "XOR_" + alt.getClearElId() + "=\"0\";\n";
+								evalFormulaReplace += " -e \"s/XOR_" + alt.getClearElId() + "/$XOR_" + alt.getClearElId() + "/g\"";
+								xorHeaders.append(xorVar.replace(GID_TAG, alt.getClearElId()));																		
+								xorSkipped = xorSkipped.replace(GID_TAG, alt.getClearElId());											
+								xorNotSkipped = xorNotSkipped.replace(GID_TAG, alt.getClearElId());
+								//xorNotSkippeds = xorNotSkippeds.concat(xorSkipped + "*");
+							}
+							//appendAlternativesToNoErrorFormula(plan);
+						}	
+						sbHeader.append(xorHeaders);
+					}				
+					if(!plan.getFirstAlternatives().isEmpty()){
+						for(int i = 0; i < plan.getFirstAlternatives().size(); i++){
+							RTContainer firstAlt = plan.getFirstAlternatives().get(i);
 							xorSkipped = new String(xorSkippedPattern);
 							xorNotSkipped = new String(xorNotSkippedPattern);
-							xorVar = new String(xorHeader);
-							xorHeaders.append(xorVar.replace(GID_TAG, alt.getClearElId()));																		
-							xorSkipped = xorSkipped.replace(GID_TAG, alt.getClearElId());											
-							xorNotSkipped = xorNotSkipped.replace(GID_TAG, alt.getClearElId());
-							xorNotSkippeds = xorNotSkippeds.concat(xorSkipped + "*");
-						}
-						//appendAlternativesToNoErrorFormula(plan);
-					}					
-					sbHeader.append(xorHeaders);
-				}
-				if(!plan.getFirstAlternatives().isEmpty()){
-					for(int i = 0; i < plan.getFirstAlternatives().size(); i++){
-						RTContainer firstAlt = plan.getFirstAlternatives().get(i);
-						String xorSkipped = new String(xorSkippedPattern);
-						String xorNotSkipped = new String(xorNotSkippedPattern);
-						//String xorGIDs = firstAlt.getClearElId() + "_" + firstAlt.getAltElsId(firstAlt);
-						//String xorValue = calcAltIndex(firstAlt.getAlternatives().get(firstAlt), plan) + 1 + "";
-						//if(plan.getAlternatives().isEmpty()){
-							//xorPattern = xorPattern.replace(XOR_GIDS_TAG, xorGIDs);
-							//xorPattern = xorPattern.replace(XOR_VALUE_TAG,  xorValue);
-						//}
-						xorSkipped = xorSkipped.replace(GID_TAG, firstAlt.getClearElId());
-						xorNotSkipped = xorNotSkipped.replace(GID_TAG, firstAlt.getClearElId());
-						xorNotSkippeds = xorNotSkippeds.concat(xorSkipped + "*");
-						for(RTContainer alt : firstAlt.getAlternatives().get(firstAlt)){
-							if(alt.equals(plan) || calcAltIndex(firstAlt.getAlternatives().get(firstAlt), plan) == 0){
-								xorNotSkipped = new String(xorNotSkippedPattern);
-								xorNotSkipped = xorNotSkipped.replace(GID_TAG, alt.getClearElId());
-								xorNotSkippeds = xorNotSkippeds.concat(xorNotSkipped + "*");
-							}else{								
-								xorSkipped = new String(xorSkippedPattern);
-								xorSkipped = xorSkipped.replace(GID_TAG, alt.getClearElId());
-								xorNotSkippeds = xorNotSkippeds.concat(xorSkipped + "*");
-							}							
+							xorSkipped = xorSkipped.replace(GID_TAG, firstAlt.getClearElId());
+							xorNotSkipped = xorNotSkipped.replace(GID_TAG, firstAlt.getClearElId());
+							//xorNotSkippeds = xorNotSkippeds.concat(xorSkipped + "*");
+							for(RTContainer alt : firstAlt.getAlternatives().get(firstAlt)){
+								if(alt.equals(plan) || calcAltIndex(firstAlt.getAlternatives().get(firstAlt), plan) == 0){
+									xorNotSkipped = new String(xorNotSkippedPattern);
+									xorNotSkipped = xorNotSkipped.replace(GID_TAG, alt.getClearElId());
+									xorNotSkippeds = xorNotSkippeds.concat(xorNotSkipped + "*");
+								}else{								
+									xorSkipped = new String(xorSkippedPattern);
+									xorSkipped = xorSkipped.replace(GID_TAG, alt.getClearElId());
+									//xorNotSkippeds = xorNotSkippeds.concat(xorSkipped + "*");
+								}							
+							}
 						}
 					}
 				}
@@ -689,7 +694,7 @@ public class PrismWriter {
 			planFormula.append(processTaskFormula(plan, decType));
 		}
 		
-		evalFormulaParams += "rTask" + plan.getClearElId() + "=\"0.999\";\n";
+		evalFormulaParams += "rTask" + plan.getClearElId() + "=\"0.98\";\n";
 		evalFormulaReplace += " -e \"s/rTask" + plan.getClearElId() + "/$rTask" + plan.getClearElId() + "/g\"";		
 		//Header
 		planModule = planModule.replace(DEC_HEADER_TAG, sbHeader.toString() + "\n");
@@ -706,7 +711,7 @@ public class PrismWriter {
 			planModule = planModule.replace(CTX_CONDITION_TAG, "");
 		}
 		//Prev Success Guard Condition
-		planModule = planModule.replace("$PREV_SUCCESS$", prevFormula);
+		planModule = planModule.replace("$PREV_SUCCESS$", buildPrevSuccessFormula(prevFormula, plan));
 		//Time
 		Integer prevTimePath = plan.getPrevTimePath();
 		Integer timePath = plan.getTimePath();
@@ -748,13 +753,55 @@ public class PrismWriter {
 		switch(decType){
 			case OR: return "(s" + plan.getClearElId() + "=2)";
 			case AND: return "(s" + plan.getClearElId() + "=2)";
-			case XOR: return "(s" + plan.getClearElId() + "=2)";
+			case XOR: return buildXorSuccessFormula(plan);
 			case TRY: return "(s" + plan.getClearElId() + "=2)";
 			case TRY_S: return "(s" + plan.getClearElId() + "=2)";
 			case TRY_F: return "(s" + plan.getClearElId() + "=2)";
 			case OPT: return "(s" + plan.getClearElId() + "=2 | s" + plan.getClearElId() + "=3)";
 			default: return "(s" + plan.getClearElId() + "=2)";
 		}
+	}
+	
+	private String buildPrevSuccessFormula(String prevFormula, PlanContainer plan){
+		StringBuilder sb = new StringBuilder("(" + prevFormula);
+		for(RTContainer altFirst: plan.getAlternatives().keySet()){
+			for(RTContainer alt : plan.getAlternatives().get(altFirst)){
+				for(RTContainer decAlt : RTContainer.fowardMeansEnd(alt, new LinkedList<RTContainer>()))
+					if(!decAlt.equals(plan));
+						//sb.append(" | s" + decAlt.getClearElId() + "=3");
+					
+			}
+		}
+		for(RTContainer firstAlt: plan.getFirstAlternatives()){
+			for(RTContainer alt : firstAlt.getAlternatives().get(firstAlt))
+				for(RTContainer decAlt : RTContainer.fowardMeansEnd(alt, new LinkedList<RTContainer>()))
+					if(!decAlt.equals(plan)){
+						//sb.append(" | s" + decAlt.getClearElId() + "=3");
+						break;
+					}
+		}
+		//sb.replace(sb.length() - 3, sb.length(), "");
+		return sb.append(")").toString();//.append("s" + plan.getClearElId() + "=2").toString();
+	}
+	
+	private String buildXorSuccessFormula(PlanContainer plan){
+		StringBuilder sb = new StringBuilder();
+		/*for(RTContainer altFirst: plan.getAlternatives().keySet()){
+			for(RTContainer alt : plan.getAlternatives().get(altFirst)){
+				for(RTContainer decAlt : RTContainer.fowardMeansEnd(alt, new LinkedList<RTContainer>()))
+					sb.append("s" + decAlt.getClearElId() + "=2 | ");
+			}
+		}
+		for(RTContainer firstAlt: plan.getFirstAlternatives()){
+			//for(RTContainer alt : firstAlt.getAlternatives().get(firstAlt))
+				for(RTContainer decAlt : RTContainer.fowardMeansEnd(firstAlt, new LinkedList<RTContainer>())){
+					//if(!decAlt.equals(plan))
+						sb.append("s" + decAlt.getClearElId() + "=3 | ");
+						break;
+				}
+		}*/
+		//sb.replace(sb.length() - 3, sb.length(), "");
+		return sb.append("s" + plan.getClearElId() + "=2").toString();
 	}
 
 	private void appendAlternativesToNoErrorFormula(PlanContainer plan) {
