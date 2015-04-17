@@ -7,14 +7,22 @@ A Runtime Goal Model to PRISM model generator to be used with TAOM4E tool for TR
 * Taom4e (http://selab.fbk.eu/taom/eu.fbk.se.taom4e.updateSite/)
 
 # Install Plugins
+
+Taom4e
+
 Help > Install new Software > Add 
 
 * Name: Taom4e
 * Location: http://selab.fbk.eu/taom/eu.fbk.se.taom4e.updateSite/
 
-# Config the plugin RGMToPRISM
+PDE ( Plug-in Development Environment (PDE) )
 
-File > Import Project > As Maven Project
+* Help > Eclipse Market Place > "PDE"
+
+# Building and Running RGMToPRISM
+
+ * clone the repo: $ git clone https://github.com/lesunb/RGMToPRISM/
+ * Import, in Eclipse:  File > Import Project > Plug-ins and Fragments
 
 
 # Create Project
