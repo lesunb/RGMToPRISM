@@ -23,12 +23,12 @@ PDE ( Plug-in Development Environment (PDE) )
 
  * clone the repo: $ git clone https://github.com/lesunb/RGMToPRISM/
  * Import, in Eclipse:  File > Import Project > Plug-ins and Fragments
- * 
+ 
 # Plugin Structure
+
 * plugin.xml: The main file that describes the plugin. It contains information to help with the code generation, libraries, plugin dependencies, and extension points.
 * build.properties: The file used for describing the build process. Mainly, this is used to specify the needed libraries.
-* invokatron/*.java: Plugin classes.
-* sample.gif: The icon that shows up next to the menu item.
+* src: Plugin classes.
 
 
 # Create Project
