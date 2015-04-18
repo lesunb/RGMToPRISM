@@ -11,7 +11,7 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.106.0",
  org.eclipse.ui.console;bundle-version="3.5.300",
  org.eclipse.emf.ecore.xmi;bundle-version="2.10.1",
  it.itc.sra.taom4e.model;bundle-version="0.6.3",
- taom4e-platform;bundle-version="1.0.0"
+ it.itc.sra.taom4e.platform;bundle-version="0.6.3.1"
 Export-Package: br.unb.cic;uses:="org.antlr.v4.runtime,org.antlr.v4.runtime.tree,org.antlr.v4.runtime.atn",
  br.unb.cic.rtgoretoprism;
   uses:="org.osgi.framework,
