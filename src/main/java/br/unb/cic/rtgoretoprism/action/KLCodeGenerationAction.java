@@ -105,13 +105,11 @@ public class KLCodeGenerationAction extends AbstractCodeGeneractionAction {
        	}
 	}
 
-	@Override
 	public void dispose() {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void init(IWorkbenchWindow window) {
 		// TODO Auto-generated method stub
 		
