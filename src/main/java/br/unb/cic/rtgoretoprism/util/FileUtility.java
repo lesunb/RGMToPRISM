@@ -82,6 +82,21 @@ public class FileUtility {
 	}
 	
 	/**
+	 * Delete the specified file
+	 * 
+	 * @param filename the target file
+	 * 
+	 * @throws IOException 
+	 * 
+	 */
+	public static void deleteFile(String filename){
+		File file = null;
+		file = new File(filename);
+		file.deleteOnExit();
+	}
+	
+	
+	/**
 	 * Read the specified file into a String
 	 * 
 	 * @param filePath the path of the file to read
@@ -113,5 +128,9 @@ public class FileUtility {
 		}
 		
 		return fileData.toString();
+	}
+
+	public static long fileSize(String string) {
+		return new File(string).length();		
 	}
 }

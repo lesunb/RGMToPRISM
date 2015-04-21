@@ -199,7 +199,7 @@ public class AgentDefinition {
 		return agentname;
 	}
 	
-	public String parseElId(String name){
+	public static String parseElId(String name){
 		
 		String patternString = "(^[GT]\\d+\\.?\\d*):";
 		Pattern pattern = Pattern.compile(patternString);
@@ -210,7 +210,7 @@ public class AgentDefinition {
 			return null;
 	}
 	
-	public String parseRTRegex(String name){
+	public static String parseRTRegex(String name){
 		
 		String patternString = "\\[(.*)\\]";
 		Pattern pattern = Pattern.compile(patternString);

@@ -87,7 +87,7 @@ public class GoalContainer extends RTContainer{
 	 */
 	public PlanContainer addMERealPlan(PlanContainer child) {
 		plans.add(child);
-		
+		child.setRoot(this);
 		if (decomposition == Const.OR || decomposition == Const.ME) {
 			assert decomposition == Const.ME;// otherwise there is an error elsewhere!
 			// needed to add more triggering goals to one real plan
@@ -101,8 +101,8 @@ public class GoalContainer extends RTContainer{
 	 * @return
 	 */
 	public GoalContainer addDecomp(GoalContainer child) {
-
 		goals.add(child);
+		child.setRoot(this);
 		if (decomposition == Const.OR || decomposition == Const.ME) {
 			//mm: 'assert' commented to make ME goals possible
 			// assert decomposition == Const.OR;// otherwise there is an error elsewhere!

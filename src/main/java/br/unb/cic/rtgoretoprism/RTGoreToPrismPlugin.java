@@ -1,28 +1,19 @@
 package br.unb.cic.rtgoretoprism;
 
-import it.itc.sra.taom4e.model.ModelPackage;
-import it.itc.sra.taom4e.model.core.informalcore.Actor;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
-import br.unb.cic.rtgoretoprism.generator.CodeGenerationException;
-import br.unb.cic.rtgoretoprism.generator.rtgore.RTGoreProducer;
 import br.unb.cic.rtgoretoprism.util.kl.TroposNavigator;
 
 public class RTGoreToPrismPlugin extends AbstractUIPlugin{
@@ -122,37 +113,6 @@ public class RTGoreToPrismPlugin extends AbstractUIPlugin{
 		store.setDefault( JADEX_BASE_PATH, jadexLibSourcePath);
 
 	}
-
-	/*public void generatePrismModel(String [] args){
-		
-		//register EMF packages:
-		final ModelPackage mp = ModelPackage.eINSTANCE;
-		EPackage.Registry.INSTANCE.put(mp.getNsURI(), mp);
-		
-		String goreFile = "/home/seadev/workspace/modeling/ASLTropos/ASL.tropos";
-		//String prismFile = "/home/seadev/workspace/modeling/ASLTropos/ASL";
-		
-		// load a TAOM-generated TROPOS Model from an XML file
-		tn = new TroposNavigator(goreFile);
-		
-		final Set<Actor> selectedActors = getSystemActors();
-		
-		final String sourceFolder="TemplateInput/";
-		final String targetFolder="KLAgents/src";
-				
-		final RTGoreProducer producer = new RTGoreProducer( selectedActors, sourceFolder, targetFolder );
-		try {
-			producer.run();
-		} catch (final CodeGenerationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-			
-	} 
-	*/
 	
 	/**
 	 * Get the location of the specified File inside the selected plugin

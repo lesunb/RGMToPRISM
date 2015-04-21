@@ -29,7 +29,7 @@ import br.unb.cic.rtgoretoprism.model.kl.Const;
 
 
 
-public class RTGoreSorter{
+public class RTParser{
 	
 	public static Object[] parseRegex(String regex) throws IOException{
 		//Reading the DSL script
@@ -118,10 +118,11 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 		String gidBo = visit(ctx.expr(1));
 		String [] gidAs = gidAo.split("-");
 		String [] gidBs = gidBo.split("-");		
-		for(String gidA : gidAs){
-			for(String gidB : gidBs){				
+		
+		for(String gidB : gidBs){				
+			for(String gidA : gidAs){
 				if(ctx.op.getType() == RTRegexParser.ALT){
-					addToAltSet(gidA, gidB);					
+					addToAltSet(gidA, gidB);
 					//addToAltSet(gidB, gidA);
 				}
 			}

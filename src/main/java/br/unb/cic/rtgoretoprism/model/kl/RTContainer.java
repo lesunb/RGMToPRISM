@@ -43,6 +43,10 @@ import java.util.TreeMap;
  */
 public abstract class RTContainer extends ElementContainer implements Comparable<RTContainer>{
 
+	//Analysis
+	private boolean included;
+	//root element
+	private RTContainer root;
 	//RTGore
 	private String elId;
 	private String rtRegex;
@@ -68,6 +72,22 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	//public GoalContainer(Goal goal) {
 	//	this(goal, Const.REQUEST, Const.ACHIEVE);
 	//}
+	
+	public boolean isAlternative(){
+		return !firstAlternatives.isEmpty() || !alternatives.isEmpty();
+	}
+	
+	public boolean isTry(){
+		return trySuccess != null;
+	}
+	
+	public boolean isTrySuccess(){
+		return tryOriginal != null && successTry;
+	}
+	
+	public boolean isTryFailure(){
+		return tryOriginal != null && !successTry;
+	}
 
 	/**
 	 * Creates a new GoalContainer instance
@@ -148,6 +168,19 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 		return sb.toString().replaceAll("[:\\.-]", "_").replace("[" + rtRegex + "]", "");
 	}
 	
+	public static LinkedList<RTContainer> fowardMeansEnd(RTContainer dec, LinkedList<RTContainer> decs){
+		if(dec.getDecompGoals() != null && !dec.getDecompGoals().isEmpty())
+			for(RTContainer subDec : dec.getDecompGoals())				
+				fowardMeansEnd(subDec, decs);
+		else if(dec.getDecompPlans() != null && !dec.getDecompPlans().isEmpty())
+			for(RTContainer subDec : dec.getDecompPlans())	
+				fowardMeansEnd(subDec, decs);
+		else
+			decs.add(dec);
+		
+		return decs;
+	}
+	
 	/**
 	 * Returns the name of the goal without the RTRegex
 	 * @return The name of the goal
@@ -199,8 +232,6 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	public void setPrevTimePath(Integer prevTimePath) {
 		this.prevTimePath = prevTimePath;
 	}
-	
-	
 
 	public Integer getFutTimePath() {
 		return futTimePath;
@@ -304,6 +335,22 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	public void setCreationCondition(String creationCondition) {
 		if(creationCondition != null && !creationCondition.isEmpty())
 			this.creationCondition = creationCondition;
+	}
+	
+	public RTContainer getRoot() {
+		return root;
+	}
+
+	public void setRoot(RTContainer root) {
+		this.root = root;
+	}
+
+	public boolean isIncluded() {
+		return included;
+	}
+
+	public void setIncluded(boolean included) {
+		this.included = included;
 	}
 
 	@Override
