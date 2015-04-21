@@ -42,13 +42,24 @@ In order to succesfull run the RGMToPRISM you need to patch Taom4e plugin. Do it
 * Right click in the project
 * Run As > Eclipse Application, it should open another Eclipse with the active plugin.
 
+
+# Create Project
+
+File > New Project
+
+
+# Create a Tropos Diagram
+
+
+# Genearting The Prism Model
+
+* NOTE: Before generate the PRISM code,  verify if thereisn't any TROPOS goal with missing labels.
+* NOTE2: You could have goals in your model that you can't see in the graphical representation. Refer to the the TROPOS outline view an remove any not labeled goal.
+
+
 # Plugin Structure
 
 * plugin.xml: The main file that describes the plugin. It contains information to help with the code generation, libraries, plugin dependencies, and extension points.
 * build.properties: The file used for describing the build process. Mainly, this is used to specify the needed libraries.
 * src: Plugin classes.
 
-
-# Create Project
-
-File > New Project
