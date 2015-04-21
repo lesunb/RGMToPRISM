@@ -31,6 +31,7 @@
      		<directory>src/main/resources</directory>
     		</resource>
    		</resources>
+		<pluginManagement>
 		<plugins>
 			<plugin>
 				<groupId>org.antlr</groupId>
@@ -63,6 +64,8 @@
         			</execution>
     			</executions>
  			</plugin>
-		</plugins>
+		</plugins>	
+		</pluginManagement>
+		
   </build>
 </project>
