@@ -32,15 +32,15 @@ In order to succesfull run the RGMToPRISM you need to patch Taom4e plugin. Do it
 
 # Import RGMToPRISM project to eclipse
 
- . Open Eclipse
- . File > Import > Existing Project
- . Find the folder where you cloned RGMToPRISM project
- . Accept the defaults
+ * Open Eclipse
+ * File > Import > Existing Project
+ * Find the folder where you cloned RGMToPRISM project
+ * Accept the defaults
  
 # Running the Plugin
 
-. Right click in the project
-. Run As > Eclipse Application, it should open another Eclipse with the active plugin.
+* Right click in the project
+* Run As > Eclipse Application, it should open another Eclipse with the active plugin.
 
 # Plugin Structure
 
