@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
-import br.unb.cic.rtgoretoprism.AgentTemplateCreatorPlugin;
+import br.unb.cic.rtgoretoprism.RTGoreToPrismPlugin;
 
 
 /**
@@ -77,7 +77,7 @@ public class ATCPreferencePage extends PreferencePage implements IWorkbenchPrefe
 	 */
 	public void init(IWorkbench workbench) {
 		//Initialize the preference store we wish to use
-		setPreferenceStore( AgentTemplateCreatorPlugin.getDefault().getPreferenceStore() );
+		setPreferenceStore( RTGoreToPrismPlugin.getDefault().getPreferenceStore() );
 	}
 	
 	/**
@@ -112,12 +112,12 @@ public class ATCPreferencePage extends PreferencePage implements IWorkbenchPrefe
 	 */
 	private void createContentsATCPart( Composite composite ) {
 		//get current preference value
-		final String pv_sourcePath = AgentTemplateCreatorPlugin.getDefault().getPluginPreferences().
-			getString( AgentTemplateCreatorPlugin.ATC_SOURCE_PATH );
-		final String pv_targetPath = AgentTemplateCreatorPlugin.getDefault().getPluginPreferences().
-			getString( AgentTemplateCreatorPlugin.ATC_TARGET_PATH );
-		boolean pv_useInternal = AgentTemplateCreatorPlugin.getDefault().getPluginPreferences().
-			getBoolean( AgentTemplateCreatorPlugin.ATC_USE_INTERNAL_SOURCE_PATH );		
+		final String pv_sourcePath = RTGoreToPrismPlugin.getDefault().getPluginPreferences().
+			getString( RTGoreToPrismPlugin.ATC_SOURCE_PATH );
+		final String pv_targetPath = RTGoreToPrismPlugin.getDefault().getPluginPreferences().
+			getString( RTGoreToPrismPlugin.ATC_TARGET_PATH );
+		boolean pv_useInternal = RTGoreToPrismPlugin.getDefault().getPluginPreferences().
+			getBoolean( RTGoreToPrismPlugin.ATC_USE_INTERNAL_SOURCE_PATH );		
 		
 		Group templateGroup = new Group( composite, SWT.SHADOW_ETCHED_IN );
 		templateGroup.setText("Source Template");
@@ -234,8 +234,8 @@ public class ATCPreferencePage extends PreferencePage implements IWorkbenchPrefe
 	 */
 	private void createContentsJadexPart( Composite composite ) {
 		//get current preference value
-		final String value = AgentTemplateCreatorPlugin.getDefault().getPluginPreferences().
-			getString( AgentTemplateCreatorPlugin.JADEX_BASE_PATH );
+		final String value = RTGoreToPrismPlugin.getDefault().getPluginPreferences().
+			getString( RTGoreToPrismPlugin.JADEX_BASE_PATH );
 		
 		Group group = new Group( composite, SWT.SHADOW_ETCHED_IN );
 		group.setText("Jadex");
@@ -265,7 +265,7 @@ public class ATCPreferencePage extends PreferencePage implements IWorkbenchPrefe
 				dirDialog.setMessage("Select a directory");
 				
 				//get the path to the Jadex library directory
-		    	//String bx = AgentTemplateCreatorPlugin.getDefault().getPluginPreferences().getString( AgentTemplateCreatorPlugin.JADEX_BASE_PATH ) + "/";
+		    	//String bx = RTGoreToPrismPlugin.getDefault().getPluginPreferences().getString( RTGoreToPrismPlugin.JADEX_BASE_PATH ) + "/";
 		    	
 		    	File f = new File(value);
 		    	dirDialog.setFilterPath(f.getAbsolutePath());
@@ -283,15 +283,15 @@ public class ATCPreferencePage extends PreferencePage implements IWorkbenchPrefe
 	 */
 	protected void performDefaults() {
 		//get preferences default values
-		String templateSourcePath = AgentTemplateCreatorPlugin.getDefault().getPluginPreferences().
-			getDefaultString( AgentTemplateCreatorPlugin.ATC_SOURCE_PATH );
-		String agentTargetDir = AgentTemplateCreatorPlugin.getDefault().getPluginPreferences().
-			getDefaultString( AgentTemplateCreatorPlugin.ATC_TARGET_PATH );
-		boolean useDefaultTemplate = AgentTemplateCreatorPlugin.getDefault().getPluginPreferences().
-			getDefaultBoolean( AgentTemplateCreatorPlugin.ATC_USE_INTERNAL_SOURCE_PATH );
+		String templateSourcePath = RTGoreToPrismPlugin.getDefault().getPluginPreferences().
+			getDefaultString( RTGoreToPrismPlugin.ATC_SOURCE_PATH );
+		String agentTargetDir = RTGoreToPrismPlugin.getDefault().getPluginPreferences().
+			getDefaultString( RTGoreToPrismPlugin.ATC_TARGET_PATH );
+		boolean useDefaultTemplate = RTGoreToPrismPlugin.getDefault().getPluginPreferences().
+			getDefaultBoolean( RTGoreToPrismPlugin.ATC_USE_INTERNAL_SOURCE_PATH );
 
-		String jadexLib = AgentTemplateCreatorPlugin.getDefault().getPluginPreferences().
-		getDefaultString( AgentTemplateCreatorPlugin.JADEX_BASE_PATH );
+		String jadexLib = RTGoreToPrismPlugin.getDefault().getPluginPreferences().
+		getDefaultString( RTGoreToPrismPlugin.JADEX_BASE_PATH );
 
 		
 		//update gui elements
@@ -310,15 +310,15 @@ public class ATCPreferencePage extends PreferencePage implements IWorkbenchPrefe
 	 */
 	public boolean performOk() {
 		//set preferences new value
-		AgentTemplateCreatorPlugin.getDefault().getPluginPreferences().
-			setValue( AgentTemplateCreatorPlugin.ATC_SOURCE_PATH, templateSourcePathLabel.getText() );
-		AgentTemplateCreatorPlugin.getDefault().getPluginPreferences().
-			setValue( AgentTemplateCreatorPlugin.ATC_TARGET_PATH, targetPathLabel.getText() );
-		AgentTemplateCreatorPlugin.getDefault().getPluginPreferences().
-			setValue( AgentTemplateCreatorPlugin.ATC_USE_INTERNAL_SOURCE_PATH, useDefaultButton.getSelection() );
+		RTGoreToPrismPlugin.getDefault().getPluginPreferences().
+			setValue( RTGoreToPrismPlugin.ATC_SOURCE_PATH, templateSourcePathLabel.getText() );
+		RTGoreToPrismPlugin.getDefault().getPluginPreferences().
+			setValue( RTGoreToPrismPlugin.ATC_TARGET_PATH, targetPathLabel.getText() );
+		RTGoreToPrismPlugin.getDefault().getPluginPreferences().
+			setValue( RTGoreToPrismPlugin.ATC_USE_INTERNAL_SOURCE_PATH, useDefaultButton.getSelection() );
 		 
-		AgentTemplateCreatorPlugin.getDefault().getPluginPreferences().
-			setValue( AgentTemplateCreatorPlugin.JADEX_BASE_PATH, jadexPathLabel.getText() );
+		RTGoreToPrismPlugin.getDefault().getPluginPreferences().
+			setValue( RTGoreToPrismPlugin.JADEX_BASE_PATH, jadexPathLabel.getText() );
 		
 		return super.performOk();
 	}

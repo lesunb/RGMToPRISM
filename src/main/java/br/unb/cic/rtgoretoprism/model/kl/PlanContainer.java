@@ -71,8 +71,8 @@ public class PlanContainer extends RTContainer{
 	 * @return
 	 */
 	public PlanContainer addDecomp(PlanContainer child) {
-
 		plans.add(child);
+		child.setRoot(this);
 		if (decomposition == Const.OR || decomposition == Const.ME) {
 			//mm: 'assert' commented to make ME goals possible
 			// assert decomposition == Const.OR;// otherwise there is an error elsewhere!

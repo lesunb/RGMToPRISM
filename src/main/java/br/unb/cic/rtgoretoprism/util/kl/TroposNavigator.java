@@ -56,6 +56,7 @@ import java.util.List;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 
+import br.unb.cic.rtgoretoprism.model.kl.RTContainer;
 import br.unb.cic.rtgoretoprism.util.TroposEMFHelper;
 
 /**
@@ -653,7 +654,7 @@ public class TroposNavigator {
 	 */
 	public List<Capability> getCapabilityTable() {
 		return bm.getCapabilityTable().getCapability();
-	}
+	}	
 	
 
 //	public void printContents(String start, List alist) {

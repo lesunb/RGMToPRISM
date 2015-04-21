@@ -8,7 +8,7 @@
 			category="TAOM4EPreferencePage">
 		</page>
 	</extension>
-   <extension
+    <extension
          point="org.eclipse.ui.actionSets">
       <actionSet
             label="PRISM Generator"
@@ -32,6 +32,37 @@
          </action>
       </actionSet>
    </extension>
+   
+   
+   <!-- TAOM4E EXAMPLE -->
+   <extension point="org.eclipse.ui.popupMenus"> 
+		<objectContribution 
+	    	id="it.itc.sra.taom4e.t2xJadexGenerator.contribution.popup.object"
+		  	objectClass="org.eclipse.core.resources.IFolder"
+		  	nameFilter="AgentRole_*"
+		  	adaptable = "true" >
+		  	
+		  	<menu
+         		id="it.itc.sra.taom4e.t2xJadexGenerator.contribution.subMenu"
+         		label="Agent Generator"
+         		path="additions">
+	      		<separator name="group1"/>
+	      	</menu>
+
+
+		    
+		    <action
+        		id="it.itc.sra.taom4e.t2xJadexGenerator.RunKLAgent" 
+		        label="Run t2x (KL) Agent"
+    	     	icon="icons/JadexGenerator.gif"
+        	 	menubarPath="it.itc.sra.taom4e.t2xJadexGenerator.contribution.subMenu/group1"
+        	 	enablesFor="1"
+	      		class="it.itc.sra.taom4e.t2xJadexGenerator.action.RunJadexAgentAction">  
+		    </action> 
+		    
+		</objectContribution> 
+	</extension>
+   
    <extension point="org.eclipse.ui.popupMenus">
 		<viewerContribution
 			targetID="it.itc.sra.taom4e.platform.tropos.editor.contextmenu"

@@ -43,6 +43,7 @@ import it.itc.sra.taom4e.model.core.informalcore.formalcore.FSoftGoal;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -78,6 +79,8 @@ public class RTGoreProducer {
 	private String outputFolder;
 	/** the set of Actor for which code should be generated */
 	private Set<Actor> allActors;
+	/** the set of Actor for which code should be generated */
+	private Set<FHardGoal> allGoals;
 	
 	Map<String, Integer[]> rtSortedGoals;
 	Map<String, Object[]> rtCardGoals;
@@ -92,14 +95,15 @@ public class RTGoreProducer {
 	 * @param in the template input folder
 	 * @param out the generated code output folder
 	 */
-	public RTGoreProducer(String troposSource, String in, String out ) {
+	public RTGoreProducer(Set<Actor> allActors, Set<FHardGoal> allGoals, String in, String out ) {
 		
-		tn = new TroposNavigator( troposSource );
-		Set<Actor> allActors = getSystemActors();
+		tn = new TroposNavigator( allActors.iterator().next().eResource() );
+		//Set<Actor> allActors = getSystemActors();
 		
 		this.inputFolder = in;
 		this.outputFolder = out;
 		this.allActors = allActors;
+		this.allGoals = allGoals;
 		
 		this.rtSortedGoals = new TreeMap<String, Integer[]>();
 		this.rtCardGoals = new TreeMap<String, Object[]>();
@@ -120,11 +124,13 @@ public class RTGoreProducer {
 		ATCConsole.println("\tTemplate Input Folder: " + inputFolder );
 		ATCConsole.println("\tOutput Folder: " + outputFolder );
 		
+		long startTime = new Date().getTime();
+		
 		for( Actor a : allActors ) {
 			if(!a.isIsSystem())
 				return;
 			
-			ATCConsole.println( "Generating Jadex agent for: " + a.getName() );
+			ATCConsole.println( "Generating DTMC model for: " + a.getName() );
 			
 			//generate the AgentDefinition object for the current actor
 			AgentDefinition ad = new AgentDefinition( a );
@@ -150,7 +156,7 @@ public class RTGoreProducer {
 				
 				//add to the root goal list
 				ad.addRootGoal(gc);
-				addGoal(rootgoal, gc, ad);
+				addGoal(rootgoal, gc, ad, false);
 								
 			}		
 
@@ -162,7 +168,7 @@ public class RTGoreProducer {
 			writer.writeModel();
 		}
 		
-		ATCConsole.println( "DONE!" );
+		ATCConsole.println( "DTMC model created in " + (new Date().getTime() - startTime) + "ms.");
 	}
 	
 	/**
@@ -173,7 +179,10 @@ public class RTGoreProducer {
 	 * @throws IOException 
 	 */
 	@SuppressWarnings("unchecked")
-	private void addGoal(FHardGoal g, GoalContainer gc, final AgentDefinition ad) throws IOException {
+	private void addGoal(FHardGoal g, GoalContainer gc, final AgentDefinition ad, boolean included) throws IOException {
+				
+		included = included || allGoals.isEmpty() || allGoals.contains(g);
+		gc.setIncluded(included);
 		addContributions(g, gc, ad);
 		
 		//TODO: uncomment if needed!
@@ -196,12 +205,12 @@ public class RTGoreProducer {
 			gc.createDecomposition(Const.OR);	
 		
 		
-		iterateGoals(ad, gc, declist);
+		iterateGoals(ad, gc, declist, included);
 		//Set goals alternatives, tries, optional and cardinalities
 		iterateRts(gc, gc.getDecompGoals());
 							
 		
-		if (tn.isMeansEndDec(g)){
+		if (included && tn.isMeansEndDec(g)){
 			List<FPlan> melist = tn.getMeansEndMeanPlans(g);
 			sortIntentionalElements(melist, ad);
 			// sets decomposition flag and creates the Metagoal+plan,
@@ -276,7 +285,7 @@ public class RTGoreProducer {
 				//gc.addMERealPlan(pc);
 				gc.addDecomp(pc);
 				if (newgoal)
-					addGoal(go, pc, ad);
+					addGoal(go, pc, ad, true);
 			}
 		}
 		
@@ -292,7 +301,7 @@ public class RTGoreProducer {
 		
 	}
 	
-	private void iterateGoals(AgentDefinition ad, GoalContainer gc, List<FHardGoal> decList) throws IOException{
+	private void iterateGoals(AgentDefinition ad, GoalContainer gc, List<FHardGoal> decList, boolean include) throws IOException{
 		
 		//Integer prevPath = gc.getPrevTimePath();
 		Integer rootPath = gc.getTimePath();
@@ -345,7 +354,7 @@ public class RTGoreProducer {
 			gc.addDecomp(deccont);
 			
 			if (newgoal){
-				addGoal(dec, deccont, ad);				
+				addGoal(dec, deccont, ad, include);				
 				gc.setFutTimePath(gc.getFutTimePath() + deccont.getTimePath());
 				if(!parDec && rtAltGoals.get(deccont.getElId()) == null){
 					gc.setTimeSlot(deccont.getTimeSlot());
@@ -475,14 +484,14 @@ public class RTGoreProducer {
 	private void iterateRts(RTContainer gc, List<? extends RTContainer> rts){
 		for(RTContainer dec : rts){
 			String elId = dec.getElId();
-			LinkedList <RTContainer> decPlans = fowardMeansEnd(dec, new LinkedList<RTContainer>());
+			LinkedList <RTContainer> decPlans = RTContainer.fowardMeansEnd(dec, new LinkedList<RTContainer>());
 			//Alternatives			
 			if(rtAltGoals.get(elId) != null){		
 				if(!dec.getFirstAlternatives().contains(rts.get(0))){
 					for(String altGoalId : rtAltGoals.get(elId)){
 						RTContainer altDec = gc.getDecompElement(altGoalId);						
 						if(altDec != null){
-							LinkedList <RTContainer> decAltPlans = fowardMeansEnd(altDec, new LinkedList<RTContainer>());
+							LinkedList <RTContainer> decAltPlans = RTContainer.fowardMeansEnd(altDec, new LinkedList<RTContainer>());
 							if(!decPlans.contains(dec)){
 								if(dec.getAlternatives().get(dec) == null)
 									dec.getAlternatives().put(dec, new LinkedList<RTContainer>());
@@ -494,7 +503,7 @@ public class RTGoreProducer {
 								if(decPlan.getAlternatives().get(dec) == null)
 									decPlan.getAlternatives().put(dec, new LinkedList<RTContainer>());
 								decPlan.getAlternatives().get(dec).add(altDec);
-								break;
+								//break;
 							}
 							for(RTContainer decAltPlan : decAltPlans)
 								decAltPlan.getFirstAlternatives().add(dec);
@@ -507,7 +516,7 @@ public class RTGoreProducer {
 				String [] tryGoals = rtTryGoals.get(elId);
 				if(tryGoals[0] != null){
 					RTContainer successPlan = gc.getDecompElement(tryGoals[0]);
-					LinkedList<RTContainer> decSucessPlans = fowardMeansEnd(successPlan, new LinkedList<RTContainer>());
+					LinkedList<RTContainer> decSucessPlans = RTContainer.fowardMeansEnd(successPlan, new LinkedList<RTContainer>());
 					for(RTContainer decPlan : decPlans){
 						decPlan.setTrySuccess(successPlan);
 					}
@@ -518,7 +527,7 @@ public class RTGoreProducer {
 				}
 				if(tryGoals[1] != null){
 					RTContainer failurePlan = gc.getDecompElement(tryGoals[1]);
-					LinkedList<RTContainer> decFailurePlans = fowardMeansEnd(failurePlan, new LinkedList<RTContainer>());
+					LinkedList<RTContainer> decFailurePlans = RTContainer.fowardMeansEnd(failurePlan, new LinkedList<RTContainer>());
 					for(RTContainer decPlan : decPlans){
 						decPlan.setTryFailure(failurePlan);
 					}
@@ -544,24 +553,12 @@ public class RTGoreProducer {
 			}
 		}		
 	}
-	
-	private LinkedList<RTContainer> fowardMeansEnd(RTContainer dec, LinkedList<RTContainer> decs){
-		if(dec.getDecompGoals() != null && !dec.getDecompGoals().isEmpty())
-			for(RTContainer subDec : dec.getDecompGoals())				
-				fowardMeansEnd(subDec, decs);
-		else if(dec.getDecompPlans() != null && !dec.getDecompPlans().isEmpty())
-			for(RTContainer subDec : dec.getDecompPlans())	
-				fowardMeansEnd(subDec, decs);
-		else
-			decs.add(dec);
-		
-		return decs;
-	}
+
 	
 	@SuppressWarnings("unchecked")
 	private void storeRegexResults(String rtRegex) throws IOException {
 		if(rtRegex != null){
-			Object [] res = RTGoreSorter.parseRegex(rtRegex + '\n');
+			Object [] res = RTParser.parseRegex(rtRegex + '\n');
 			rtSortedGoals.putAll((Map<String, Integer[]>) res [0]);
 			rtCardGoals.putAll((Map<String, Object[]>) res [1]);
 			rtAltGoals.putAll((Map<String, Set<String>>) res [2]);

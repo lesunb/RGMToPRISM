@@ -31,14 +31,18 @@
 package br.unb.cic.rtgoretoprism.action;
 
 import it.itc.sra.taom4e.model.core.informalcore.Actor;
+import it.itc.sra.taom4e.model.core.informalcore.formalcore.FHardGoal;
 import it.itc.sra.taom4e.model.diagram.mixeddiagram.MD_ActorUI;
+import it.itc.sra.taom4e.model.diagram.mixeddiagram.MD_IntentionalUI;
 import it.itc.sra.taom4e.platform.edit.parts.mixeddiagram.MD_ActorUIEditPart;
+import it.itc.sra.taom4e.platform.edit.parts.mixeddiagram.MD_IntentionalUIEditPart;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
@@ -54,6 +58,7 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
@@ -67,10 +72,12 @@ import br.unb.cic.rtgoretoprism.RTGoreToPrismPlugin;
  * 
  * @author bertolini
  */
-public abstract class AbstractCodeGeneractionAction extends Action implements IWorkbenchWindowActionDelegate {
+public abstract class AbstractCodeGeneractionAction extends Action implements IWorkbenchWindowActionDelegate, IEditorActionDelegate {
 	/** the set of user-selected systemActors that will be the source of the 
 	 * code generation process */
-	protected Set<Actor> selectedActors; 
+	protected Set<Actor> selectedActors;
+	
+	protected Set<FHardGoal> selectedGoals;
 	
 	/** the current Shell */
 	protected Shell shell;
@@ -89,6 +96,7 @@ public abstract class AbstractCodeGeneractionAction extends Action implements IW
 		//super();
 		
 		this.selectedActors = new HashSet<Actor>();
+		this.selectedGoals = new HashSet<FHardGoal>();
 	}
 	
 	/**
@@ -123,11 +131,12 @@ public abstract class AbstractCodeGeneractionAction extends Action implements IW
 		//at first disable the action
 		action.setEnabled( false );
 		
-		if( shell == null )
-			return;
+		//if( shell == null )
+		//	return;
 		
 		//assure no actor is selected
 		selectedActors.clear();
+		selectedGoals.clear();
 
 		//then verify if it is necessary to enable it
 		if( !(selection instanceof StructuredSelection) )
@@ -143,31 +152,45 @@ public abstract class AbstractCodeGeneractionAction extends Action implements IW
 			Object selected = it.next();
 			
 			//we expect only an MD_ActorUIEditPart type
-			if( !(selected instanceof MD_ActorUIEditPart) )
-				return;
+			if( (selected instanceof MD_IntentionalUIEditPart) ){
+				MD_IntentionalUIEditPart currEP = (MD_IntentionalUIEditPart) selected;			
+				MD_IntentionalUI currActorUI = (MD_IntentionalUI) currEP.getModel();
+				//current selected Actor model objectMD_ActorUIEditPart
+				if(currActorUI.getSingleCore() instanceof FHardGoal){
+					FHardGoal currGoal = (FHardGoal) currActorUI.getSingleCore();
+					//add it to the set
+					selectedGoals.add( currGoal );
+					selectedActors.add(currGoal.getActor());
+					action.setEnabled( true );
+				}
+			}else{
+				//we expect only an MD_ActorUIEditPart type
+				if( !(selected instanceof MD_ActorUIEditPart) )
+					return;
+				
+				MD_ActorUIEditPart currEP = (MD_ActorUIEditPart) selected;			
+				MD_ActorUI currActorUI = (MD_ActorUI) currEP.getModel();
+				//current selected Actor model objectMD_ActorUIEditPart
+				Actor currActor = (Actor) currActorUI.getSingleCore();
+	
+				//mm: Commented to allow code generation for all agents
+				////we accept only system one
+				//if( !currActor.isIsSystem() )
+				//	return;
+				
+				//add it to the set
+				selectedActors.add( currActor );
+				
+				//get all owned subsystems, if any
+				List subSystems = currActor.getSubsystems();
+				//add the to the set too
+				for( Object a : subSystems )
+					selectedActors.add( (Actor) a );
+			}
 			
-			MD_ActorUIEditPart currEP = (MD_ActorUIEditPart) selected;			
-			MD_ActorUI currActorUI = (MD_ActorUI) currEP.getModel();
-			//current selected Actor model objectMD_ActorUIEditPart
-			Actor currActor = (Actor) currActorUI.getSingleCore();
-
-			//mm: Commented to allow code generation for all agents
-			////we accept only system one
-			//if( !currActor.isIsSystem() )
-			//	return;
-			
-			//add it to the set
-			selectedActors.add( currActor );
-			
-			//get all owned subsystems, if any
-			List subSystems = currActor.getSubsystems();
-			//add the to the set too
-			for( Object a : subSystems )
-				selectedActors.add( (Actor) a );
+			//if here, we are ok so enable the action back
+			action.setEnabled( true );
 		}
-		
-		//if here, we are ok so enable the action back
-		action.setEnabled( true );
 	}
 	
 	/**
