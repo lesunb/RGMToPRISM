@@ -25,13 +25,23 @@ PDE ( Plug-in Development Environment (PDE) )
 * Import, in Eclipse:  
   File > Import Project > Existing Projects Into Workspace
 
+* Patch Taom4e Plugin
+In order to succesfull run the RGMToPRISM you need to patch Taom4e plugin. Do it by as follow:
+ Replace the taom4eplatform.jar present in your <eclipse folder>/plugins/it.itc.sra.taom4e.platform_0.6.3.1 by the one in RGMToPRISM/lib .
 
+
+# Import RGMToPRISM project to eclipse
+
+ . Open Eclipse
+ . File > Import > Existing Project
+ . Find the folder where you cloned RGMToPRISM project
+ . Accept the defaults
+ 
 # Running the Plugin
 
 . Right click in the project
 . Run As > Eclipse Application, it should open another Eclipse with the active plugin.
 
- 
 # Plugin Structure
 
 * plugin.xml: The main file that describes the plugin. It contains information to help with the code generation, libraries, plugin dependencies, and extension points.
