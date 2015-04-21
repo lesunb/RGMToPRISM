@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-    <extension
+	<extension point="org.eclipse.ui.preferencePages">
+		<page id="ATCPreferencePage"
+			name="PRISM Generator"
+			class="br.unb.cic.rtgoretoprism.preferences.ATCPreferencePage"
+			category="TAOM4EPreferencePage">
+		</page>
+	</extension>
+   <extension
          point="org.eclipse.ui.actionSets">
       <actionSet
-            label="Sample Action Set"
+            label="PRISM Generator"
             visible="true"
             id="org.eclipse.ui.actionSets">
          <menu
@@ -25,5 +32,55 @@
          </action>
       </actionSet>
    </extension>
+   <extension point="org.eclipse.ui.popupMenus">
+		<viewerContribution
+			targetID="it.itc.sra.taom4e.platform.tropos.editor.contextmenu"
+			id="br.unb.cic.rtgoretoprism.vc.PARAMFormGen">
+			
+			<menu
+				id="br.unb.cic.rtgoretoprism.vc.subMenu"         	
+         		label="PRISM Generator"
+         		path="additions">
+	      		<separator name="group1"/>
+	      	</menu>
+	      	
+			<action
+				label="Parametric Formula Generation"
+				class="br.unb.cic.rtgoretoprism.action.RunParamAction"
+				menubarPath="br.unb.cic.rtgoretoprism.vc.subMenu/group1"
+				enablesFor="+"
+				icon="icons/JadexGenerator.gif"
+				id="br.unb.cic.rtgoretoprism.action.RunParamAction">
+				<selection
+					class="it.itc.sra.taom4e.platform.edit.parts.mixeddiagram.MD_ActorUIEditPart">
+				</selection>
+				<selection
+					class="it.itc.sra.taom4e.platform.edit.parts.mixeddiagram.MD_IntentionalUIEditPart">
+				</selection>
+			</action>
+		</viewerContribution>
+	</extension>
+   <extension point="org.eclipse.ui.popupMenus">
+		<viewerContribution
+			targetID="it.itc.sra.taom4e.platform.tropos.editor.contextmenu"
+			id="br.unb.cic.rtgoretoprism.vc.PRISMCodeGen">
+			
+			<action
+				label="PRISM DTMC Code Generation"
+				class="br.unb.cic.rtgoretoprism.action.PRISMCodeGenerationAction"
+				menubarPath="br.unb.cic.rtgoretoprism.vc.subMenu/group1"
+				enablesFor="+"
+				icon="icons/JadexGenerator.gif"
+				id="br.unb.cic.rtgoretoprism.action.PRISMCodeGenerationActionIn">
+				<selection
+					class="it.itc.sra.taom4e.platform.edit.parts.mixeddiagram.MD_ActorUIEditPart">
+				</selection>
+				<selection
+					class="it.itc.sra.taom4e.platform.edit.parts.mixeddiagram.MD_IntentionalUIEditPart">
+				</selection>
+			</action>
+		</viewerContribution>
+	</extension>
+	 
 
 </plugin>
