@@ -355,10 +355,19 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 
 	@Override
 	public int compareTo(RTContainer gc) {
-		// TODO Auto-generated method stub
+
 		int pathC = getPrevTimePath().compareTo(gc.getPrevTimePath());
 		int timeC = getTimeSlot().compareTo(gc.getTimeSlot());
-		int idC = getElId().compareTo(gc.getElId());
-		return pathC != 0 ? pathC : (timeC != 0 ? timeC : idC);
+		String elId = getElId();
+		
+		if(pathC != 0){
+			return pathC;
+		}else if (timeC != 0 ){
+			return timeC;
+		}else if(elId != null){
+			return getElId().compareTo(gc.getElId());
+		}else{
+			return 0; //TODO is it right?
+		}
 	}		
 }
