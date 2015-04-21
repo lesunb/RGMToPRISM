@@ -68,6 +68,10 @@ public class PRISMCodeGenerationAction extends AbstractCodeGeneractionAction {
 	 * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
 	 */
 	public void run(IAction action) {
+
+		if(selectedActors.isEmpty())
+			return;
+		
 		//update input/output folders values
 		updateUsedFolders();
 		
@@ -85,8 +89,7 @@ public class PRISMCodeGenerationAction extends AbstractCodeGeneractionAction {
 
 					try {*/
 						//generate the source code for the KL side
-        				String troposSource = "/home/seadev/workspace/modeling/ASLTropos/ASL.tropos";
-						RTGoreProducer producer = new RTGoreProducer(troposSource, sourceFolder, targetFolder );
+						RTGoreProducer producer = new RTGoreProducer(selectedActors, selectedGoals, sourceFolder, targetFolder );
 						producer.run();
 					/*
 						//refresh workspace folder
@@ -116,9 +119,6 @@ public class PRISMCodeGenerationAction extends AbstractCodeGeneractionAction {
 		}
 	}
 	
-	@Override
-	public void selectionChanged(IAction action, ISelection selection) {
-	}
 
 	@Override
 	public void dispose() {

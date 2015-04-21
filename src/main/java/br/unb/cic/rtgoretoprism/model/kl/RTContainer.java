@@ -43,8 +43,11 @@ import java.util.TreeMap;
  */
 public abstract class RTContainer extends ElementContainer implements Comparable<RTContainer>{
 
-	//RTGore
+	//Analysis
+	private boolean included;
+	//root element
 	private RTContainer root;
+	//RTGore
 	private String elId;
 	private String rtRegex;
 	private Integer timeSlot = 0;
@@ -72,6 +75,18 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	
 	public boolean isAlternative(){
 		return !firstAlternatives.isEmpty() || !alternatives.isEmpty();
+	}
+	
+	public boolean isTry(){
+		return trySuccess != null;
+	}
+	
+	public boolean isTrySuccess(){
+		return tryOriginal != null && successTry;
+	}
+	
+	public boolean isTryFailure(){
+		return tryOriginal != null && !successTry;
 	}
 
 	/**
@@ -217,8 +232,6 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	public void setPrevTimePath(Integer prevTimePath) {
 		this.prevTimePath = prevTimePath;
 	}
-	
-	
 
 	public Integer getFutTimePath() {
 		return futTimePath;
@@ -330,6 +343,14 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 
 	public void setRoot(RTContainer root) {
 		this.root = root;
+	}
+
+	public boolean isIncluded() {
+		return included;
+	}
+
+	public void setIncluded(boolean included) {
+		this.included = included;
 	}
 
 	@Override
