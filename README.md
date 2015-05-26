@@ -49,6 +49,13 @@ In order to succesfull run the RGMToPRISM you need to patch Taom4e plugin. Do it
 * Click in 'Select' buton to select a Temaplate directory path
 * Select the folder inside the project: src/main/resources/TemplateInput
 
+# Updating an ANTLR grammar
+
+* After updating any .g4 grammar file, use maven version 3 to recompile the java classes for your language (regex, parser, etc):
+	* At the project root folder, use (linux): mvn package -e
+	* Refresh the project folder in eclipse
+	* Restart the workspace used for testing the framework
+
 # Create Project
 
 File > New Project
