@@ -160,7 +160,7 @@ public class PrismWriter {
 	public PrismWriter(AgentDefinition ad, List<Plan> capPlan, String input, String output ) {
 		this.ad = ad;
 		this.capabilityPlanList = capPlan;
-		this.templateInputBaseFolder = input;// + "/"; 
+		this.templateInputBaseFolder = input + "/"; 
 		this.inputKLFolder = templateInputBaseFolder + TEMPLATE_KL_BASE_PATH;
 		this.inputPRISMFolder = templateInputBaseFolder + TEMPLATE_PRISM_BASE_PATH;
 		this.basicOutputFolder = output + "/";
