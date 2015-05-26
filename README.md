@@ -42,6 +42,12 @@ In order to succesfull run the RGMToPRISM you need to patch Taom4e plugin. Do it
 * Right click in the project
 * Run As > Eclipse Application, it should open another Eclipse with the active plugin.
 
+# First time setup of the Templates path
+
+* Window -> Preferences -> TAOM4E -> PRISM GENERATOR
+* Uncheck 'Use standard'
+* Click in 'Select' buton to select a Temaplate directory path
+* Select the folder inside the project: src/main/resources/TemplateInput
 
 # Create Project
 
