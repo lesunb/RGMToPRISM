@@ -52,7 +52,7 @@ import org.eclipse.ui.progress.IProgressService;
 import org.troposproject.util.ProcessCallback;
 import org.troposproject.util.Spawn;
 
-import br.unb.cic.rtgoretoprism.RTGoreToPrismPlugin;
+import br.unb.cic.rtgoretoprism.CRGMToPrismPlugin;
 import br.unb.cic.rtgoretoprism.console.ConsoleUtil;
 import br.unb.cic.rtgoretoprism.generator.kl.AgentDefinition;
 import br.unb.cic.rtgoretoprism.util.FileUtility;
@@ -137,8 +137,8 @@ public class RunParamAction extends AbstractCodeGeneractionAction{
 			this.monitor = monitor;
 			
 			//get the path to the Jadex library directory
-	    	String bx = RTGoreToPrismPlugin.getDefault().getPluginPreferences().
-	    		getString( RTGoreToPrismPlugin.JADEX_BASE_PATH ) + "/"; 
+	    	String bx = CRGMToPrismPlugin.getDefault().getPluginPreferences().
+	    		getString( CRGMToPrismPlugin.JADEX_BASE_PATH ) + "/"; 
 			
 			//show user that work is progressing
 			monitor.beginTask("Generating PARAM formulas", IProgressMonitor.UNKNOWN );
@@ -193,8 +193,8 @@ public class RunParamAction extends AbstractCodeGeneractionAction{
 		public void runAfterExit(int exitStatus) {
 			
 			if(exitStatus == 0){
-				String bx = RTGoreToPrismPlugin.getDefault().getPluginPreferences().
-			    		getString( RTGoreToPrismPlugin.JADEX_BASE_PATH ) + "/"; 
+				String bx = CRGMToPrismPlugin.getDefault().getPluginPreferences().
+			    		getString( CRGMToPrismPlugin.JADEX_BASE_PATH ) + "/"; 
 				//close the monitor
 				monitor.done();
 				System.out.println("PARAM Formula created, exit status: " + exitStatus); 

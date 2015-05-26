@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
-import br.unb.cic.rtgoretoprism.RTGoreToPrismPlugin;
+import br.unb.cic.rtgoretoprism.CRGMToPrismPlugin;
 
 
 /**
@@ -77,7 +77,7 @@ public class ATCPreferencePage extends PreferencePage implements IWorkbenchPrefe
 	 */
 	public void init(IWorkbench workbench) {
 		//Initialize the preference store we wish to use
-		setPreferenceStore( RTGoreToPrismPlugin.getDefault().getPreferenceStore() );
+		setPreferenceStore( CRGMToPrismPlugin.getDefault().getPreferenceStore() );
 	}
 	
 	/**
@@ -112,12 +112,12 @@ public class ATCPreferencePage extends PreferencePage implements IWorkbenchPrefe
 	 */
 	private void createContentsATCPart( Composite composite ) {
 		//get current preference value
-		final String pv_sourcePath = RTGoreToPrismPlugin.getDefault().getPluginPreferences().
-			getString( RTGoreToPrismPlugin.ATC_SOURCE_PATH );
-		final String pv_targetPath = RTGoreToPrismPlugin.getDefault().getPluginPreferences().
-			getString( RTGoreToPrismPlugin.ATC_TARGET_PATH );
-		boolean pv_useInternal = RTGoreToPrismPlugin.getDefault().getPluginPreferences().
-			getBoolean( RTGoreToPrismPlugin.ATC_USE_INTERNAL_SOURCE_PATH );		
+		final String pv_sourcePath = CRGMToPrismPlugin.getDefault().getPluginPreferences().
+			getString( CRGMToPrismPlugin.ATC_SOURCE_PATH );
+		final String pv_targetPath = CRGMToPrismPlugin.getDefault().getPluginPreferences().
+			getString( CRGMToPrismPlugin.ATC_TARGET_PATH );
+		boolean pv_useInternal = CRGMToPrismPlugin.getDefault().getPluginPreferences().
+			getBoolean( CRGMToPrismPlugin.ATC_USE_INTERNAL_SOURCE_PATH );		
 		
 		Group templateGroup = new Group( composite, SWT.SHADOW_ETCHED_IN );
 		templateGroup.setText("Source Template");
@@ -234,8 +234,8 @@ public class ATCPreferencePage extends PreferencePage implements IWorkbenchPrefe
 	 */
 	private void createContentsJadexPart( Composite composite ) {
 		//get current preference value
-		final String value = RTGoreToPrismPlugin.getDefault().getPluginPreferences().
-			getString( RTGoreToPrismPlugin.JADEX_BASE_PATH );
+		final String value = CRGMToPrismPlugin.getDefault().getPluginPreferences().
+			getString( CRGMToPrismPlugin.JADEX_BASE_PATH );
 		
 		Group group = new Group( composite, SWT.SHADOW_ETCHED_IN );
 		group.setText("Jadex");
@@ -283,15 +283,15 @@ public class ATCPreferencePage extends PreferencePage implements IWorkbenchPrefe
 	 */
 	protected void performDefaults() {
 		//get preferences default values
-		String templateSourcePath = RTGoreToPrismPlugin.getDefault().getPluginPreferences().
-			getDefaultString( RTGoreToPrismPlugin.ATC_SOURCE_PATH );
-		String agentTargetDir = RTGoreToPrismPlugin.getDefault().getPluginPreferences().
-			getDefaultString( RTGoreToPrismPlugin.ATC_TARGET_PATH );
-		boolean useDefaultTemplate = RTGoreToPrismPlugin.getDefault().getPluginPreferences().
-			getDefaultBoolean( RTGoreToPrismPlugin.ATC_USE_INTERNAL_SOURCE_PATH );
+		String templateSourcePath = CRGMToPrismPlugin.getDefault().getPluginPreferences().
+			getDefaultString( CRGMToPrismPlugin.ATC_SOURCE_PATH );
+		String agentTargetDir = CRGMToPrismPlugin.getDefault().getPluginPreferences().
+			getDefaultString( CRGMToPrismPlugin.ATC_TARGET_PATH );
+		boolean useDefaultTemplate = CRGMToPrismPlugin.getDefault().getPluginPreferences().
+			getDefaultBoolean( CRGMToPrismPlugin.ATC_USE_INTERNAL_SOURCE_PATH );
 
-		String jadexLib = RTGoreToPrismPlugin.getDefault().getPluginPreferences().
-		getDefaultString( RTGoreToPrismPlugin.JADEX_BASE_PATH );
+		String jadexLib = CRGMToPrismPlugin.getDefault().getPluginPreferences().
+		getDefaultString( CRGMToPrismPlugin.JADEX_BASE_PATH );
 
 		
 		//update gui elements
@@ -310,15 +310,15 @@ public class ATCPreferencePage extends PreferencePage implements IWorkbenchPrefe
 	 */
 	public boolean performOk() {
 		//set preferences new value
-		RTGoreToPrismPlugin.getDefault().getPluginPreferences().
-			setValue( RTGoreToPrismPlugin.ATC_SOURCE_PATH, templateSourcePathLabel.getText() );
-		RTGoreToPrismPlugin.getDefault().getPluginPreferences().
-			setValue( RTGoreToPrismPlugin.ATC_TARGET_PATH, targetPathLabel.getText() );
-		RTGoreToPrismPlugin.getDefault().getPluginPreferences().
-			setValue( RTGoreToPrismPlugin.ATC_USE_INTERNAL_SOURCE_PATH, useDefaultButton.getSelection() );
+		CRGMToPrismPlugin.getDefault().getPluginPreferences().
+			setValue( CRGMToPrismPlugin.ATC_SOURCE_PATH, templateSourcePathLabel.getText() );
+		CRGMToPrismPlugin.getDefault().getPluginPreferences().
+			setValue( CRGMToPrismPlugin.ATC_TARGET_PATH, targetPathLabel.getText() );
+		CRGMToPrismPlugin.getDefault().getPluginPreferences().
+			setValue( CRGMToPrismPlugin.ATC_USE_INTERNAL_SOURCE_PATH, useDefaultButton.getSelection() );
 		 
-		RTGoreToPrismPlugin.getDefault().getPluginPreferences().
-			setValue( RTGoreToPrismPlugin.JADEX_BASE_PATH, jadexPathLabel.getText() );
+		CRGMToPrismPlugin.getDefault().getPluginPreferences().
+			setValue( CRGMToPrismPlugin.JADEX_BASE_PATH, jadexPathLabel.getText() );
 		
 		return super.performOk();
 	}

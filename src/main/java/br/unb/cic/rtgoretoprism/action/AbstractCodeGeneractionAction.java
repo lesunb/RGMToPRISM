@@ -62,7 +62,7 @@ import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
-import br.unb.cic.rtgoretoprism.RTGoreToPrismPlugin;
+import br.unb.cic.rtgoretoprism.CRGMToPrismPlugin;
 
 /**
  * The basic abstract class for action that generate code
@@ -105,21 +105,21 @@ public abstract class AbstractCodeGeneractionAction extends Action implements IW
 	 */
 	protected void updateUsedFolders() {
 		//should we use internal or user-defined template?
-		boolean useInternalTemplate = RTGoreToPrismPlugin
+		boolean useInternalTemplate = CRGMToPrismPlugin
 			.getDefault().getPluginPreferences().getBoolean(
-				RTGoreToPrismPlugin.ATC_USE_INTERNAL_SOURCE_PATH );
+				CRGMToPrismPlugin.ATC_USE_INTERNAL_SOURCE_PATH );
 		
 		//get the proper path to the code generation template to be used
 		sourceFolder = 
-			RTGoreToPrismPlugin.getDefault().getPluginPreferences().getString(
+			CRGMToPrismPlugin.getDefault().getPluginPreferences().getString(
 			useInternalTemplate ? 		
-				RTGoreToPrismPlugin.ATC_INTERNAL_SOURCE_PATH :
-				RTGoreToPrismPlugin.ATC_SOURCE_PATH
+				CRGMToPrismPlugin.ATC_INTERNAL_SOURCE_PATH :
+				CRGMToPrismPlugin.ATC_SOURCE_PATH
 		);	
 
 		//get generated agents' target folder
-		targetFolder = RTGoreToPrismPlugin.getDefault().
-			getPluginPreferences().getString( RTGoreToPrismPlugin.ATC_TARGET_PATH );
+		targetFolder = CRGMToPrismPlugin.getDefault().
+			getPluginPreferences().getString( CRGMToPrismPlugin.ATC_TARGET_PATH );
 	}
 	
 	/**

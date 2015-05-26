@@ -16,7 +16,7 @@ import org.osgi.framework.BundleContext;
 
 import br.unb.cic.rtgoretoprism.util.kl.TroposNavigator;
 
-public class RTGoreToPrismPlugin extends AbstractUIPlugin{
+public class CRGMToPrismPlugin extends AbstractUIPlugin{
 	
 	//preferences data references
 	//atc part
@@ -32,12 +32,12 @@ public class RTGoreToPrismPlugin extends AbstractUIPlugin{
 	private static TroposNavigator tn;
 	
 	//The shared instance.
-	private static RTGoreToPrismPlugin plugin;
+	private static CRGMToPrismPlugin plugin;
 	
 	/**
 	 * The constructor.
 	 */
-	public RTGoreToPrismPlugin() {
+	public CRGMToPrismPlugin() {
 		plugin = this;
 	}
 
@@ -59,7 +59,7 @@ public class RTGoreToPrismPlugin extends AbstractUIPlugin{
 	/**
 	 * Returns the shared instance.
 	 */
-	public static RTGoreToPrismPlugin getDefault() {
+	public static CRGMToPrismPlugin getDefault() {
 		return plugin;
 	}
 	
