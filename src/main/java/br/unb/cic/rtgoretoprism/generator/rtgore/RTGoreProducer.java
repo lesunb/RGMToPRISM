@@ -82,11 +82,15 @@ public class RTGoreProducer {
 	/** the set of Actor for which code should be generated */
 	private Set<FHardGoal> allGoals;
 	
-	Map<String, Integer[]> rtSortedGoals;
+	/** memory for the parsed RT regexes */
+	Map<String, Boolean[]> rtSortedGoals;
 	Map<String, Object[]> rtCardGoals;
 	Map<String, Set<String>> rtAltGoals;
 	Map<String, String[]> rtTryGoals;
 	Map<String, Boolean> rtOptGoals;
+	
+	private int globalTime;
+	private int globalPath;
 	
 	/**
 	 * Creates a new Producer instance
@@ -105,7 +109,7 @@ public class RTGoreProducer {
 		this.allActors = allActors;
 		this.allGoals = allGoals;
 		
-		this.rtSortedGoals = new TreeMap<String, Integer[]>();
+		this.rtSortedGoals = new TreeMap<String, Boolean[]>();
 		this.rtCardGoals = new TreeMap<String, Object[]>();
 		this.rtAltGoals = new TreeMap<String, Set<String>>();
 		this.rtTryGoals = new TreeMap<String, String[]>();
@@ -143,9 +147,8 @@ public class RTGoreProducer {
 					type = Const.ACHIEVE;
 					request=Const.REQUEST;
 				} else {
-					// type=Const.MAINTAIN;
-					
-//TODO:  For now only achieve is implemented, this has to be a maintain-goal!
+					// type=Const.MAINTAIN;					
+					//TODO:  For now only achieve is implemented, this has to be a maintain-goal!
 					type = Const.ACHIEVE; 
 					request = Const.NONE;
 				}
@@ -159,11 +162,11 @@ public class RTGoreProducer {
 				addGoal(rootgoal, gc, ad, false);
 								
 			}		
-
+			//TODO: check this planlist creation, maybe it can be added on the fly
 			//the list of root plans for current agent' capabilities
 			List<Plan> planList = tn.getAllCapabilityPlan( a );
 			
-			// write the agent (xml+java plan bodies) to the output directory
+			// write the DTMC PRISM file to the output folder given the template input folder
 			PrismWriter writer = new PrismWriter( ad, planList, inputFolder, outputFolder);
 			writer.writeModel();
 		}
@@ -188,10 +191,11 @@ public class RTGoreProducer {
 		//TODO: uncomment if needed!
 		//if (tn.isDelegated(g))
 		//for testing purposes we allow requests for all goals
-		gc.setRequest(Const.REQUEST);
+		//gc.setRequest(Const.REQUEST);
 			
 		String rtRegex = gc.getRtRegex();
 		storeRegexResults(rtRegex);
+		
 		Integer prevPath = gc.getPrevTimePath();
 		Integer rootPath = gc.getTimePath();
 		Integer rootTime = gc.getTimeSlot();
@@ -223,24 +227,24 @@ public class RTGoreProducer {
 				PlanContainer pc = ad.createPlan(p);
 				
 				if(rtSortedGoals.containsKey(pc.getElId())){
-					Integer [] decDeltaPathTime = rtSortedGoals.get(pc.getElId());					
-					if(decDeltaPathTime[1] != 0){
+					Boolean [] decDeltaPathTime = rtSortedGoals.get(pc.getElId());										
+					if(decDeltaPathTime[1]){
 						if(gc.getFutTimePath() > 0)
 							pc.setPrevTimePath(gc.getFutTimePath());
 						else
 							pc.setPrevTimePath(gc.getTimePath());
 						pc.setTimePath(rootPath);
-						pc.setTimeSlot(gc.getTimeSlot() + decDeltaPathTime[1]);
-					}else if(decDeltaPathTime[0] != 0 ){
+						pc.setTimeSlot(gc.getTimeSlot() + 1);
+					}else if(decDeltaPathTime[0]){
+						parPlan = true;
 						pc.setPrevTimePath(prevPath);
 						if(gc.getFutTimePath() > 0)
-							pc.setTimePath(gc.getFutTimePath() + decDeltaPathTime[0]);
+							pc.setTimePath(gc.getFutTimePath() + 1);
 						else
-							pc.setTimePath(gc.getTimePath() + decDeltaPathTime[0]);						
-						pc.setTimeSlot(rootTime + decDeltaPathTime[1]);
-						parPlan = true;
+							pc.setTimePath(gc.getTimePath() + 1);
+						pc.setTimeSlot(rootTime + 0);//TODO: check if there is no case in which both path and time are incremented
 					}else{		
-						pc.setPrevTimePath(prevPath);//testing to solve T8.0 problem
+						pc.setPrevTimePath(prevPath);
 						pc.setTimePath(rootPath);
 						pc.setTimeSlot(rootTime);
 					}
@@ -255,7 +259,6 @@ public class RTGoreProducer {
 						pc.setCreationCondition(gc.getCreationCondition() + " & " + pc.getCreationCondition());
 					else
 						pc.setCreationCondition(gc.getCreationCondition());
-
 				
 				gc.addMERealPlan(pc);
 				
@@ -315,20 +318,20 @@ public class RTGoreProducer {
 			// organizes dispatch goals
 			GoalContainer deccont = ad.createGoal(dec, Const.ACHIEVE);
 			
-			if(rtSortedGoals != null && rtSortedGoals.containsKey(deccont.getElId())){
-				Integer [] decDeltaPathTime = rtSortedGoals.get(deccont.getElId());				
-				if(decDeltaPathTime[1] != 0 ){ //|| tn.getBooleanDec(dec, TroposIntentional.class).isEmpty()
+			if(rtSortedGoals.containsKey(deccont.getElId())){
+				Boolean [] decDeltaPathTime = rtSortedGoals.get(deccont.getElId());				
+				if(decDeltaPathTime[1]){ //|| tn.getBooleanDec(dec, TroposIntentional.class).isEmpty()
 					if(gc.getFutTimePath() > 0)
 						deccont.setPrevTimePath(gc.getFutTimePath());						
 					else
 						deccont.setPrevTimePath(gc.getTimePath());
 					deccont.setTimePath(rootPath);
-					deccont.setTimeSlot(gc.getTimeSlot() + decDeltaPathTime[1]);
-				}else if(decDeltaPathTime[0] != 0 ){
+					deccont.setTimeSlot(gc.getTimeSlot() + 1);
+				}else if(decDeltaPathTime[0]){
 					if(gc.getFutTimePath() > 0)
-						deccont.setTimePath(gc.getFutTimePath() + decDeltaPathTime[0]);
+						deccont.setTimePath(gc.getFutTimePath() + 1);
 					else
-						deccont.setTimePath(gc.getTimePath() + decDeltaPathTime[0]);					
+						deccont.setTimePath(gc.getTimePath() + 1);					
 					deccont.setTimeSlot(rootTime);
 					parDec = true;
 				}else{				
@@ -428,19 +431,19 @@ public class RTGoreProducer {
 			PlanContainer deccont = ad.createPlan(dec);
 			
 			if(rtSortedGoals.containsKey(deccont.getElId())){
-				Integer [] decDeltaPathTime = rtSortedGoals.get(deccont.getElId());				
-				if(decDeltaPathTime[1] != 0){
+				Boolean [] decDeltaPathTime = rtSortedGoals.get(deccont.getElId());				
+				if(decDeltaPathTime[1]){
 					if(pc.getFutTimePath() > 0)
 						deccont.setPrevTimePath(pc.getFutTimePath());
 					else
 						deccont.setPrevTimePath(pc.getPrevTimePath());
 					deccont.setTimePath(rootPath);
-					deccont.setTimeSlot(pc.getTimeSlot() + decDeltaPathTime[1]);
-				}else if(decDeltaPathTime[0] != 0){					
+					deccont.setTimeSlot(pc.getTimeSlot() + 1);
+				}else if(decDeltaPathTime[0]){					
 					if(pc.getFutTimePath() > 0)
-						deccont.setTimePath(pc.getFutTimePath() + decDeltaPathTime[0]);
+						deccont.setTimePath(pc.getFutTimePath() + 1);
 					else
-						deccont.setTimePath(pc.getTimePath() + decDeltaPathTime[0]);					
+						deccont.setTimePath(pc.getTimePath() + 1);					
 					
 					deccont.setTimeSlot(rootTime);
 					parPlan = true;					
@@ -559,7 +562,7 @@ public class RTGoreProducer {
 	private void storeRegexResults(String rtRegex) throws IOException {
 		if(rtRegex != null){
 			Object [] res = RTParser.parseRegex(rtRegex + '\n');
-			rtSortedGoals.putAll((Map<String, Integer[]>) res [0]);
+			rtSortedGoals.putAll((Map<String, Boolean[]>) res [0]);
 			rtCardGoals.putAll((Map<String, Object[]>) res [1]);
 			rtAltGoals.putAll((Map<String, Set<String>>) res [2]);
 			rtTryGoals.putAll((Map<String, String[]>) res [3]);

@@ -91,7 +91,7 @@ public class PrismWriter {
 	private static final String CTX_EFFECT_TAG			= "$CTX_EFFECT$";
 	
 	private static final String CONST_PARAM_TAG			= "$CONST_PARAM$";
-	private static final String CONST_PARAM_VAL			= "const";
+	private static final String CONST_PARAM_VAL			= "param";
 	
 	private static final String PARAMS_BASH_TAG	 		= "$PARAMS_BASH$";
 	private static final String REPLACE_BASH_TAG	 	= "$REPLACE_BASH$";
@@ -720,46 +720,6 @@ public class PrismWriter {
 			ATCConsole.println( msg );
 			throw new CodeGenerationException( msg );
 		}
-	}
-	
-
-		
-	/**
-	 * Copies to the output directory all the files where only the package-name changes.
-	 * 
-	 * @param input template input folder
-	 * @param output target dir
-	 * @param pkgName current package name
-	 * @param utilPkgName current util package name
-	 * @param planPkgName current plan package name
-	 * 
-	 * @throws CodeGenerationException 
-	 */
-	private void writeDefaultJavaFiles( String input, String output, String pkgName,
-			String utilPkgName, String planPkgName ) throws CodeGenerationException {
-		// here only the internal package name changes
-		String dispatchGoalPlan = readFileAsString(input + "DispatchGoalPlan.java");
-		dispatchGoalPlan = dispatchGoalPlan.replace(PACKAGE_TAG, pkgName);
-		dispatchGoalPlan = dispatchGoalPlan.replace(UTIL_PACKAGE_TAG, utilPkgName);
-		dispatchGoalPlan = dispatchGoalPlan.replace(PLAN_PACKAGE_TAG, planPkgName );
-		
-		writeFile(dispatchGoalPlan, output + "DispatchGoalPlan.java");
-
-		String goalRequestPlan = readFileAsString(input + "GoalRequestPlan.java");
-		goalRequestPlan = goalRequestPlan.replace(PACKAGE_TAG, pkgName);
-		goalRequestPlan = goalRequestPlan.replace(UTIL_PACKAGE_TAG, utilPkgName);
-		goalRequestPlan = goalRequestPlan.replace(PLAN_PACKAGE_TAG, planPkgName);
-		
-		writeFile(goalRequestPlan, output + "GoalRequestPlan.java");
-
-		String informChangePlan = readFileAsString(input + "InformChangePlan.java");
-		informChangePlan = informChangePlan.replace(PACKAGE_TAG, pkgName);
-		informChangePlan = informChangePlan.replace(UTIL_PACKAGE_TAG, utilPkgName );
-		informChangePlan = informChangePlan.replace(PLAN_PACKAGE_TAG, planPkgName );
-		
-		writeFile(informChangePlan, output + "InformChangePlan.java");
-
-		// the other files are written directly in writePlans/writeGoals
 	}
 
 	/**

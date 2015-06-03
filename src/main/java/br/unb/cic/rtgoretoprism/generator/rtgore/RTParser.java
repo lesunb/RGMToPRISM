@@ -74,7 +74,7 @@ public class RTParser{
 
 class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 
-	Map<String, Integer[]> timeMemory = new HashMap<String, Integer[]>();		
+	Map<String, Boolean[]> timeMemory = new HashMap<String, Boolean[]>();		
 	Map<String, Object[]> cardMemory = new HashMap<String, Object[]>();
 	Map<String, Set<String>> altMemory = new HashMap<String, Set<String>>();
 	Map<String, String[]> tryMemory = new HashMap<String, String[]>();
@@ -90,7 +90,7 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 	public String visitGId(GIdContext ctx) {
 		String gid = ctx.GID().getText();
 		if ( !timeMemory.containsKey(gid) ){
-			timeMemory.put(gid, new Integer[]{0,0});			
+			timeMemory.put(gid, new Boolean[]{false,false});			
 			//cardMemory.put(gid, 1);
 		}
 		return gid;
@@ -103,11 +103,11 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 		//String [] gidAs = gidAo.split("-");
 		String [] gidBs = gidBo.split("-");
 		for(String gidB : gidBs){
-			Integer [] pathTimeB = timeMemory.get(gidB);			
+			Boolean [] pathTimeB = timeMemory.get(gidB);			
 			if(ctx.op.getType() == RTRegexParser.INT){
-				pathTimeB[0]++;
+				pathTimeB[0] = true;
 			}else if(ctx.op.getType() == RTRegexParser.SEQ)
-				pathTimeB[1]++;
+				pathTimeB[1] = true;
 		}
 		return gidAo + '-' + gidBo;
 	}
@@ -160,14 +160,14 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 		String gidT = visit(ctx.expr(0));
 		String gidS = visit(ctx.expr(1));
 		String gidF = visit(ctx.expr(2));
-		Integer [] pathTimeS, pathTimeF; 
+		Boolean [] pathTimeS, pathTimeF; 
 		if(gidS != null){
 			pathTimeS = timeMemory.get(gidS);
-			pathTimeS[1] = pathTimeS[1] + 1;
+			pathTimeS[1] = pathTimeS[1] = true;
 		}
 		if(gidF != null){
 			pathTimeF = timeMemory.get(gidF);
-			pathTimeF[1] = pathTimeF[1] + 1;
+			pathTimeF[1] = pathTimeF[1] = true;
 		}
 		tryMemory.put(gidT, new String[]{gidS, gidF});		
 		return gidT;
