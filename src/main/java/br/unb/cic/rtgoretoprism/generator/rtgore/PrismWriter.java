@@ -64,9 +64,7 @@ public class PrismWriter {
 	/** the set of placeholder founded into template files that are 
 	 * substituted with the proper values during the code generation
 	 * process. */
-	private static final String PACKAGE_TAG 			= "$PACKAGE";
 	private static final String UTIL_PACKAGE_TAG		= "$UTIL_PACKAGE";
-	private static final String PLAN_PACKAGE_TAG		= "$PLAN_PACKAGE";
 	private static final String CAPABILITY_AGENT_TAG	= "$CAPABILITY_AGENT";
 	
 	
@@ -125,13 +123,7 @@ public class PrismWriter {
 
 	// Strings filled with content, to replace the placeholders in the adf skeleton.
 	//Note: they are used whith concat() function
-	private String bbdecomp = "", bbmeansend = "", bbcontrib = "", bbdepend = "";
-	private String bbsoftgoals = "";
-	private String bbgoals = "";
 
-	private String adfgoals = "", adfmetagoals = "";
-	private String adfrequestplans = "", adfdispatchplans = "", adfandplans = "";
-	private String adfmetaplans = "", adfrealplans = "", adfevents = "";
 	
 	private String noErrorFormula = "";
 	private StringBuilder planModules = new StringBuilder();
@@ -139,10 +131,22 @@ public class PrismWriter {
 	private String evalFormulaReplace = "";
 	
 	/** PRISM patterns */
+	private String leafGoalPattern;
+	private String andDecPattern;
+	private String xorDecPattern;
+	private String xorDecHeaderPattern;
 	private String xorSkippedPattern;
 	private String xorNotSkippedPattern;
 	private String seqRenamePattern;
-
+	private String trySDecPattern;
+	private String tryFDecPattern;
+	private String optDecPattern;
+	private String optHeaderPattern;
+	private String seqCardPattern;
+	private String intlCardPattern;
+	private String ctxGoalPattern;
+	private String ctxTaskPattern;
+	
 	/** Has all the informations about the agent. */ 
 	private AgentDefinition ad;
 	/** the list of plan that are root for a capability of the selected agent */
@@ -250,27 +254,25 @@ public class PrismWriter {
 	private void writePrismModel( String input, LinkedList<GoalContainer> rootGoals, 
 			String planOutputFolder, String pkgName, String utilPkgName, String planPkgName ) throws CodeGenerationException, IOException {
 
-		String leafGoalPattern 			= readFileAsString(input + "pattern_leafgoal.pm");
-		String andDecPattern 			= readFileAsString(input + "pattern_and.pm");
-		String xorDecPattern 			= readFileAsString(input + "pattern_xor.pm");
-		String xorDecHeaderPattern 		= readFileAsString(input + "pattern_xor_header.pm");
+		leafGoalPattern 				= readFileAsString(input + "pattern_leafgoal.pm");
+		andDecPattern 					= readFileAsString(input + "pattern_and.pm");
+		xorDecPattern 					= readFileAsString(input + "pattern_xor.pm");
+		xorDecHeaderPattern 			= readFileAsString(input + "pattern_xor_header.pm");
 		xorSkippedPattern	 			= readFileAsString(input + "pattern_skip_xor.pm");
 		xorNotSkippedPattern	 		= readFileAsString(input + "pattern_skip_not_xor.pm");
 		seqRenamePattern				= readFileAsString(input + "pattern_seq_rename.pm");
-		String trySDecPattern	 		= readFileAsString(input + "pattern_try_success.pm");
-		String tryFDecPattern	 		= readFileAsString(input + "pattern_try_fail.pm");
-		String optDecPattern 			= readFileAsString(input + "pattern_opt.pm");
-		String optHeaderPattern	 		= readFileAsString(input + "pattern_opt_header.pm");
-		String seqCardPattern	 		= readFileAsString(input + "pattern_card_seq.pm");
-		String intlCardPattern	 		= readFileAsString(input + "pattern_card_retry.pm");//TODO: create retry in a separate pattern
-		String ctxGoalPattern	 		= readFileAsString(input + "pattern_ctx_goal.pm");
-		String ctxTaskPattern	 		= readFileAsString(input + "pattern_ctx_task.pm");
+		trySDecPattern	 				= readFileAsString(input + "pattern_try_success.pm");
+		tryFDecPattern	 				= readFileAsString(input + "pattern_try_fail.pm");
+		optDecPattern 					= readFileAsString(input + "pattern_opt.pm");
+		optHeaderPattern	 			= readFileAsString(input + "pattern_opt_header.pm");
+		seqCardPattern	 				= readFileAsString(input + "pattern_card_seq.pm");
+		intlCardPattern	 				= readFileAsString(input + "pattern_card_retry.pm");//TODO: create retry in a separate pattern
+		ctxGoalPattern	 				= readFileAsString(input + "pattern_ctx_goal.pm");
+		ctxTaskPattern	 				= readFileAsString(input + "pattern_ctx_task.pm");
 		Collections.sort(rootGoals);
 		
-		int deepLevel = 0;
-		
 		for( GoalContainer root : rootGoals ) {
-			String[] rootFormula = writeElement(
+			writeElement(
 							root, 
 							leafGoalPattern,							
 							seqCardPattern,

@@ -259,6 +259,10 @@ public class RTGoreProducer {
 					deccont.setTimePath(rootPath);
 					deccont.setTimeSlot(rootTime);
 				}
+			}else{
+				deccont.setFutTimePath(gc.getFutTimePath());
+				deccont.setTimePath(gc.getTimePath());
+				deccont.setTimeSlot(gc.getTimeSlot());
 			}
 			
 			if(rtCardGoals.containsKey(deccont.getElId())){
@@ -358,7 +362,7 @@ public class RTGoreProducer {
 					if(pc.getFutTimePath() > 0)
 						deccont.setPrevTimePath(pc.getFutTimePath());
 					else
-						deccont.setPrevTimePath(pc.getPrevTimePath());
+						deccont.setPrevTimePath(pc.getTimePath());
 					deccont.setTimePath(rootPath);
 					deccont.setTimeSlot(pc.getTimeSlot() + 1);
 				}else if(decDeltaPathTime[0]){
@@ -443,13 +447,13 @@ public class RTGoreProducer {
 						else
 							pc.setTimePath(gc.getTimePath() + 1);
 						pc.setTimeSlot(rootTime + 0);//TODO: check if there is no case in which both path and time are incremented
-					}else{		
+					}else{
 						pc.setPrevTimePath(prevPath);
 						pc.setTimePath(rootPath);
 						pc.setTimeSlot(rootTime);
 					}
 				}else{
-					parPlan = true;
+					//parPlan = true;
 					pc.setPrevTimePath(gc.getPrevTimePath());
 					pc.setFutTimePath(gc.getFutTimePath());
 					pc.setTimePath(gc.getTimePath());
