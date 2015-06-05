@@ -89,7 +89,7 @@ public class PrismWriter {
 	private static final String CTX_EFFECT_TAG			= "$CTX_EFFECT$";
 	
 	private static final String CONST_PARAM_TAG			= "$CONST_PARAM$";
-	private static final String CONST_PARAM_VAL			= "param";
+	private static final String CONST_PARAM_VAL			= "const";
 	
 	private static final String PARAMS_BASH_TAG	 		= "$PARAMS_BASH$";
 	private static final String REPLACE_BASH_TAG	 	= "$REPLACE_BASH$";

@@ -225,7 +225,8 @@ public class RTGoreProducer {
 	
 	private void iterateGoals(AgentDefinition ad, GoalContainer gc, List<FHardGoal> decList, boolean include) throws IOException{
 		
-		//Integer prevPath = gc.getPrevTimePath();
+		Integer prevPath = gc.getPrevTimePath();
+		Integer rootFutPath = gc.getFutTimePath();
 		Integer rootPath = gc.getTimePath();
 		Integer rootTime = gc.getTimeSlot();
 		gc.setRootTimeSlot(rootTime);
@@ -233,6 +234,7 @@ public class RTGoreProducer {
 		for (FHardGoal dec : decList) {
 			boolean newgoal = !ad.containsGoal(dec);
 			boolean parDec = false;
+			boolean trivial = false;
 			// addDecomp adds the new goal to container and goalbase and, if needed (OR, M-E)
 			// organizes dispatch goals
 			GoalContainer deccont = ad.createGoal(dec, Const.ACHIEVE);
@@ -240,11 +242,11 @@ public class RTGoreProducer {
 			if(rtSortedGoals.containsKey(deccont.getElId())){
 				Boolean [] decDeltaPathTime = rtSortedGoals.get(deccont.getElId());				
 				if(decDeltaPathTime[1]){ //|| tn.getBooleanDec(dec, TroposIntentional.class).isEmpty()
-					if(gc.getFutTimePath() > 0){
+					/*if(gc.getFutTimePath() > 0){
 						deccont.setPrevTimePath(gc.getFutTimePath());
-					}else
+					}else*/
 						deccont.setPrevTimePath(gc.getTimePath());
-					deccont.setFutTimePath(gc.getFutTimePath());
+					deccont.setFutTimePath(gc.getFutTimePath());//TODO: a sequential element should receive 'future time' from its predecessor?  
 					deccont.setTimePath(rootPath);
 					deccont.setTimeSlot(gc.getTimeSlot() + 1);
 				}else if(decDeltaPathTime[0]){
@@ -254,12 +256,16 @@ public class RTGoreProducer {
 						deccont.setTimePath(gc.getTimePath() + 1);					
 					deccont.setTimeSlot(rootTime);
 					parDec = true;
-				}else{			
-					deccont.setFutTimePath(gc.getFutTimePath());
+				}else{
+					trivial = true;
+					deccont.setPrevTimePath(prevPath);
+					deccont.setFutTimePath(rootFutPath);
 					deccont.setTimePath(rootPath);
 					deccont.setTimeSlot(rootTime);
 				}
 			}else{
+				trivial = true;
+				deccont.setPrevTimePath(prevPath);
 				deccont.setFutTimePath(gc.getFutTimePath());
 				deccont.setTimePath(gc.getTimePath());
 				deccont.setTimeSlot(gc.getTimeSlot());
@@ -283,12 +289,12 @@ public class RTGoreProducer {
 			gc.addDecomp(deccont);
 			
 			if (newgoal){
-				addGoal(dec, deccont, ad, include);				
-				gc.setFutTimePath(deccont.getFutTimePath()); //TODO: gc.getFutTimePath() + ?
-				if(!parDec && rtAltGoals.get(deccont.getElId()) == null){
-					gc.setTimeSlot(deccont.getTimeSlot());
-				}else
-					gc.setTimePath(deccont.getTimePath());				
+				addGoal(dec, deccont, ad, include);	
+				gc.setFutTimePath(Math.max(deccont.getTimePath(), deccont.getFutTimePath())); //TODO: gc.getFutTimePath() + ?
+				if(trivial || (!parDec && rtAltGoals.get(deccont.getElId()) == null))
+						gc.setTimeSlot(deccont.getTimeSlot());
+				/*if(trivial || (parDec || rtAltGoals.get(deccont.getElId()) != null))
+						gc.setTimePath(deccont.getTimePath());*/		
 			}				
 		}		
 	}
@@ -347,6 +353,7 @@ public class RTGoreProducer {
 	
 	private void iteratePlans(AgentDefinition ad, PlanContainer pc, List<FPlan> decList) throws IOException{
 		
+		Integer prevPath = pc.getPrevTimePath();
 		Integer rootFutPath = pc.getFutTimePath();
 		Integer rootPath = pc.getTimePath();
 		Integer rootTime = pc.getTimeSlot();
@@ -359,10 +366,11 @@ public class RTGoreProducer {
 			if(rtSortedGoals.containsKey(deccont.getElId())){
 				Boolean [] decDeltaPathTime = rtSortedGoals.get(deccont.getElId());				
 				if(decDeltaPathTime[1]){
-					if(pc.getFutTimePath() > 0)
+					/*if(pc.getFutTimePath() > 0)
 						deccont.setPrevTimePath(pc.getFutTimePath());
-					else
+					else*/
 						deccont.setPrevTimePath(pc.getTimePath());
+					deccont.setFutTimePath(pc.getFutTimePath());
 					deccont.setTimePath(rootPath);
 					deccont.setTimeSlot(pc.getTimeSlot() + 1);
 				}else if(decDeltaPathTime[0]){
@@ -374,11 +382,13 @@ public class RTGoreProducer {
 					deccont.setTimeSlot(rootTime);
 					parPlan = true;					
 				}else{
+					deccont.setPrevTimePath(prevPath);
 					deccont.setFutTimePath(rootFutPath);
 					deccont.setTimePath(rootPath);
 					deccont.setTimeSlot(rootTime);
 				}
 			}else{
+				deccont.setPrevTimePath(prevPath);
 				deccont.setFutTimePath(pc.getFutTimePath());
 				deccont.setTimePath(pc.getTimePath());
 				deccont.setTimeSlot(pc.getTimeSlot());
@@ -401,13 +411,12 @@ public class RTGoreProducer {
 			pc.addDecomp(deccont);
 			if (newplan){
 				addPlan(dec, deccont, ad);									
+				pc.setFutTimePath(Math.max(deccont.getTimePath(), deccont.getFutTimePath())); //TODO: why to add pc.getFutTimePath() ?
 				if(!parPlan && rtAltGoals.get(deccont.getElId()) == null){
 					pc.setTimeSlot(deccont.getTimeSlot());
-					pc.setFutTimePath(deccont.getFutTimePath());
-				}else{ 
+				}/*else{ 
 					pc.setTimePath(deccont.getTimePath());
-					pc.setFutTimePath(deccont.getFutTimePath()); //TODO: why to add pc.getFutTimePath() ?
-				}
+				}*/
 			}
 		}
 	}
@@ -415,6 +424,7 @@ public class RTGoreProducer {
 	private void iterateMeansEnds(FHardGoal g, GoalContainer gc, final AgentDefinition ad, boolean included) throws IOException{
 		
 		Integer prevPath = gc.getPrevTimePath();
+		Integer rootFutPath = gc.getFutTimePath();
 		Integer rootPath = gc.getTimePath();
 		Integer rootTime = gc.getTimeSlot();
 		if (included && tn.isMeansEndDec(g)){
@@ -426,15 +436,16 @@ public class RTGoreProducer {
 			for (FPlan p : melist) {
 				boolean newplan = !ad.containsPlan(p);
 				boolean parPlan = false;
+				boolean trivial = false;
 				
 				PlanContainer pc = ad.createPlan(p);
 				
 				if(rtSortedGoals.containsKey(pc.getElId())){
 					Boolean [] decDeltaPathTime = rtSortedGoals.get(pc.getElId());										
 					if(decDeltaPathTime[1]){
-						if(gc.getFutTimePath() > 0)
+						/*if(gc.getFutTimePath() > 0)
 							pc.setPrevTimePath(gc.getFutTimePath());
-						else
+						else*/
 							pc.setPrevTimePath(gc.getTimePath());
 						pc.setFutTimePath(gc.getFutTimePath());
 						pc.setTimePath(rootPath);
@@ -448,11 +459,14 @@ public class RTGoreProducer {
 							pc.setTimePath(gc.getTimePath() + 1);
 						pc.setTimeSlot(rootTime + 0);//TODO: check if there is no case in which both path and time are incremented
 					}else{
+						trivial = true;
 						pc.setPrevTimePath(prevPath);
+						pc.setFutTimePath(rootFutPath);
 						pc.setTimePath(rootPath);
 						pc.setTimeSlot(rootTime);
 					}
 				}else{
+					trivial = true;
 					//parPlan = true;
 					pc.setPrevTimePath(gc.getPrevTimePath());
 					pc.setFutTimePath(gc.getFutTimePath());
@@ -470,11 +484,11 @@ public class RTGoreProducer {
 				
 				if (newplan){
 					addPlan(p, pc, ad);					
-					gc.setFutTimePath(pc.getTimePath()); //TODO: gc.getFutTimePath() + ?
-					if(!parPlan && rtAltGoals.get(pc.getElId()) == null)
+					gc.setFutTimePath(Math.max(pc.getTimePath(), pc.getFutTimePath())); //TODO: gc.getFutTimePath() + ?
+					if(trivial || (!parPlan && rtAltGoals.get(pc.getElId()) == null))
 						gc.setTimeSlot(pc.getTimeSlot());
-					else
-						gc.setTimePath(pc.getTimePath());
+					/*if(trivial || (parPlan || rtAltGoals.get(pc.getElId()) != null))
+						gc.setTimePath(pc.getTimePath());*/
 											
 				}
 				
