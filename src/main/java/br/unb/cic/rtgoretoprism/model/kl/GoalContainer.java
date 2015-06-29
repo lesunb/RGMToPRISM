@@ -161,4 +161,9 @@ public class GoalContainer extends RTContainer{
 	public String getDependumGoalFromDependency(String[] dep) {
 		return dep[0];
 	}
+	
+	public void setRoot(RTContainer root){
+		super.setRoot(root);
+		setUid(super.getElId());
+	}
 }

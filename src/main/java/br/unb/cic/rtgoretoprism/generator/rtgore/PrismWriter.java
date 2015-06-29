@@ -73,6 +73,7 @@ public class PrismWriter {
 	private static final String TIME_SLOT_TAG			= "$TIME_SLOT";
 	private static final String PREV_TIME_SLOT_TAG		= "$PREV_TIME_SLOT";
 	private static final String GID_TAG					= "$GID$";
+	private static final String GUID_TAG					= "$GUID$";
 	private static final String PREV_GID_TAG			= "$PREV_GID$";
 	private static final String GOAL_MODULES_TAG 		= "$GOAL_MODULES$";
 	private static final String SKIPPED_TAG				= "$SKIPPED$";
@@ -89,7 +90,7 @@ public class PrismWriter {
 	private static final String CTX_EFFECT_TAG			= "$CTX_EFFECT$";
 	
 	private static final String CONST_PARAM_TAG			= "$CONST_PARAM$";
-	private static final String CONST_PARAM_VAL			= "const";
+	private static final String CONST_PARAM_VAL			= "param";
 	
 	private static final String PARAMS_BASH_TAG	 		= "$PARAMS_BASH$";
 	private static final String REPLACE_BASH_TAG	 	= "$REPLACE_BASH$";
@@ -334,26 +335,28 @@ public class PrismWriter {
 				else
 					currentFormula = prevFormula;
 				writeElement(gc, pattern, seqCardPattern, intlCardPattern, andPattern, xorPattern, xorHeader, trySPattern, tryFPattern, optPattern, optHeader, ctxGoalPattern, ctxTaskPattern, currentFormula);												
-				prevGoalFormula = gc.getClearElId();
+				if(gc.isIncluded())
+					prevGoalFormula = gc.getClearUId();
 				if(prevGoalFormula != null)
 					goalFormula.append(prevGoalFormula + operator);							
 			}
-			goalFormula.replace(goalFormula.lastIndexOf(operator), goalFormula.length(), "");
+			if(prevGoalFormula != null)
+				goalFormula.replace(goalFormula.lastIndexOf(operator), goalFormula.length(), "");
 			if(root.isIncluded())
-				planModules = planModules.append("\nformula " + root.getClearElId() + " = " + goalFormula + ";\n");
-			return new String [] {root.getClearElId(), goalFormula.toString()};
+				planModules = planModules.append("\nformula " + root.getClearUId() + " = " + goalFormula + ";\n");
+			return new String [] {root.getClearUId(), goalFormula.toString()};
 		}else if(!root.getDecompPlans().isEmpty()){
 			StringBuilder taskFormula = new StringBuilder();
 			String prevTaskFormula = prevFormula;
 			for(PlanContainer pc : root.getDecompPlans()){
 				String childFormula = writeElement(pc, pattern, seqCardPattern, intlCardPattern, andPattern, xorPattern, xorHeader, trySPattern, tryFPattern, optPattern, optHeader, ctxGoalPattern, ctxTaskPattern, prevTaskFormula)[1];
-				//prevTaskFormula = pc.getClearElId();
+				//prevTaskFormula = pc.getClearUId();
 				taskFormula.append("(" + childFormula + ")" + operator);
 			}			
 			taskFormula.replace(taskFormula.lastIndexOf(operator), taskFormula.length(), "");
 			if(root instanceof GoalContainer)
-				planModules = planModules.append("\nformula " + root.getClearElId() + " = " + taskFormula + ";\n");
-			return new String [] {root.getClearElId(), taskFormula.toString()};
+				planModules = planModules.append("\nformula " + root.getClearUId() + " = " + taskFormula + ";\n");
+			return new String [] {root.getClearUId(), taskFormula.toString()};
 		}else if(root instanceof PlanContainer){
 			return writePrismModule(root, pattern, seqCardPattern, intlCardPattern, andPattern, xorPattern, xorHeader, trySPattern, tryFPattern, optPattern, optHeader, ctxGoalPattern, ctxTaskPattern, prevFormula);
 		}
@@ -430,13 +433,13 @@ public class PrismWriter {
 				}else if(plan.isSuccessTry()){
 					//Try success
 					PlanContainer tryPlan = (PlanContainer) plan.getTryOriginal();
-					trySPattern = trySPattern.replace(PREV_GID_TAG, tryPlan.getClearElId());
+					trySPattern = trySPattern.replace(PREV_GID_TAG, tryPlan.getClearUId());
 					sbType.append(trySPattern);
 					processPlanFormula(plan, planFormula, Const.TRY_S);
 				}else{
 					//Try fail
 					PlanContainer tryPlan = (PlanContainer) plan.getTryOriginal();
-					tryFPattern = tryFPattern.replace(PREV_GID_TAG, tryPlan.getClearElId());
+					tryFPattern = tryFPattern.replace(PREV_GID_TAG, tryPlan.getClearUId());
 					sbType.append(tryFPattern);
 					processPlanFormula(plan, planFormula, Const.TRY_F);
 				}	
@@ -449,31 +452,31 @@ public class PrismWriter {
 				String xorNotSkipped = new String(xorNotSkippedPattern);
 				if(false && CONST_PARAM_VAL.equals("param")){
 					String xorVar = new String(xorHeader);
-					evalFormulaParams += "XOR_" + plan.getClearElId() + "=\"0\";\n";
-					evalFormulaReplace += " -e \"s/XOR_" + plan.getClearElId() + "/$XOR_" + plan.getClearElId() + "/g\"";
-					xorHeaders.append(xorVar.replace(GID_TAG, plan.getClearElId()));
+					evalFormulaParams += "XOR_" + plan.getClearUId() + "=\"0\";\n";
+					evalFormulaReplace += " -e \"s/XOR_" + plan.getClearUId() + "/$XOR_" + plan.getClearUId() + "/g\"";
+					xorHeaders.append(xorVar.replace(GID_TAG, plan.getClearUId()));
 					sbHeader.append(xorHeaders);
-					xorNotSkippeds = xorNotSkippeds.concat(xorNotSkipped.replace(GID_TAG, plan.getClearElId()) + "*");
+					xorNotSkippeds = xorNotSkippeds.concat(xorNotSkipped.replace(GID_TAG, plan.getClearUId()) + "*");
 				}else{				
 					if(!plan.getAlternatives().isEmpty()){
 						for(RTContainer altFirst : plan.getAlternatives().keySet()){
 							String xorVar = new String(xorHeader);
-							evalFormulaParams += "XOR_" + altFirst.getClearElId() + "=\"0\";\n";
-							evalFormulaReplace += " -e \"s/XOR_" + altFirst.getClearElId() + "/$XOR_" + altFirst.getClearElId() + "/g\"";
-							xorHeaders.append(xorVar.replace(GID_TAG, altFirst.getClearElId()));
-							xorSkipped = xorSkipped.replace(GID_TAG, altFirst.getClearElId());
-							xorNotSkipped = xorNotSkipped.replace(GID_TAG, altFirst.getClearElId());
+							evalFormulaParams += "XOR_" + altFirst.getClearUId() + "=\"0\";\n";
+							evalFormulaReplace += " -e \"s/XOR_" + altFirst.getClearUId() + "/$XOR_" + altFirst.getClearUId() + "/g\"";
+							xorHeaders.append(xorVar.replace(GID_TAG, altFirst.getClearUId()));
+							xorSkipped = xorSkipped.replace(GID_TAG, altFirst.getClearUId());
+							xorNotSkipped = xorNotSkipped.replace(GID_TAG, altFirst.getClearUId());
 							xorNotSkippeds = xorNotSkippeds.concat(xorNotSkipped + "*");
 							LinkedList<RTContainer> alts = plan.getAlternatives().get(altFirst);
 							for(RTContainer alt : alts){
 								xorSkipped = new String(xorSkippedPattern);
 								xorNotSkipped = new String(xorNotSkippedPattern);
 								xorVar = new String(xorHeader);
-								evalFormulaParams += "XOR_" + alt.getClearElId() + "=\"0\";\n";
-								evalFormulaReplace += " -e \"s/XOR_" + alt.getClearElId() + "/$XOR_" + alt.getClearElId() + "/g\"";
-								xorHeaders.append(xorVar.replace(GID_TAG, alt.getClearElId()));																		
-								xorSkipped = xorSkipped.replace(GID_TAG, alt.getClearElId());											
-								xorNotSkipped = xorNotSkipped.replace(GID_TAG, alt.getClearElId());
+								evalFormulaParams += "XOR_" + alt.getClearUId() + "=\"0\";\n";
+								evalFormulaReplace += " -e \"s/XOR_" + alt.getClearUId() + "/$XOR_" + alt.getClearUId() + "/g\"";
+								xorHeaders.append(xorVar.replace(GID_TAG, alt.getClearUId()));																		
+								xorSkipped = xorSkipped.replace(GID_TAG, alt.getClearUId());											
+								xorNotSkipped = xorNotSkipped.replace(GID_TAG, alt.getClearUId());
 								//xorNotSkippeds = xorNotSkippeds.concat(xorSkipped + "*");
 							}
 							//appendAlternativesToNoErrorFormula(plan);
@@ -485,17 +488,17 @@ public class PrismWriter {
 							RTContainer firstAlt = plan.getFirstAlternatives().get(i);
 							xorSkipped = new String(xorSkippedPattern);
 							xorNotSkipped = new String(xorNotSkippedPattern);
-							xorSkipped = xorSkipped.replace(GID_TAG, firstAlt.getClearElId());
-							xorNotSkipped = xorNotSkipped.replace(GID_TAG, firstAlt.getClearElId());
+							xorSkipped = xorSkipped.replace(GID_TAG, firstAlt.getClearUId());
+							xorNotSkipped = xorNotSkipped.replace(GID_TAG, firstAlt.getClearUId());
 							//xorNotSkippeds = xorNotSkippeds.concat(xorSkipped + "*");
 							for(RTContainer alt : firstAlt.getAlternatives().get(firstAlt)){
 								if(alt.equals(plan) || calcAltIndex(firstAlt.getAlternatives().get(firstAlt), plan) == 0){
 									xorNotSkipped = new String(xorNotSkippedPattern);
-									xorNotSkipped = xorNotSkipped.replace(GID_TAG, alt.getClearElId());
+									xorNotSkipped = xorNotSkipped.replace(GID_TAG, alt.getClearUId());
 									xorNotSkippeds = xorNotSkippeds.concat(xorNotSkipped + "*");
 								}else{								
 									xorSkipped = new String(xorSkippedPattern);
-									xorSkipped = xorSkipped.replace(GID_TAG, alt.getClearElId());
+									xorSkipped = xorSkipped.replace(GID_TAG, alt.getClearUId());
 									//xorNotSkippeds = xorNotSkippeds.concat(xorSkipped + "*");
 								}							
 							}
@@ -511,20 +514,20 @@ public class PrismWriter {
 				//Opt
 				sbHeader.append(optHeader);
 				sbType.append(optPattern);
-				noErrorFormula += " & s" + plan.getClearElId() + " < 4";
-				evalFormulaParams += "OPT_" + plan.getClearElId() + "=\"1\";\n";
-				evalFormulaReplace += " -e \"s/OPT_" + plan.getClearElId() + "/$OPT_" + plan.getClearElId() + "/g\"";
+				noErrorFormula += " & s" + plan.getClearUId() + " < 4";
+				evalFormulaParams += "OPT_" + plan.getClearUId() + "=\"1\";\n";
+				evalFormulaReplace += " -e \"s/OPT_" + plan.getClearUId() + "/$OPT_" + plan.getClearUId() + "/g\"";
 				processPlanFormula(plan, planFormula,Const.OPT);
 			}
 		}else{
 			//And/OR			
 			sbType.append(andPattern + "\n\n");
-			noErrorFormula += " & s" + plan.getClearElId() + " < 4";
+			noErrorFormula += " & s" + plan.getClearUId() + " < 4";
 			processPlanFormula(plan, planFormula, plan.getRoot().getDecomposition());
 		}
 		
-		evalFormulaParams += "rTask" + plan.getClearElId() + "=\"0.98\";\n";
-		evalFormulaReplace += " -e \"s/rTask" + plan.getClearElId() + "/$rTask" + plan.getClearElId() + "/g\"";		
+		evalFormulaParams += "rTask" + plan.getClearUId() + "=\"0.999\";\n";
+		evalFormulaReplace += " -e \"s/rTask" + plan.getClearUId() + "/$rTask" + plan.getClearUId() + "/g\"";		
 		//Header
 		planModule = planModule.replace(DEC_HEADER_TAG, sbHeader.toString() + "\n");
 		//Type
@@ -552,13 +555,14 @@ public class PrismWriter {
 			planModule = planModule.replace(TIME_SLOT_TAG + (i > 1 ? "_N" + i : "") + "$", timePath + "_" + (timeSlot + i) + "");
 		}
 		//GID
-		planModule = planModule.replace(GID_TAG, plan.getClearElId());
+		//planModule = planModule.replace(GID_TAG, plan.getClearUId());
+		planModule = planModule.replace(GID_TAG, plan.getClearUId());
 		//CONST OR PARAM
 		planModule = planModule.replace(CONST_PARAM_TAG, CONST_PARAM_VAL);
 		//MAX RETRIES
 		planModule = planModule.replace(MAX_RETRIES_TAG, plan.getCardNumber() + "");				
 		planModules = planModules.append(planModule);				
-		return new String[]{plan.getClearElId(), planFormula.toString()};
+		return new String[]{plan.getClearUId(), planFormula.toString()};
 	}
 	
 	private Integer calcAltIndex(LinkedList <? extends RTContainer> alts, RTContainer plan){
@@ -581,14 +585,14 @@ public class PrismWriter {
 		
 		String op = planFormula.length() == 0 ? "" : " & ";
 		switch(decType){
-			case OR: planFormula.append(op + "(s" + plan.getClearElId() + "=2)");break;
-			case AND: planFormula.append(op + "(s" + plan.getClearElId() + "=2)");break;
+			case OR: planFormula.append(op + "(s" + plan.getClearUId() + "=2)");break;
+			case AND: planFormula.append(op + "(s" + plan.getClearUId() + "=2)");break;
 			case XOR: planFormula.append(op + buildXorSuccessFormula(plan));break;
-			case TRY: planFormula.append(op + "(s" + plan.getClearElId() + "=2)");break;
-			case TRY_S: planFormula.append(op + "(s" + plan.getClearElId() + "=2)");break;
-			case TRY_F: planFormula.append(op + "(s" + plan.getClearElId() + "=2)");break;
-			case OPT: planFormula.append(op + "(s" + plan.getClearElId() + "=2 | s" + plan.getClearElId() + "=3)");break;
-			default: planFormula.append(op + "(s" + plan.getClearElId() + "=2)");
+			case TRY: planFormula.append(op + "(s" + plan.getClearUId() + "=2)");break;
+			case TRY_S: planFormula.append(op + "(s" + plan.getClearUId() + "=2)");break;
+			case TRY_F: planFormula.append(op + "(s" + plan.getClearUId() + "=2)");break;
+			case OPT: planFormula.append(op + "(s" + plan.getClearUId() + "=2 | s" + plan.getClearUId() + "=3)");break;
+			default: planFormula.append(op + "(s" + plan.getClearUId() + "=2)");
 		}
 	}
 	
@@ -597,19 +601,19 @@ public class PrismWriter {
 		/*for(RTContainer altFirst: plan.getAlternatives().keySet()){
 			for(RTContainer alt : plan.getAlternatives().get(altFirst)){
 				for(RTContainer decAlt : RTContainer.fowardMeansEnd(alt, new LinkedList<RTContainer>()))
-					sb.append("s" + decAlt.getClearElId() + "=2 | ");
+					sb.append("s" + decAlt.getClearUId() + "=2 | ");
 			}
 		}
 		for(RTContainer firstAlt: plan.getFirstAlternatives()){
 			//for(RTContainer alt : firstAlt.getAlternatives().get(firstAlt))
 				for(RTContainer decAlt : RTContainer.fowardMeansEnd(firstAlt, new LinkedList<RTContainer>())){
 					//if(!decAlt.equals(plan))
-						sb.append("s" + decAlt.getClearElId() + "=3 | ");
+						sb.append("s" + decAlt.getClearUId() + "=3 | ");
 						break;
 				}
 		}*/
 		//sb.replace(sb.length() - 3, sb.length(), "");
-		return sb.append("(s" + plan.getClearElId() + "=2)").toString();
+		return sb.append("(s" + plan.getClearUId() + "=2)").toString();
 	}
 	
 	private String buildPrevSuccessFormula(String prevFormula, PlanContainer plan){
@@ -620,7 +624,7 @@ public class PrismWriter {
 			//for(RTContainer alt : plan.getAlternatives().get(altFirst)){
 				for(RTContainer decAlt : RTContainer.fowardMeansEnd(altFirst, new LinkedList<RTContainer>()))
 					if(!decAlt.equals(plan))
-						sb.append(" | s" + decAlt.getClearElId() + "=3");
+						sb.append(" | s" + decAlt.getClearUId() + "=3");
 					else
 						break;
 			//}
@@ -629,34 +633,34 @@ public class PrismWriter {
 			for(RTContainer alt : firstAlt.getAlternatives().get(firstAlt))
 				for(RTContainer decAlt : RTContainer.fowardMeansEnd(alt, new LinkedList<RTContainer>()))
 					if(!decAlt.equals(plan)){
-						sb.append(" | s" + decAlt.getClearElId() + "=3");
+						sb.append(" | s" + decAlt.getClearUId() + "=3");
 						//break;
 					}else
 						break;
 		}
 		//sb.replace(sb.length() - 3, sb.length(), "");
-		return sb.append(") & ").toString();//.append("s" + plan.getClearElId() + "=2").toString();
+		return sb.append(") & ").toString();//.append("s" + plan.getClearUId() + "=2").toString();
 	}
 	
 	private void appendAlternativesToNoErrorFormula(PlanContainer plan) {
 		for(RTContainer altFirst : plan.getAlternatives().keySet()){
-			noErrorFormula += " & (s" + plan.getClearElId() + " < 4";
+			noErrorFormula += " & (s" + plan.getClearUId() + " < 4";
 			for(RTContainer altPlan : plan.getAlternatives().get(altFirst)){
-				noErrorFormula += " & s" + altPlan.getClearElId() + " < 4";			
+				noErrorFormula += " & s" + altPlan.getClearUId() + " < 4";			
 			}
 			noErrorFormula += ")";		
 		}
 	}
 
 	private void appendTryToNoErrorFormula(PlanContainer plan) {
-		noErrorFormula += " & (s" + plan.getClearElId() + " < 4 | (true ";
+		noErrorFormula += " & (s" + plan.getClearUId() + " < 4 | (true ";
 		if(plan.getTrySuccess() != null){
 			RTContainer trySucessPlan = plan.getTrySuccess();			
-			noErrorFormula += " & s" + trySucessPlan.getClearElId() + " < 4";			
+			noErrorFormula += " & s" + trySucessPlan.getClearUId() + " < 4";			
 		}
 		if(plan.getTryFailure() != null){
 			RTContainer tryFailurePlan = plan.getTryFailure();			
-			noErrorFormula += " & s" + tryFailurePlan.getClearElId() + " < 4";			
+			noErrorFormula += " & s" + tryFailurePlan.getClearUId() + " < 4";			
 		}
 		noErrorFormula += "))";
 	}

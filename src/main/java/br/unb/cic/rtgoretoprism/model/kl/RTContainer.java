@@ -48,6 +48,7 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	//root element
 	private RTContainer root;
 	//RTGore
+	private String uid = "";
 	private String elId;
 	private String rtRegex;
 	private Integer timeSlot = 0;
@@ -158,6 +159,8 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	public String getClearElName(){
 		String rtRegex = getRtRegex() != null ? getRtRegex() : "";
 		StringBuilder sb = new StringBuilder();
+		if(getRoot() != null)
+			sb.append(getRoot().getUid() + "_");
 		for(String word : getName().split("_")){
 			if(word.isEmpty())
 				continue;
@@ -185,12 +188,33 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	 * Returns the name of the goal without the RTRegex
 	 * @return The name of the goal
 	 */
+	public String getClearUId(){
+		if(getUid() != null)
+			return getUid().replace(".", "_");
+		else
+			return null;
+	}
+	
+	/**
+	 * Returns the name of the goal without the RTRegex
+	 * @return The name of the goal
+	 */
 	public String getClearElId(){
 		if(elId != null)
 			return elId.replace(".", "_");
 		else
 			return null;
+	}
 	
+	public String getUid() {
+		if(!uid.isEmpty())
+			return uid;
+		else
+			return elId;
+	}
+
+	public void setUid(String uid) {
+		this.uid = uid;
 	}
 
 	public String getElId() {
@@ -342,7 +366,7 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	}
 
 	public void setRoot(RTContainer root) {
-		this.root = root;
+		this.root = root;		
 	}
 
 	public boolean isIncluded() {

@@ -227,8 +227,6 @@ public class AgentDefinition {
 		gc.setRtRegex(parseRTRegex(gc.getName()));
 	}
 	
-	
-	
 	public Hashtable<String, GoalContainer>  getGoalBase(){
 		return goalbase;
 	}

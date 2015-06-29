@@ -98,4 +98,20 @@ public class PlanContainer extends RTContainer{
 	private void addParent(PlanContainer pc) {
 		parentlist.add(pc);
 	}
+	
+	/**
+	 * Returns the name of the goal without the RTRegex
+	 * @return The name of the goal
+	 */
+	public String getClearUId(){
+		if(getUid() != null)
+			return (getUid() + "_" + getElId()).replace(".", "_");
+		else
+			return null;
+	}
+	
+	public void setRoot(RTContainer root){
+		super.setRoot(root);
+		setUid(root.getUid());		
+	}
 }
