@@ -74,19 +74,6 @@ public interface RTRegexListener extends ParseTreeListener {
 	void exitGOpt(@NotNull RTRegexParser.GOptContext ctx);
 
 	/**
-	 * Enter a parse tree produced by the {@code n}
-	 * labeled alternative in {@link RTRegexParser#expr}.
-	 * @param ctx the parse tree
-	 */
-	void enterN(@NotNull RTRegexParser.NContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code n}
-	 * labeled alternative in {@link RTRegexParser#expr}.
-	 * @param ctx the parse tree
-	 */
-	void exitN(@NotNull RTRegexParser.NContext ctx);
-
-	/**
 	 * Enter a parse tree produced by the {@code gTry}
 	 * labeled alternative in {@link RTRegexParser#expr}.
 	 * @param ctx the parse tree

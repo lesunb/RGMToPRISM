@@ -52,14 +52,6 @@ public interface RTRegexVisitor<T> extends ParseTreeVisitor<T> {
 	T visitGOpt(@NotNull RTRegexParser.GOptContext ctx);
 
 	/**
-	 * Visit a parse tree produced by the {@code n}
-	 * labeled alternative in {@link RTRegexParser#expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitN(@NotNull RTRegexParser.NContext ctx);
-
-	/**
 	 * Visit a parse tree produced by the {@code gTry}
 	 * labeled alternative in {@link RTRegexParser#expr}.
 	 * @param ctx the parse tree

@@ -53,6 +53,7 @@ import java.util.TreeMap;
 import br.unb.cic.rtgoretoprism.console.ATCConsole;
 import br.unb.cic.rtgoretoprism.generator.CodeGenerationException;
 import br.unb.cic.rtgoretoprism.generator.kl.AgentDefinition;
+import br.unb.cic.rtgoretoprism.generator.rtgore.writer.DTMCWriter;
 import br.unb.cic.rtgoretoprism.model.kl.Const;
 import br.unb.cic.rtgoretoprism.model.kl.ElementContainer;
 import br.unb.cic.rtgoretoprism.model.kl.GoalContainer;
@@ -166,7 +167,7 @@ public class RTGoreProducer {
 			List<Plan> planList = tn.getAllCapabilityPlan( a );
 			
 			// write the DTMC PRISM file to the output folder given the template input folder
-			PrismWriter writer = new PrismWriter( ad, planList, inputFolder, outputFolder);
+			PrismWriter writer = new DTMCWriter( ad, planList, inputFolder, outputFolder);
 			writer.writeModel();
 		}
 		
@@ -193,7 +194,7 @@ public class RTGoreProducer {
 		//gc.setRequest(Const.REQUEST);
 			
 		String rtRegex = gc.getRtRegex();
-		storeRegexResults(rtRegex);
+		storeRegexResults(gc.getUid(), rtRegex);
 		
 		List<FHardGoal> declist = (List<FHardGoal>) tn.getBooleanDec(g, FHardGoal.class);
 		sortIntentionalElements(declist);
@@ -238,9 +239,10 @@ public class RTGoreProducer {
 			// addDecomp adds the new goal to container and goalbase and, if needed (OR, M-E)
 			// organizes dispatch goals
 			GoalContainer deccont = ad.createGoal(dec, Const.ACHIEVE);
+			gc.addDecomp(deccont);
 			
-			if(rtSortedGoals.containsKey(deccont.getElId())){
-				Boolean [] decDeltaPathTime = rtSortedGoals.get(deccont.getElId());				
+			if(rtSortedGoals.containsKey(deccont.getClearElId())){
+				Boolean [] decDeltaPathTime = rtSortedGoals.get(deccont.getClearElId());				
 				if(decDeltaPathTime[1]){ //|| tn.getBooleanDec(dec, TroposIntentional.class).isEmpty()
 					/*if(gc.getFutTimePath() > 0){
 						deccont.setPrevTimePath(gc.getFutTimePath());
@@ -271,8 +273,8 @@ public class RTGoreProducer {
 				deccont.setTimeSlot(gc.getTimeSlot());
 			}
 			
-			if(rtCardGoals.containsKey(deccont.getElId())){
-				Object[] card = rtCardGoals.get(deccont.getElId());
+			if(rtCardGoals.containsKey(deccont.getClearElId())){
+				Object[] card = rtCardGoals.get(deccont.getClearElId());
 				Const cardType = (Const) card[0];
 				Integer cardNumber = (Integer) card[1];
 				deccont.setCardType(cardType);
@@ -286,14 +288,12 @@ public class RTGoreProducer {
 				else
 					deccont.setCreationCondition(gc.getCreationCondition());
 
-			gc.addDecomp(deccont);
-			
 			if (newgoal){
 				addGoal(dec, deccont, ad, include);	
 				gc.setFutTimePath(Math.max(deccont.getTimePath(), deccont.getFutTimePath())); //TODO: gc.getFutTimePath() + ?
-				if(trivial || (!parDec && rtAltGoals.get(deccont.getElId()) == null))
+				if(trivial || (!parDec && rtAltGoals.get(deccont.getClearElId()) == null))
 						gc.setTimeSlot(deccont.getTimeSlot());
-				/*if(trivial || (parDec || rtAltGoals.get(deccont.getElId()) != null))
+				/*if(trivial || (parDec || rtAltGoals.get(deccont.getClearElId()) != null))
 						gc.setTimePath(deccont.getTimePath());*/		
 			}				
 		}		
@@ -324,7 +324,7 @@ public class RTGoreProducer {
 		//Integer prevPath = pc.getPrevTimePath();
 		//Integer rootPath = pc.getTimePath();
 		//Integer rootTime = pc.getTimeSlot();
-		storeRegexResults(pc.getRtRegex());
+		storeRegexResults(pc.getUid(), pc.getRtRegex());
 
 		if (tn.isMeansEndDec(p)){
 			List<FPlan> melist = tn.getMeansEndMeanPlans(p);
@@ -362,9 +362,10 @@ public class RTGoreProducer {
 			boolean parPlan = false;
 					
 			PlanContainer deccont = ad.createPlan(dec);
+			pc.addDecomp(deccont);
 			
-			if(rtSortedGoals.containsKey(deccont.getElId())){
-				Boolean [] decDeltaPathTime = rtSortedGoals.get(deccont.getElId());				
+			if(rtSortedGoals.containsKey(deccont.getClearElId())){
+				Boolean [] decDeltaPathTime = rtSortedGoals.get(deccont.getClearElId());				
 				if(decDeltaPathTime[1]){
 					/*if(pc.getFutTimePath() > 0)
 						deccont.setPrevTimePath(pc.getFutTimePath());
@@ -394,8 +395,8 @@ public class RTGoreProducer {
 				deccont.setTimeSlot(pc.getTimeSlot());
 			}
 			
-			if(rtCardGoals.containsKey(deccont.getElId())){
-				Object[] card = rtCardGoals.get(deccont.getElId());
+			if(rtCardGoals.containsKey(deccont.getClearElId())){
+				Object[] card = rtCardGoals.get(deccont.getClearElId());
 				Const cardType = (Const) card[0];
 				Integer cardNumber = (Integer) card[1];
 				if(cardType.equals(Const.SEQ))
@@ -408,11 +409,11 @@ public class RTGoreProducer {
 				else
 					deccont.setCreationCondition(pc.getCreationCondition());
 			
-			pc.addDecomp(deccont);
+			
 			if (newplan){
 				addPlan(dec, deccont, ad);									
 				pc.setFutTimePath(Math.max(deccont.getTimePath(), deccont.getFutTimePath())); //TODO: why to add pc.getFutTimePath() ?
-				if(!parPlan && rtAltGoals.get(deccont.getElId()) == null){
+				if(!parPlan && rtAltGoals.get(deccont.getClearElId()) == null){
 					pc.setTimeSlot(deccont.getTimeSlot());
 				}/*else{ 
 					pc.setTimePath(deccont.getTimePath());
@@ -439,9 +440,10 @@ public class RTGoreProducer {
 				boolean trivial = false;
 				
 				PlanContainer pc = ad.createPlan(p);
+				gc.addMERealPlan(pc);
 				
-				if(rtSortedGoals.containsKey(pc.getElId())){
-					Boolean [] decDeltaPathTime = rtSortedGoals.get(pc.getElId());										
+				if(rtSortedGoals.containsKey(pc.getClearElId())){
+					Boolean [] decDeltaPathTime = rtSortedGoals.get(pc.getClearElId());										
 					if(decDeltaPathTime[1]){
 						/*if(gc.getFutTimePath() > 0)
 							pc.setPrevTimePath(gc.getFutTimePath());
@@ -474,20 +476,26 @@ public class RTGoreProducer {
 					pc.setTimeSlot(gc.getTimeSlot());
 				}
 				
+				if(rtCardGoals.containsKey(pc.getClearElId())){
+					Object[] card = rtCardGoals.get(pc.getClearElId());
+					Const cardType = (Const) card[0];
+					Integer cardNumber = (Integer) card[1];
+					if(cardType.equals(Const.SEQ))
+						pc.setTimeSlot(pc.getTimeSlot() + cardNumber - 1);
+				}
+				
 				if(gc.getCreationCondition() != null)
 					if(pc.getCreationCondition() != null)
 						pc.setCreationCondition(gc.getCreationCondition() + " & " + pc.getCreationCondition());
 					else
 						pc.setCreationCondition(gc.getCreationCondition());
 				
-				gc.addMERealPlan(pc);
-				
 				if (newplan){
 					addPlan(p, pc, ad);					
 					gc.setFutTimePath(Math.max(pc.getTimePath(), pc.getFutTimePath())); //TODO: gc.getFutTimePath() + ?
-					if(trivial || (!parPlan && rtAltGoals.get(pc.getElId()) == null))
+					if(trivial || (!parPlan && rtAltGoals.get(pc.getClearElId()) == null))
 						gc.setTimeSlot(pc.getTimeSlot());
-					/*if(trivial || (parPlan || rtAltGoals.get(pc.getElId()) != null))
+					/*if(trivial || (parPlan || rtAltGoals.get(pc.getClearElId()) != null))
 						gc.setTimePath(pc.getTimePath());*/
 											
 				}
@@ -515,7 +523,7 @@ public class RTGoreProducer {
 	
 	private void iterateRts(RTContainer gc, List<? extends RTContainer> rts){
 		for(RTContainer dec : rts){
-			String elId = dec.getElId();
+			String elId = dec.getClearElId();
 			LinkedList <RTContainer> decPlans = RTContainer.fowardMeansEnd(dec, new LinkedList<RTContainer>());
 			//Alternatives			
 			if(rtAltGoals.get(elId) != null){		
@@ -575,7 +583,7 @@ public class RTGoreProducer {
 					decPlan.setOptional(rtOptGoals.get(elId));
 			//Cardinality
 			if(rtCardGoals.containsKey(elId)){
-				Object[] card = rtCardGoals.get(dec.getElId());
+				Object[] card = rtCardGoals.get(dec.getClearElId());
 				Const cardType = (Const) card[0];
 				Integer cardNumber = (Integer) card[1];
 				for(RTContainer decPlan : decPlans){
@@ -588,9 +596,9 @@ public class RTGoreProducer {
 
 	
 	@SuppressWarnings("unchecked")
-	private void storeRegexResults(String rtRegex) throws IOException {
+	private void storeRegexResults(String uid, String rtRegex) throws IOException {
 		if(rtRegex != null){
-			Object [] res = RTParser.parseRegex(rtRegex + '\n');
+			Object [] res = RTParser.parseRegex(uid, rtRegex + '\n');
 			rtSortedGoals.putAll((Map<String, Boolean[]>) res [0]);
 			rtCardGoals.putAll((Map<String, Object[]>) res [1]);
 			rtAltGoals.putAll((Map<String, Set<String>>) res [2]);

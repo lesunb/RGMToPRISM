@@ -99,19 +99,43 @@ public class PlanContainer extends RTContainer{
 		parentlist.add(pc);
 	}
 	
-	/**
-	 * Returns the name of the goal without the RTRegex
-	 * @return The name of the goal
-	 */
-	public String getClearUId(){
-		if(getUid() != null)
-			return (getUid() + "_" + getElId()).replace(".", "_");
-		else
-			return null;
+//	/**
+//	 * Returns the name of the goal without the RTRegex
+//	 * @return The name of the goal
+//	 */
+//	public String getClearUId(){
+//		if(getUid() != null)
+//			return (getUid() + "_" + getElId()).replace(".", "_");
+//		else
+//			return null;
+//	}
+	
+	@Override
+	public String getElId() {		
+		return getUid() + '_' + super.getElId();
+	}
+	
+	@Override
+	public String getClearElId() {		
+		return (getUid() + '_' + super.getElId()).replace(".", "_");
+	}
+	
+	@Override
+	public String getClearElName(){
+		String rtRegex = getRtRegex() != null ? getRtRegex() : "";
+		StringBuilder sb = new StringBuilder(getUid() + '_');
+		for(String word : getName().split("_")){
+			if(word.isEmpty())
+				continue;
+			StringBuilder sbb = new StringBuilder(word);
+			sbb.setCharAt(0, Character.toUpperCase(word.charAt(0)));
+			sb.append(sbb);
+		}
+		return sb.toString().replaceAll("[:\\.-]", "_").replace("[" + rtRegex + "]", "");
 	}
 	
 	public void setRoot(RTContainer root){
 		super.setRoot(root);
-		setUid(root.getUid());		
+		setUid(root.getUid());
 	}
 }

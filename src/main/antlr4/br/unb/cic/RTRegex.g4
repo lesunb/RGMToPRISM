@@ -3,28 +3,28 @@ rt:     expr NEWLINE                            # printExpr
   |     NEWLINE                                 # blank
   ;
 
-expr:   expr op=('+'|'%'|'@') expr					# gCard
+expr:   expr op=('+'|'%'|'@') FLOAT			# gCard
     |	expr op='|' expr						# gAlt
     |	'opt(' expr ')'							# gOpt
-    |   'try(' expr ')' '?' expr ':' expr       # gTry
+    |   'try(' expr ')' '?' expr ':' expr		# gTry
     |	expr op=(';'|'#') expr					# gTime
-    |   SKIP									# gSkip
-    |   GID                                     # gId
-    |   FLOAT									# n
-    |   '(' expr ')'                            # parens
+    |   SKIP									# gSkip        
+    |   t=('G'|'T') FLOAT						# gId
+    |   '(' expr ')'							# parens
     ;
 
-GID     	: [GT] FLOAT		;
 FLOAT		: DIGIT+'.'?DIGIT* 	;
-SEQ         : ';'			;
-INT			: '#'			;
-C_SEQ		: '+'			;
-C_INT		: '%'			;
-C_RTRY		: '@'			;
-ALT			: '|'			;
-SKIP		: 'skip'		;
-NEWLINE 	: [\r\n]+               	;
+SEQ         : ';'				;
+INT			: '#'				;
+C_SEQ		: '+'				;
+C_INT		: '%'				;
+C_RTRY		: '@'				;
+ALT			: '|'				;
+TASK		: 'T'				;
+GOAL		: 'G'				;
+SKIP		: 'skip'			;
+NEWLINE 	: [\r\n]+           ;
 WS          : [\t]+ -> skip 	;
 
 fragment
-DIGIT		: [0-9]			;
+DIGIT		: [0-9]				;

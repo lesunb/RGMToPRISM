@@ -82,19 +82,6 @@ public class RTRegexBaseListener implements RTRegexListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterN(@NotNull RTRegexParser.NContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitN(@NotNull RTRegexParser.NContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterGTry(@NotNull RTRegexParser.GTryContext ctx) { }
 	/**
 	 * {@inheritDoc}

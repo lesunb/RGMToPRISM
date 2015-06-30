@@ -159,8 +159,6 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	public String getClearElName(){
 		String rtRegex = getRtRegex() != null ? getRtRegex() : "";
 		StringBuilder sb = new StringBuilder();
-		if(getRoot() != null)
-			sb.append(getRoot().getUid() + "_");
 		for(String word : getName().split("_")){
 			if(word.isEmpty())
 				continue;
@@ -195,6 +193,17 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 			return null;
 	}
 	
+	public String getUid() {
+		if(root != null)
+			return uid;
+		else
+			return elId;
+	}
+
+	public void setUid(String uid) {
+		this.uid = uid;
+	}
+	
 	/**
 	 * Returns the name of the goal without the RTRegex
 	 * @return The name of the goal
@@ -204,17 +213,6 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 			return elId.replace(".", "_");
 		else
 			return null;
-	}
-	
-	public String getUid() {
-		if(!uid.isEmpty())
-			return uid;
-		else
-			return elId;
-	}
-
-	public void setUid(String uid) {
-		this.uid = uid;
 	}
 
 	public String getElId() {

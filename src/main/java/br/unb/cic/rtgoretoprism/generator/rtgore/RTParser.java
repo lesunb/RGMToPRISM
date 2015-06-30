@@ -31,7 +31,7 @@ import br.unb.cic.rtgoretoprism.model.kl.Const;
 
 public class RTParser{
 	
-	public static Object[] parseRegex(String regex) throws IOException{
+	public static Object[] parseRegex(String uid, String regex) throws IOException{
 		//Reading the DSL script
 	    InputStream is = new ByteArrayInputStream(regex.getBytes("UTF-8"));
 	    
@@ -61,7 +61,7 @@ public class RTParser{
 	    //walker.walk(new MyRTRegexBaseListener(), parser.prog());
 	    
 	    ParseTree tree = parser.rt();
-	    CustomRTRegexVisitor rtRegexVisitor = new CustomRTRegexVisitor();
+	    CustomRTRegexVisitor rtRegexVisitor = new CustomRTRegexVisitor(uid);
 	    rtRegexVisitor.visit(tree);
 	    
 	    return new Object [] 	{rtRegexVisitor.timeMemory, 
@@ -74,11 +74,16 @@ public class RTParser{
 
 class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 
+	final String uid;
 	Map<String, Boolean[]> timeMemory = new HashMap<String, Boolean[]>();		
 	Map<String, Object[]> cardMemory = new HashMap<String, Object[]>();
 	Map<String, Set<String>> altMemory = new HashMap<String, Set<String>>();
 	Map<String, String[]> tryMemory = new HashMap<String, String[]>();
 	Map<String, Boolean> optMemory = new HashMap<String, Boolean>();
+	
+	public CustomRTRegexVisitor(String uid) {
+		this.uid = uid;
+	}
 	
 	@Override
 	public String visitPrintExpr(PrintExprContext ctx) {
@@ -88,7 +93,9 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 	
 	@Override
 	public String visitGId(GIdContext ctx) {
-		String gid = ctx.GID().getText();
+		String gid = ctx.t.getText() + ctx.FLOAT().toString();
+		if(ctx.t.getType() == RTRegexParser.TASK)
+			gid = uid + '_' + gid;
 		if ( !timeMemory.containsKey(gid) ){
 			timeMemory.put(gid, new Boolean[]{false,false});			
 			//cardMemory.put(gid, 1);
@@ -145,13 +152,13 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 	
 	@Override
 	public String visitGCard(GCardContext ctx) {		
-		String gid = visit(ctx.expr(0));
+		String gid = visit(ctx.expr());
 		if(ctx.op.getType() == RTRegexParser.C_INT)
-			cardMemory.put(gid, new Object[]{Const.INT,Integer.parseInt(ctx.expr(1).getText())});
+			cardMemory.put(gid, new Object[]{Const.INT,Integer.parseInt(ctx.FLOAT().getText())});
 		else if(ctx.op.getType() == RTRegexParser.C_SEQ)
-			cardMemory.put(gid, new Object[]{Const.SEQ,Integer.parseInt(ctx.expr(1).getText())});
+			cardMemory.put(gid, new Object[]{Const.SEQ,Integer.parseInt(ctx.FLOAT().getText())});
 		else
-			cardMemory.put(gid, new Object[]{Const.RTRY,Integer.parseInt(ctx.expr(1).getText())});
+			cardMemory.put(gid, new Object[]{Const.RTRY,Integer.parseInt(ctx.FLOAT().getText())});
 		return gid;
 	}
 	
