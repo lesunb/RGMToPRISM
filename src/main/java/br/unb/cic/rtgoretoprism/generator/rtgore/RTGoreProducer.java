@@ -167,7 +167,7 @@ public class RTGoreProducer {
 			List<Plan> planList = tn.getAllCapabilityPlan( a );
 			
 			// write the DTMC PRISM file to the output folder given the template input folder
-			PrismWriter writer = new DTMCWriter( ad, planList, inputFolder, outputFolder);
+			PrismWriter writer = new DTMCWriter( ad, planList, inputFolder, outputFolder, false);
 			writer.writeModel();
 		}
 		
@@ -241,8 +241,8 @@ public class RTGoreProducer {
 			GoalContainer deccont = ad.createGoal(dec, Const.ACHIEVE);
 			gc.addDecomp(deccont);
 			
-			if(rtSortedGoals.containsKey(deccont.getClearElId())){
-				Boolean [] decDeltaPathTime = rtSortedGoals.get(deccont.getClearElId());				
+			if(rtSortedGoals.containsKey(deccont.getElId())){
+				Boolean [] decDeltaPathTime = rtSortedGoals.get(deccont.getElId());				
 				if(decDeltaPathTime[1]){ //|| tn.getBooleanDec(dec, TroposIntentional.class).isEmpty()
 					/*if(gc.getFutTimePath() > 0){
 						deccont.setPrevTimePath(gc.getFutTimePath());
@@ -273,8 +273,8 @@ public class RTGoreProducer {
 				deccont.setTimeSlot(gc.getTimeSlot());
 			}
 			
-			if(rtCardGoals.containsKey(deccont.getClearElId())){
-				Object[] card = rtCardGoals.get(deccont.getClearElId());
+			if(rtCardGoals.containsKey(deccont.getElId())){
+				Object[] card = rtCardGoals.get(deccont.getElId());
 				Const cardType = (Const) card[0];
 				Integer cardNumber = (Integer) card[1];
 				deccont.setCardType(cardType);
@@ -282,18 +282,14 @@ public class RTGoreProducer {
 					deccont.setTimeSlot(deccont.getTimeSlot() + cardNumber - 1);
 			}
 			
-			if(gc.getCreationCondition() != null)
-				if(deccont.getCreationCondition() != null)
-					deccont.setCreationCondition(gc.getCreationCondition() + " & " + deccont.getCreationCondition());
-				else
-					deccont.setCreationCondition(gc.getCreationCondition());
+			deccont.addFulfillmentConditions(gc.getFulfillmentConditions());
 
 			if (newgoal){
 				addGoal(dec, deccont, ad, include);	
 				gc.setFutTimePath(Math.max(deccont.getTimePath(), deccont.getFutTimePath())); //TODO: gc.getFutTimePath() + ?
-				if(trivial || (!parDec && rtAltGoals.get(deccont.getClearElId()) == null))
+				if(trivial || (!parDec && rtAltGoals.get(deccont.getElId()) == null))
 						gc.setTimeSlot(deccont.getTimeSlot());
-				/*if(trivial || (parDec || rtAltGoals.get(deccont.getClearElId()) != null))
+				/*if(trivial || (parDec || rtAltGoals.get(deccont.getElId()) != null))
 						gc.setTimePath(deccont.getTimePath());*/		
 			}				
 		}		
@@ -364,8 +360,8 @@ public class RTGoreProducer {
 			PlanContainer deccont = ad.createPlan(dec);
 			pc.addDecomp(deccont);
 			
-			if(rtSortedGoals.containsKey(deccont.getClearElId())){
-				Boolean [] decDeltaPathTime = rtSortedGoals.get(deccont.getClearElId());				
+			if(rtSortedGoals.containsKey(deccont.getElId())){
+				Boolean [] decDeltaPathTime = rtSortedGoals.get(deccont.getElId());				
 				if(decDeltaPathTime[1]){
 					/*if(pc.getFutTimePath() > 0)
 						deccont.setPrevTimePath(pc.getFutTimePath());
@@ -395,25 +391,21 @@ public class RTGoreProducer {
 				deccont.setTimeSlot(pc.getTimeSlot());
 			}
 			
-			if(rtCardGoals.containsKey(deccont.getClearElId())){
-				Object[] card = rtCardGoals.get(deccont.getClearElId());
+			if(rtCardGoals.containsKey(deccont.getElId())){
+				Object[] card = rtCardGoals.get(deccont.getElId());
 				Const cardType = (Const) card[0];
 				Integer cardNumber = (Integer) card[1];
 				if(cardType.equals(Const.SEQ))
 					deccont.setTimeSlot(deccont.getTimeSlot() + cardNumber - 1);
 			}
 			
-			if(pc.getCreationCondition() != null)
-				if(deccont.getCreationCondition() != null)
-					deccont.setCreationCondition(pc.getCreationCondition() + " & " + deccont.getCreationCondition());
-				else
-					deccont.setCreationCondition(pc.getCreationCondition());
-			
+			deccont.addFulfillmentConditions(pc.getFulfillmentConditions());
+			//deccont.addAdoptionConditions(pc.getAdoptionConditions());
 			
 			if (newplan){
 				addPlan(dec, deccont, ad);									
 				pc.setFutTimePath(Math.max(deccont.getTimePath(), deccont.getFutTimePath())); //TODO: why to add pc.getFutTimePath() ?
-				if(!parPlan && rtAltGoals.get(deccont.getClearElId()) == null){
+				if(!parPlan && rtAltGoals.get(deccont.getElId()) == null){
 					pc.setTimeSlot(deccont.getTimeSlot());
 				}/*else{ 
 					pc.setTimePath(deccont.getTimePath());
@@ -442,8 +434,8 @@ public class RTGoreProducer {
 				PlanContainer pc = ad.createPlan(p);
 				gc.addMERealPlan(pc);
 				
-				if(rtSortedGoals.containsKey(pc.getClearElId())){
-					Boolean [] decDeltaPathTime = rtSortedGoals.get(pc.getClearElId());										
+				if(rtSortedGoals.containsKey(pc.getElId())){
+					Boolean [] decDeltaPathTime = rtSortedGoals.get(pc.getElId());										
 					if(decDeltaPathTime[1]){
 						/*if(gc.getFutTimePath() > 0)
 							pc.setPrevTimePath(gc.getFutTimePath());
@@ -476,26 +468,22 @@ public class RTGoreProducer {
 					pc.setTimeSlot(gc.getTimeSlot());
 				}
 				
-				if(rtCardGoals.containsKey(pc.getClearElId())){
-					Object[] card = rtCardGoals.get(pc.getClearElId());
+				if(rtCardGoals.containsKey(pc.getElId())){
+					Object[] card = rtCardGoals.get(pc.getElId());
 					Const cardType = (Const) card[0];
 					Integer cardNumber = (Integer) card[1];
 					if(cardType.equals(Const.SEQ))
 						pc.setTimeSlot(pc.getTimeSlot() + cardNumber - 1);
 				}
-				
-				if(gc.getCreationCondition() != null)
-					if(pc.getCreationCondition() != null)
-						pc.setCreationCondition(gc.getCreationCondition() + " & " + pc.getCreationCondition());
-					else
-						pc.setCreationCondition(gc.getCreationCondition());
+								
+				pc.addFulfillmentConditions(gc.getFulfillmentConditions());
 				
 				if (newplan){
 					addPlan(p, pc, ad);					
 					gc.setFutTimePath(Math.max(pc.getTimePath(), pc.getFutTimePath())); //TODO: gc.getFutTimePath() + ?
-					if(trivial || (!parPlan && rtAltGoals.get(pc.getClearElId()) == null))
+					if(trivial || (!parPlan && rtAltGoals.get(pc.getElId()) == null))
 						gc.setTimeSlot(pc.getTimeSlot());
-					/*if(trivial || (parPlan || rtAltGoals.get(pc.getClearElId()) != null))
+					/*if(trivial || (parPlan || rtAltGoals.get(pc.getElId()) != null))
 						gc.setTimePath(pc.getTimePath());*/
 											
 				}
@@ -523,8 +511,8 @@ public class RTGoreProducer {
 	
 	private void iterateRts(RTContainer gc, List<? extends RTContainer> rts){
 		for(RTContainer dec : rts){
-			String elId = dec.getClearElId();
-			LinkedList <RTContainer> decPlans = RTContainer.fowardMeansEnd(dec, new LinkedList<RTContainer>());
+			String elId = dec.getElId();
+			LinkedList <RTContainer> decPlans = RTContainer.fowardMeansEnd(dec, new LinkedList<RTContainer>());			
 			//Alternatives			
 			if(rtAltGoals.get(elId) != null){		
 				if(!dec.getFirstAlternatives().contains(rts.get(0))){
@@ -583,7 +571,7 @@ public class RTGoreProducer {
 					decPlan.setOptional(rtOptGoals.get(elId));
 			//Cardinality
 			if(rtCardGoals.containsKey(elId)){
-				Object[] card = rtCardGoals.get(dec.getClearElId());
+				Object[] card = rtCardGoals.get(elId);
 				Const cardType = (Const) card[0];
 				Integer cardNumber = (Integer) card[1];
 				for(RTContainer decPlan : decPlans){
@@ -591,6 +579,8 @@ public class RTGoreProducer {
 					decPlan.setCardNumber(cardNumber);
 				}
 			}
+			
+			
 		}		
 	}
 

@@ -54,7 +54,7 @@ public class PlanContainer extends RTContainer{
 		
 		meGoals = new ArrayList<GoalContainer>();
 		parentlist = new ArrayList<PlanContainer>();	
-		this.setCreationCondition(p.getCreationProperty());
+		this.addFulfillmentConditions(p.getCreationProperty());
 	}
 
 	/**
@@ -131,7 +131,7 @@ public class PlanContainer extends RTContainer{
 			sbb.setCharAt(0, Character.toUpperCase(word.charAt(0)));
 			sb.append(sbb);
 		}
-		return sb.toString().replaceAll("[:\\.-]", "_").replace("[" + rtRegex + "]", "");
+		return sb.toString().replaceAll("[:\\.-]", "_").replace("[" + rtRegex.replace(".", "_") + "]", "");
 	}
 	
 	public void setRoot(RTContainer root){

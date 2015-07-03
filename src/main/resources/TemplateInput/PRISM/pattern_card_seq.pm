@@ -1,4 +1,4 @@
-$DEC_HEADER$$CONST_PARAM$ double rTask$GID$=0.99;
+$DEC_HEADER$$CONST_PARAM$ double rTask$GID$$DEFAULT_VAL$;
 
 module $MODULE_NAME$
 	s$GID$ :[0..4] init 0;	

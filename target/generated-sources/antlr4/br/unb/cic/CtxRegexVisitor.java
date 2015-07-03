@@ -28,12 +28,12 @@ public interface CtxRegexVisitor<T> extends ParseTreeVisitor<T> {
 	T visitCOr(@NotNull CtxRegexParser.COrContext ctx);
 
 	/**
-	 * Visit a parse tree produced by the {@code printExpr}
+	 * Visit a parse tree produced by the {@code trigger}
 	 * labeled alternative in {@link CtxRegexParser#ctx}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitPrintExpr(@NotNull CtxRegexParser.PrintExprContext ctx);
+	T visitTrigger(@NotNull CtxRegexParser.TriggerContext ctx);
 
 	/**
 	 * Visit a parse tree produced by the {@code blank}
@@ -42,6 +42,14 @@ public interface CtxRegexVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitBlank(@NotNull CtxRegexParser.BlankContext ctx);
+
+	/**
+	 * Visit a parse tree produced by the {@code printExpr}
+	 * labeled alternative in {@link CtxRegexParser#ctx}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPrintExpr(@NotNull CtxRegexParser.PrintExprContext ctx);
 
 	/**
 	 * Visit a parse tree produced by the {@code cLT}
@@ -58,6 +66,14 @@ public interface CtxRegexVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCEQ(@NotNull CtxRegexParser.CEQContext ctx);
+
+	/**
+	 * Visit a parse tree produced by the {@code condition}
+	 * labeled alternative in {@link CtxRegexParser#ctx}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCondition(@NotNull CtxRegexParser.ConditionContext ctx);
 
 	/**
 	 * Visit a parse tree produced by the {@code cGT}

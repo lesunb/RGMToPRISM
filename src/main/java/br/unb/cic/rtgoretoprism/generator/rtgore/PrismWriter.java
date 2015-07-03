@@ -47,6 +47,8 @@ import java.util.TreeMap;
 import br.unb.cic.rtgoretoprism.console.ATCConsole;
 import br.unb.cic.rtgoretoprism.generator.CodeGenerationException;
 import br.unb.cic.rtgoretoprism.generator.kl.AgentDefinition;
+import br.unb.cic.rtgoretoprism.model.ctx.ContextCondition;
+import br.unb.cic.rtgoretoprism.model.ctx.CtxSymbols;
 import br.unb.cic.rtgoretoprism.model.kl.Const;
 import br.unb.cic.rtgoretoprism.model.kl.GoalContainer;
 import br.unb.cic.rtgoretoprism.model.kl.PlanContainer;
@@ -73,7 +75,7 @@ public class PrismWriter {
 	private static final String TIME_SLOT_TAG			= "$TIME_SLOT";
 	private static final String PREV_TIME_SLOT_TAG		= "$PREV_TIME_SLOT";
 	private static final String GID_TAG					= "$GID$";
-	private static final String GUID_TAG				= "$GUID$";
+	private static final String DEFAULT_VAL				= "$DEFAULT_VAL$";
 	private static final String PREV_GID_TAG			= "$PREV_GID$";
 	private static final String GOAL_MODULES_TAG 		= "$GOAL_MODULES$";
 	private static final String SKIPPED_TAG				= "$SKIPPED$";
@@ -90,10 +92,11 @@ public class PrismWriter {
 	private static final String CTX_EFFECT_TAG			= "$CTX_EFFECT$";
 	
 	private static final String CONST_PARAM_TAG			= "$CONST_PARAM$";
-	private static final String CONST_PARAM_VAL			= "const";
 	
 	private static final String PARAMS_BASH_TAG	 		= "$PARAMS_BASH$";
 	private static final String REPLACE_BASH_TAG	 	= "$REPLACE_BASH$";
+
+	private final String constOrParam;
 	
 	/** where to find PRISM related template base section, inside the template folder */
 	private final String TEMPLATE_PRISM_BASE_PATH = "PRISM/";
@@ -151,7 +154,7 @@ public class PrismWriter {
 	 * @param inputFolder template input folder 
 	 * @param outputFolder generated code target folder
 	 */
-	public PrismWriter(AgentDefinition ad, List<Plan> capPlan, String input, String output ) {
+	public PrismWriter(AgentDefinition ad, List<Plan> capPlan, String input, String output, Boolean parametric) {
 		this.ad = ad;
 		this.capabilityPlanList = capPlan;
 		this.templateInputBaseFolder = input + "/"; 
@@ -162,6 +165,8 @@ public class PrismWriter {
 		
 		//the package that generated bdi .java files will be put in
 		this.basicAgentPackage = PathLocation.BASIC_AGENT_PACKAGE_PREFIX + ad.getAgentName();
+		
+		this.constOrParam = parametric ? "param" : "const";
 		
 		this.ctxVars = new TreeMap<String, String>();
 	}
@@ -261,22 +266,11 @@ public class PrismWriter {
 			writeElement(
 							root, 
 							leafGoalPattern,							
-							seqCardPattern,
-							intlCardPattern,
-							andDecPattern, 
-							xorDecPattern, 
-							xorDecHeaderPattern, 
-							trySDecPattern, 
-							tryFDecPattern,
-							optDecPattern,
-							optHeaderPattern,
-							ctxGoalPattern,
-							ctxTaskPattern,
 							null);
 			
 			StringBuilder sbCtxVars = new StringBuilder();
 			for(String ctx : ctxVars.keySet())
-				sbCtxVars.append(CONST_PARAM_VAL + " " + ctxVars.get(ctx) + " " + ctx + ";\n");
+				sbCtxVars.append(constOrParam + " " + ctxVars.get(ctx) + " " + ctx + ";\n");
 			planModules = planModules.append(sbCtxVars.toString());
 		}
 		
@@ -294,18 +288,7 @@ public class PrismWriter {
 	 */
 	private String[] writeElement(
 							 RTContainer root, 
-							 String pattern, 
-							 String seqCardPattern,
-							 String intlCardPattern,
-							 String andPattern, 
-							 String xorPattern, 
-							 String xorHeader, 
-							 String trySPattern, 
-							 String tryFPattern,
-							 String optPattern,
-							 String optHeader,
-							 String ctxGoalPattern,
-							 String ctxTaskPattern,
+							 String pattern, 							 
 							 String prevFormula) throws IOException {
 		
 		String operator = root.getDecomposition() == Const.AND ? " & " : " | ";
@@ -319,7 +302,7 @@ public class PrismWriter {
 					currentFormula = prevGoalFormula;
 				else
 					currentFormula = prevFormula;
-				writeElement(gc, pattern, seqCardPattern, intlCardPattern, andPattern, xorPattern, xorHeader, trySPattern, tryFPattern, optPattern, optHeader, ctxGoalPattern, ctxTaskPattern, currentFormula);												
+				writeElement(gc, pattern, currentFormula);												
 				if(gc.isIncluded())
 					prevGoalFormula = gc.getClearElId();
 				if(prevGoalFormula != null)
@@ -334,16 +317,17 @@ public class PrismWriter {
 			StringBuilder taskFormula = new StringBuilder();
 			String prevTaskFormula = prevFormula;
 			for(PlanContainer pc : root.getDecompPlans()){
-				String childFormula = writeElement(pc, pattern, seqCardPattern, intlCardPattern, andPattern, xorPattern, xorHeader, trySPattern, tryFPattern, optPattern, optHeader, ctxGoalPattern, ctxTaskPattern, prevTaskFormula)[1];
+				String childFormula = writeElement(pc, pattern, prevTaskFormula)[1];
 				//prevTaskFormula = pc.getClearElId();
-				taskFormula.append("(" + childFormula + ")" + operator);
+				if(!childFormula.isEmpty())
+					taskFormula.append("(" + childFormula + ")" + operator);
 			}			
 			taskFormula.replace(taskFormula.lastIndexOf(operator), taskFormula.length(), "");
 			if(root instanceof GoalContainer)
 				planModules = planModules.append("\nformula " + root.getClearElId() + " = " + taskFormula + ";\n");
 			return new String [] {root.getClearElId(), taskFormula.toString()};
 		}else if(root instanceof PlanContainer){
-			return writePrismModule(root, pattern, seqCardPattern, intlCardPattern, andPattern, xorPattern, xorHeader, trySPattern, tryFPattern, optPattern, optHeader, ctxGoalPattern, ctxTaskPattern, prevFormula);
+			return writePrismModule(root, pattern, prevFormula);
 		}
 		
 		return new String[]{"",""};
@@ -352,29 +336,20 @@ public class PrismWriter {
 	@SuppressWarnings("unchecked")
 	private String[] writePrismModule(
 							 RTContainer root, 
-							 String singlePattern,
-							 String seqCardPattern,
-							 String intlCardPattern,
-							 String andPattern, 
-							 String xorPattern, 
-							 String xorHeader, 
-							 String trySPattern, 
-							 String tryFPattern,
-							 String optPattern,
-							 String optHeader,
-							 String ctxGoalPattern,
-							 String ctxTaskPattern,
+							 String singlePattern,							
 							 String prevFormula) throws IOException{
 		
 		singlePattern = new String(singlePattern);
-		seqCardPattern = new String(seqCardPattern);
-		intlCardPattern = new String(intlCardPattern);
-		andPattern = new String(andPattern);
-		xorPattern = new String(xorPattern);
-		xorHeader = new String(xorHeader);
-		trySPattern = new String(trySPattern);
-		tryFPattern = new String(tryFPattern);
-		optPattern = new String(optPattern);
+		
+		String seqCardPattern = new String(this.seqCardPattern),
+		intlCardPattern = new String(this.intlCardPattern),
+		andDecPattern = new String(this.andDecPattern),
+		xorDecPattern = new String(this.xorDecPattern),
+		xorDecHeaderPattern = new String(this.xorDecHeaderPattern),
+		trySDecPattern = new String(this.trySDecPattern),
+		tryFDecPattern = new String(this.tryFDecPattern),
+		optHeaderPattern = new String(this.optHeaderPattern),
+		optDecPattern = new String(this.optDecPattern);		
 		
 		PlanContainer plan = (PlanContainer) root;
 		String planModule;
@@ -412,20 +387,20 @@ public class PrismWriter {
 				if(plan.getTrySuccess() != null || plan.getTryFailure() != null){
 					//Try					
 					if(plan.getAlternatives().isEmpty() && plan.getFirstAlternatives().isEmpty())
-						sbType.append(andPattern);
+						sbType.append(andDecPattern);
 					appendTryToNoErrorFormula(plan);
 					processPlanFormula(plan, planFormula, Const.TRY);
 				}else if(plan.isSuccessTry()){
 					//Try success
 					PlanContainer tryPlan = (PlanContainer) plan.getTryOriginal();
-					trySPattern = trySPattern.replace(PREV_GID_TAG, tryPlan.getClearElId());
-					sbType.append(trySPattern);
+					trySDecPattern = trySDecPattern.replace(PREV_GID_TAG, tryPlan.getClearElId());
+					sbType.append(trySDecPattern);
 					processPlanFormula(plan, planFormula, Const.TRY_S);
 				}else{
 					//Try fail
 					PlanContainer tryPlan = (PlanContainer) plan.getTryOriginal();
-					tryFPattern = tryFPattern.replace(PREV_GID_TAG, tryPlan.getClearElId());
-					sbType.append(tryFPattern);
+					tryFDecPattern = tryFDecPattern.replace(PREV_GID_TAG, tryPlan.getClearElId());
+					sbType.append(tryFDecPattern);
 					processPlanFormula(plan, planFormula, Const.TRY_F);
 				}	
 			}
@@ -435,8 +410,8 @@ public class PrismWriter {
 				StringBuilder xorHeaders = new StringBuilder();
 				String xorSkipped = new String(xorSkippedPattern);
 				String xorNotSkipped = new String(xorNotSkippedPattern);
-				if(false && CONST_PARAM_VAL.equals("param")){
-					String xorVar = new String(xorHeader);
+				if(false && constOrParam.equals("param")){
+					String xorVar = new String(xorDecHeaderPattern);
 					evalFormulaParams += "XOR_" + plan.getClearElId() + "=\"0\";\n";
 					evalFormulaReplace += " -e \"s/XOR_" + plan.getClearElId() + "/$XOR_" + plan.getClearElId() + "/g\"";
 					xorHeaders.append(xorVar.replace(GID_TAG, plan.getClearElId()));
@@ -445,7 +420,7 @@ public class PrismWriter {
 				}else{				
 					if(!plan.getAlternatives().isEmpty()){
 						for(RTContainer altFirst : plan.getAlternatives().keySet()){
-							String xorVar = new String(xorHeader);
+							String xorVar = new String(xorDecHeaderPattern);
 							evalFormulaParams += "XOR_" + altFirst.getClearElId() + "=\"0\";\n";
 							evalFormulaReplace += " -e \"s/XOR_" + altFirst.getClearElId() + "/$XOR_" + altFirst.getClearElId() + "/g\"";
 							xorHeaders.append(xorVar.replace(GID_TAG, altFirst.getClearElId()));
@@ -456,7 +431,7 @@ public class PrismWriter {
 							for(RTContainer alt : alts){
 								xorSkipped = new String(xorSkippedPattern);
 								xorNotSkipped = new String(xorNotSkippedPattern);
-								xorVar = new String(xorHeader);
+								xorVar = new String(xorDecHeaderPattern);
 								evalFormulaParams += "XOR_" + alt.getClearElId() + "=\"0\";\n";
 								evalFormulaReplace += " -e \"s/XOR_" + alt.getClearElId() + "/$XOR_" + alt.getClearElId() + "/g\"";
 								xorHeaders.append(xorVar.replace(GID_TAG, alt.getClearElId()));																		
@@ -492,13 +467,13 @@ public class PrismWriter {
 				}
 				processPlanFormula(plan, planFormula, Const.XOR);
 				xorNotSkippeds = xorNotSkippeds.substring(0, xorNotSkippeds.lastIndexOf("*")).replaceAll("[\n]", "");
-				xorPattern = xorPattern.replace(NOT_SKIPPED_TAG, xorNotSkippeds);
-				sbType.append(xorPattern.replace(SKIPPED_TAG, "(1 - " + xorNotSkippeds + ")"));
+				xorDecPattern = xorDecPattern.replace(NOT_SKIPPED_TAG, xorNotSkippeds);
+				sbType.append(xorDecPattern.replace(SKIPPED_TAG, "(1 - " + xorNotSkippeds + ")"));
 			}
 			if(plan.isOptional()){
 				//Opt
-				sbHeader.append(optHeader);
-				sbType.append(optPattern);
+				sbHeader.append(optHeaderPattern);
+				sbType.append(optDecPattern);
 				noErrorFormula += " & s" + plan.getClearElId() + " < 4";
 				evalFormulaParams += "OPT_" + plan.getClearElId() + "=\"1\";\n";
 				evalFormulaReplace += " -e \"s/OPT_" + plan.getClearElId() + "/$OPT_" + plan.getClearElId() + "/g\"";
@@ -506,7 +481,7 @@ public class PrismWriter {
 			}
 		}else{
 			//And/OR			
-			sbType.append(andPattern + "\n\n");
+			sbType.append(andDecPattern + "\n\n");
 			noErrorFormula += " & s" + plan.getClearElId() + " < 4";
 			processPlanFormula(plan, planFormula, plan.getRoot().getDecomposition());
 		}
@@ -518,11 +493,59 @@ public class PrismWriter {
 		//Type
 		planModule = planModule.replace(DEC_TYPE_TAG, sbType.toString());
 		//CONTEXT CONDITION
-		if(plan.getCreationCondition() != null && CONST_PARAM_VAL.equals("const")){
-			Object [] parsedCtxs = CtxParser.parseRegex(plan.getCreationCondition());
-			addCtxVar((Set<String[]>)parsedCtxs[0]);
-			planModule = planModule.replace(CTX_EFFECT_TAG, ctxTaskPattern);
-			planModule = planModule.replace(CTX_CONDITION_TAG, "(" + parsedCtxs[1] + ")" + " &");
+		if(constOrParam.equals("const") &&
+				(!plan.getFulfillmentConditions().isEmpty() ||
+				!plan.getAdoptionConditions().isEmpty())){
+			StringBuilder fulfillmentContition = new StringBuilder(),
+						  adoptionContition = new StringBuilder(),
+						  ctxEffect = new StringBuilder();
+			if(!plan.getFulfillmentConditions().isEmpty()){				
+				for(String ctxCondition : plan.getFulfillmentConditions()){
+					Object [] parsedCtxs = CtxParser.parseRegex(ctxCondition);
+					List<ContextCondition> ctxConditions = (List<ContextCondition>)parsedCtxs[0];
+					addCtxVar(ctxConditions);
+					for(ContextCondition condition : ctxConditions){
+						if(condition.getType() == CtxSymbols.COND){							
+							fulfillmentContition.append(fulfillmentContition.length() > 0 ? " & " : "")
+							.append(parsedCtxs[1]);
+						}else{
+							adoptionContition.append(adoptionContition.length() > 0 ? " & " : "")
+							.append(parsedCtxs[1]);
+						}
+					}				
+				}
+				if(fulfillmentContition.length() > 0){
+					String ctxGoalPattern = new String(this.ctxGoalPattern);				
+					ctxGoalPattern = ctxGoalPattern.replace(CTX_CONDITION_TAG, "(" + fulfillmentContition.toString() + ")" + " &");
+					ctxEffect.append(ctxGoalPattern);
+				}
+				if(adoptionContition.length() > 0){
+					if(fulfillmentContition.length() > 0){
+						ctxEffect.append("\n\t");
+						fulfillmentContition.append(" & ");
+					}
+					String ctxTaskPattern = new String(this.ctxTaskPattern);
+					ctxTaskPattern = ctxTaskPattern.replace(CTX_CONDITION_TAG, "(" + adoptionContition.toString() + ")" + " &");									
+					ctxEffect.append(ctxTaskPattern);
+				}				
+			}
+/*			if(!plan.getAdoptionConditions().isEmpty()){
+				i = 0;				
+				for(String ctxCondition : plan.getAdoptionConditions()){
+					Object [] parsedCtxs = CtxParser.parseRegex(ctxCondition);
+					addCtxVar((Set<ContextCondition>)parsedCtxs[0]);
+					adoptionContition.append(parsedCtxs[1] + (i++ < plan.getAdoptionConditions().size() - 1 ? " & " : ""));
+				}
+				String ctxTaskPattern = new String(this.ctxTaskPattern);
+				ctxTaskPattern = ctxTaskPattern.replace(CTX_CONDITION_TAG, "(" + adoptionContition.toString() + ")" + " &");
+				if(!plan.getFulfillmentConditions().isEmpty()){
+					ctxEffect.append("\n\t");
+					fulfillmentContition.append(" & ");
+				}
+				ctxEffect.append(ctxTaskPattern);				
+			}*/
+			planModule = planModule.replace(CTX_EFFECT_TAG, ctxEffect.toString());
+			planModule = planModule.replace(CTX_CONDITION_TAG, "(" + fulfillmentContition.append(adoptionContition).toString() + ")" + " &");
 		}else{
 			planModule = planModule.replace(CTX_EFFECT_TAG, "");
 			planModule = planModule.replace(CTX_CONDITION_TAG, "");
@@ -542,8 +565,13 @@ public class PrismWriter {
 		//GID
 		//planModule = planModule.replace(GID_TAG, plan.getClearElId());
 		planModule = planModule.replace(GID_TAG, plan.getClearElId());
+		//DEFAULT VALUE FOR RELIABILITY
+		if(constOrParam.equals("const"))
+			planModule = planModule.replace(DEFAULT_VAL, "=1");
+		else
+			planModule = planModule.replace(DEFAULT_VAL, "");
 		//CONST OR PARAM
-		planModule = planModule.replace(CONST_PARAM_TAG, CONST_PARAM_VAL);
+		planModule = planModule.replace(CONST_PARAM_TAG, constOrParam);
 		//MAX RETRIES
 		planModule = planModule.replace(MAX_RETRIES_TAG, plan.getCardNumber() + "");				
 		planModules = planModules.append(planModule);				
@@ -561,27 +589,56 @@ public class PrismWriter {
 		return alts.indexOf(plan);		
 	}
 	
-	private void addCtxVar(Set<String[]> vars){
-		for(String[] var : vars)
-		ctxVars.put(var[0], var[1]);
+	private void addCtxVar(List<ContextCondition> ctxs){
+		for(ContextCondition ctxCondition : ctxs)
+			ctxVars.put(ctxCondition.getVar(), ctxCondition.getOp() == CtxSymbols.BOOL ? "bool" : "double");
 	}
 	
-	private void processPlanFormula(PlanContainer plan, StringBuilder planFormula, Const decType){
+	private void processPlanFormula(PlanContainer plan, StringBuilder planFormula, Const decType) throws IOException{
 		
 		String op = planFormula.length() == 0 ? "" : " & ";
 		switch(decType){
-			case OR: planFormula.append(op + "(s" + plan.getClearElId() + "=2)");break;
-			case AND: planFormula.append(op + "(s" + plan.getClearElId() + "=2)");break;
-			case XOR: planFormula.append(op + buildXorSuccessFormula(plan));break;
-			case TRY: planFormula.append(op + "(s" + plan.getClearElId() + "=2)");break;
-			case TRY_S: planFormula.append(op + "(s" + plan.getClearElId() + "=2)");break;
-			case TRY_F: planFormula.append(op + "(s" + plan.getClearElId() + "=2)");break;
-			case OPT: planFormula.append(op + "(s" + plan.getClearElId() + "=2 | s" + plan.getClearElId() + "=3)");break;
+			case OR: planFormula.append(buildAndOrSuccessFormula(plan, planFormula, decType));break;
+			case AND: planFormula.append(buildAndOrSuccessFormula(plan, planFormula, decType));break;
+			case XOR: planFormula.append(buildXorSuccessFormula(plan, planFormula));break;
+			case TRY: planFormula.append(buildTrySuccessFormula(plan, planFormula, decType));break;
+			case TRY_S: break;
+			case TRY_F: break;
+			case OPT: planFormula.append(buildOptSuccessFormula(plan, planFormula));break;					  
 			default: planFormula.append(op + "(s" + plan.getClearElId() + "=2)");
 		}
 	}
 	
-	private String buildXorSuccessFormula(PlanContainer plan){
+	private String buildAndOrSuccessFormula(RTContainer plan, StringBuilder planFormula, Const decType) throws IOException{
+		String op = planFormula.length() == 0 ? "" : " & ";
+		switch(decType){
+			case AND: return op + "(s" + plan.getClearElId() + "=2)" + buildContextSuccessFormula(plan);
+			case OR: return op + "(s" + plan.getClearElId() + "=2)" + buildContextSuccessFormula(plan);
+			default: return "";
+		}		
+	}
+	
+	private String buildOptSuccessFormula(RTContainer plan, StringBuilder planFormula) throws IOException{
+		String op = planFormula.length() == 0 ? "" : " & ";
+		return op + "(s" + plan.getClearElId() + "=2 | s" + plan.getClearElId() + "=3)"
+			   + buildContextSuccessFormula(plan);
+	}
+	
+	private String buildTrySuccessFormula(RTContainer plan, StringBuilder planFormula, Const decType) throws IOException{
+		String op = planFormula.length() == 0 ? "" : " & ";
+		switch(decType){
+			case TRY: return op + "((s" + plan.getClearElId() + "=2" 
+					+ buildTrySuccessFormula(plan.getTrySuccess(), planFormula, Const.TRY_S) + " | (s" + plan.getClearElId() + "=4" 
+					+ buildTrySuccessFormula(plan.getTryFailure(), planFormula, Const.TRY_F) + ")"
+					+ buildContextSuccessFormula(plan);
+			case TRY_S: return  plan != null ? " & s" + plan.getClearElId() + "=2)" : ")";
+			case TRY_F: return  plan != null ? " & s" + plan.getClearElId() + "=2)" : " & false)";
+			default: return "";
+		}		
+	}
+	
+	private String buildXorSuccessFormula(PlanContainer plan, StringBuilder planFormula) throws IOException{
+		String op = planFormula.length() == 0 ? "" : " & ";
 		StringBuilder sb = new StringBuilder();
 		/*for(RTContainer altFirst: plan.getAlternatives().keySet()){
 			for(RTContainer alt : plan.getAlternatives().get(altFirst)){
@@ -598,7 +655,18 @@ public class PrismWriter {
 				}
 		}*/
 		//sb.replace(sb.length() - 3, sb.length(), "");
-		return sb.append("(s" + plan.getClearElId() + "=2)").toString();
+		return sb.append(op + "(s" + plan.getClearElId() + "=2)").toString()
+				+ buildContextSuccessFormula(plan);
+	}
+	
+	private String buildContextSuccessFormula(RTContainer plan) throws IOException{
+		
+		StringBuilder sb = new StringBuilder();		
+		for(String ctxCondition : plan.getFulfillmentConditions())
+			sb.append(sb.length() > 0 ? " | " : "(").append("!(" + CtxParser.parseRegex(ctxCondition)[1] + ")");
+		if(sb.length() > 0)
+			sb.insert(0, " | (s" + plan.getClearElId() + "=3 & ").append("))");
+		return sb.toString();
 	}
 	
 	private String buildPrevSuccessFormula(String prevFormula, PlanContainer plan){

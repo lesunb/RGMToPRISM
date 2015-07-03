@@ -32,7 +32,9 @@ package br.unb.cic.rtgoretoprism.model.kl;
 
 import it.itc.sra.taom4e.model.core.informalcore.TroposIntentional;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -66,7 +68,8 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	private boolean		successTry;
 	private boolean optional;
 	//Contexts
-	private String creationCondition;
+	private List<String> fulfillmentConditions;
+	private List<String> adoptionConditions;
 	/**
 	 * Creates a standard achieve goal with request plan.
 	 */
@@ -102,7 +105,9 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 		goals = new LinkedList<GoalContainer>();
 		plans = new LinkedList<PlanContainer>();
 		alternatives = new TreeMap<RTContainer,LinkedList<RTContainer>>();
-		firstAlternatives = new LinkedList<RTContainer>();		
+		firstAlternatives = new LinkedList<RTContainer>();	
+		fulfillmentConditions = new ArrayList<String>();
+		adoptionConditions = new ArrayList<String>();
 	}
 	
 	/**
@@ -350,13 +355,30 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 		this.cardType = cardType;
 	}
 		
-	public String getCreationCondition() {
-		return creationCondition;
+	public List<String> getFulfillmentConditions() {
+		return fulfillmentConditions;
 	}
-
-	public void setCreationCondition(String creationCondition) {
-		if(creationCondition != null && !creationCondition.isEmpty())
-			this.creationCondition = creationCondition;
+	
+	public void addFulfillmentConditions(String fulfillmentConditions) {
+		if(fulfillmentConditions != null && !fulfillmentConditions.isEmpty())
+			this.fulfillmentConditions.addAll((List<String>)java.util.Arrays.asList(fulfillmentConditions.split("%")));
+	}
+	
+	public void addFulfillmentConditions(List<String> fulfillmentConditions) {
+		this.fulfillmentConditions.addAll(fulfillmentConditions);
+	}
+	
+	public List<String> getAdoptionConditions() {
+		return adoptionConditions;
+	}
+	
+	public void addAdoptionConditions(String adoptionConditions) {
+		if(adoptionConditions != null && !adoptionConditions.isEmpty())
+			this.adoptionConditions.addAll((List<String>)java.util.Arrays.asList(adoptionConditions.split("%")));
+	}
+	
+	public void addAdoptionConditions(List<String> adoptionConditions) {
+		this.adoptionConditions.addAll(adoptionConditions);
 	}
 	
 	public RTContainer getRoot() {

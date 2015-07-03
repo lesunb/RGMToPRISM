@@ -1,4 +1,4 @@
-$DEC_HEADER$$CONST_PARAM$ double rTask$GID$;
+$DEC_HEADER$$CONST_PARAM$ double rTask$GID$$DEFAULT_VAL$;
 const double maxRetries$GID$=$MAX_RETRIES$;
 
 module $MODULE_NAME$

@@ -70,7 +70,7 @@ public class GoalContainer extends RTContainer{
 		parentlist = new ArrayList<GoalContainer>();
 		dependencies = new ArrayList<String[]>();
 		
-		this.setCreationCondition(goal.getCreationProperty());
+		this.addFulfillmentConditions(goal.getCreationProperty());
 	}
 
 	/**

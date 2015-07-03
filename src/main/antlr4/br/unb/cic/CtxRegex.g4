@@ -1,9 +1,11 @@
 grammar CtxRegex;
-ctx:    'assertion condition 'expr'%'         # printExpr
-  |     NEWLINE                                 # blank
-  ;
+ctx:	ctx NEWLINE					# printExpr
+	|	'assertion condition 'expr 	# condition
+	|	'assertion trigger 'expr 	# trigger
+	|	NEWLINE                     # blank
+	;
 
-expr:   expr op='<' expr			# cLT
+expr:	expr op='<' expr			# cLT
     |	expr op='<=' expr			# cLE
     |	expr op='>' expr			# cGT
     |	expr op='>=' expr			# cGE        
@@ -18,10 +20,10 @@ expr:   expr op='<' expr			# cLT
     ;
 
 BOOL		: [false|true] 				;
-VAR     	: ('a'..'z'|'A'..'Z'|'_')+  	;
+VAR     	: ('a'..'z'|'A'..'Z'|'_')+  ;
 FLOAT		: DIGIT+'.'?DIGIT* 			;
 NEWLINE 	: [\r\n]+             		;
-WS	        : (' '|'\t')+ -> skip 			;
+WS	        : (' '|'\t')+ -> skip 		;
 
 fragment
 DIGIT		: [0-9]						;

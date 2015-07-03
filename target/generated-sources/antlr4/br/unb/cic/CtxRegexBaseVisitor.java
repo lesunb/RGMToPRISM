@@ -34,7 +34,7 @@ public class CtxRegexBaseVisitor<T> extends AbstractParseTreeVisitor<T> implemen
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitPrintExpr(@NotNull CtxRegexParser.PrintExprContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTrigger(@NotNull CtxRegexParser.TriggerContext ctx) { return visitChildren(ctx); }
 
 	/**
 	 * {@inheritDoc}
@@ -43,6 +43,14 @@ public class CtxRegexBaseVisitor<T> extends AbstractParseTreeVisitor<T> implemen
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitBlank(@NotNull CtxRegexParser.BlankContext ctx) { return visitChildren(ctx); }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitPrintExpr(@NotNull CtxRegexParser.PrintExprContext ctx) { return visitChildren(ctx); }
 
 	/**
 	 * {@inheritDoc}
@@ -59,6 +67,14 @@ public class CtxRegexBaseVisitor<T> extends AbstractParseTreeVisitor<T> implemen
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitCEQ(@NotNull CtxRegexParser.CEQContext ctx) { return visitChildren(ctx); }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitCondition(@NotNull CtxRegexParser.ConditionContext ctx) { return visitChildren(ctx); }
 
 	/**
 	 * {@inheritDoc}

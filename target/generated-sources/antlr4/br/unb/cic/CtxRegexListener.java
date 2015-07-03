@@ -35,17 +35,17 @@ public interface CtxRegexListener extends ParseTreeListener {
 	void exitCOr(@NotNull CtxRegexParser.COrContext ctx);
 
 	/**
-	 * Enter a parse tree produced by the {@code printExpr}
+	 * Enter a parse tree produced by the {@code trigger}
 	 * labeled alternative in {@link CtxRegexParser#ctx}.
 	 * @param ctx the parse tree
 	 */
-	void enterPrintExpr(@NotNull CtxRegexParser.PrintExprContext ctx);
+	void enterTrigger(@NotNull CtxRegexParser.TriggerContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code printExpr}
+	 * Exit a parse tree produced by the {@code trigger}
 	 * labeled alternative in {@link CtxRegexParser#ctx}.
 	 * @param ctx the parse tree
 	 */
-	void exitPrintExpr(@NotNull CtxRegexParser.PrintExprContext ctx);
+	void exitTrigger(@NotNull CtxRegexParser.TriggerContext ctx);
 
 	/**
 	 * Enter a parse tree produced by the {@code blank}
@@ -59,6 +59,19 @@ public interface CtxRegexListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitBlank(@NotNull CtxRegexParser.BlankContext ctx);
+
+	/**
+	 * Enter a parse tree produced by the {@code printExpr}
+	 * labeled alternative in {@link CtxRegexParser#ctx}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrintExpr(@NotNull CtxRegexParser.PrintExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code printExpr}
+	 * labeled alternative in {@link CtxRegexParser#ctx}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrintExpr(@NotNull CtxRegexParser.PrintExprContext ctx);
 
 	/**
 	 * Enter a parse tree produced by the {@code cLT}
@@ -85,6 +98,19 @@ public interface CtxRegexListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCEQ(@NotNull CtxRegexParser.CEQContext ctx);
+
+	/**
+	 * Enter a parse tree produced by the {@code condition}
+	 * labeled alternative in {@link CtxRegexParser#ctx}.
+	 * @param ctx the parse tree
+	 */
+	void enterCondition(@NotNull CtxRegexParser.ConditionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code condition}
+	 * labeled alternative in {@link CtxRegexParser#ctx}.
+	 * @param ctx the parse tree
+	 */
+	void exitCondition(@NotNull CtxRegexParser.ConditionContext ctx);
 
 	/**
 	 * Enter a parse tree produced by the {@code cGT}
