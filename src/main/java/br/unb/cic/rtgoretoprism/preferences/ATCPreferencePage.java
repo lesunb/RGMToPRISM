@@ -235,7 +235,7 @@ public class ATCPreferencePage extends PreferencePage implements IWorkbenchPrefe
 	private void createContentsJadexPart( Composite composite ) {
 		//get current preference value
 		final String value = CRGMToPrismPlugin.getDefault().getPluginPreferences().
-			getString( CRGMToPrismPlugin.JADEX_BASE_PATH );
+			getString( CRGMToPrismPlugin.PRISM_PARAM_PATH );
 		
 		Group group = new Group( composite, SWT.SHADOW_ETCHED_IN );
 		group.setText("PRISM/PARAM tools");
@@ -291,7 +291,7 @@ public class ATCPreferencePage extends PreferencePage implements IWorkbenchPrefe
 			getDefaultBoolean( CRGMToPrismPlugin.ATC_USE_INTERNAL_SOURCE_PATH );
 
 		String jadexLib = CRGMToPrismPlugin.getDefault().getPluginPreferences().
-		getDefaultString( CRGMToPrismPlugin.JADEX_BASE_PATH );
+		getDefaultString( CRGMToPrismPlugin.PRISM_PARAM_PATH );
 
 		
 		//update gui elements
@@ -318,7 +318,7 @@ public class ATCPreferencePage extends PreferencePage implements IWorkbenchPrefe
 			setValue( CRGMToPrismPlugin.ATC_USE_INTERNAL_SOURCE_PATH, useDefaultButton.getSelection() );
 		 
 		CRGMToPrismPlugin.getDefault().getPluginPreferences().
-			setValue( CRGMToPrismPlugin.JADEX_BASE_PATH, jadexPathLabel.getText() );
+			setValue( CRGMToPrismPlugin.PRISM_PARAM_PATH, jadexPathLabel.getText() );
 		
 		return super.performOk();
 	}
