@@ -1,11 +1,11 @@
-package br.unb.cic.rtgoretoprism.generator.rtgore.writer;
+package br.unb.cic.rtgoretoprism.generator.goda.writer.dtmc;
 
 import it.itc.sra.taom4e.model.core.informalcore.Plan;
 
 import java.util.List;
 
+import br.unb.cic.rtgoretoprism.generator.goda.writer.PrismWriter;
 import br.unb.cic.rtgoretoprism.generator.kl.AgentDefinition;
-import br.unb.cic.rtgoretoprism.generator.rtgore.PrismWriter;
 
 public class DTMCWriter extends PrismWriter{
 	

@@ -30,11 +30,9 @@
 
 package br.unb.cic.rtgoretoprism.action;
 
-import it.itc.sra.taom4e.model.core.informalcore.Actor;
-import it.itc.sra.taom4e.model.core.informalcore.formalcore.FHardGoal;
-
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Date;
 
 import org.eclipse.core.resources.IFolder;
@@ -52,10 +50,11 @@ import org.eclipse.ui.progress.IProgressService;
 import org.troposproject.util.ProcessCallback;
 import org.troposproject.util.Spawn;
 
-import br.unb.cic.rtgoretoprism.CRGMToPrismPlugin;
 import br.unb.cic.rtgoretoprism.console.ConsoleUtil;
 import br.unb.cic.rtgoretoprism.generator.kl.AgentDefinition;
 import br.unb.cic.rtgoretoprism.util.FileUtility;
+import it.itc.sra.taom4e.model.core.informalcore.Actor;
+import it.itc.sra.taom4e.model.core.informalcore.formalcore.FHardGoal;
 
 /**
  * This class allow the user to launch the selected agent (KL) into an (already 
@@ -129,6 +128,7 @@ public class RunParamAction extends AbstractCodeGeneractionAction{
 		
 		IProgressMonitor monitor;
 		long startTime;		
+		String agentName;
 		String goals;		
 		
 		public void run( IProgressMonitor monitor )
@@ -136,9 +136,6 @@ public class RunParamAction extends AbstractCodeGeneractionAction{
 			
 			this.monitor = monitor;
 			
-			//get the path to the Jadex library directory
-	    	String bx = CRGMToPrismPlugin.getDefault().getPluginPreferences().
-	    		getString( CRGMToPrismPlugin.JADEX_BASE_PATH ) + "/"; 
 			
 			//show user that work is progressing
 			monitor.beginTask("Generating PARAM formulas", IProgressMonitor.UNKNOWN );
@@ -151,7 +148,7 @@ public class RunParamAction extends AbstractCodeGeneractionAction{
 		    		//we expect something like BASIC_AGENT_PACKAGE_PREFIX_XXX
 		    		//get the name of the agent to be started
 		    		//String agentName = folderName.substring( PathLocation.BASIC_AGENT_PACKAGE_PREFIX.length() );
-		    		String agentName = actor.getName().replaceAll("\n", "_");			    						
+		    		agentName = actor.getName().replaceAll("\n", "_");			    						
 		    		
 		    		StringBuilder pctl = new StringBuilder("P=? [ true U (");
 		    		StringBuilder goals = new StringBuilder();
@@ -162,7 +159,8 @@ public class RunParamAction extends AbstractCodeGeneractionAction{
 		    			i++;
 		    		}
 		    		pctl.append(") ]");
-		    		FileUtility.writeFile(pctl.toString(), bx + "reachability.pctl");
+		    		FileUtility.deleteFile(targetFolder + "AgentRole_" + agentName + "/reachability.pctl", false);
+		    		FileUtility.writeFile(pctl.toString(), targetFolder + "AgentRole_" + agentName + "/reachability.pctl");
 		    		this.goals = goals.toString();
 		    		
 					String cmd = "./param-2-2-64";
@@ -177,11 +175,11 @@ public class RunParamAction extends AbstractCodeGeneractionAction{
 		
 					//run the process
 					startTime = new Date().getTime();
-					Spawn spawn = new Spawn( new File(bx), out, out, this, new String[]{cmd, arg1, arg2, arg3, arg4});
+					Spawn spawn = new Spawn( new File(targetFolder + "AgentRole_" + agentName), out, out, this, new String[]{cmd, arg1, arg2, arg3, arg4});
 					spawn.start();
 					
 					//remove the temporary pctl formula
-					FileUtility.deleteFile(bx + "reachability.pctl");
+					//FileUtility.deleteFile(targetFolder + "AgentRole_" + agentName + "/reachability.pctl");
 		    	}
 		    	catch (Exception e ) {
 		    		MessageDialog.openError( shell, "Error starting PARAM for the selected Actor", e.toString() );
@@ -190,15 +188,13 @@ public class RunParamAction extends AbstractCodeGeneractionAction{
 		}
 		
 		@Override
-		public void runAfterExit(int exitStatus) {
+		public void runAfterExit(int exitStatus, ArrayList list) {
 			
 			if(exitStatus == 0){
-				String bx = CRGMToPrismPlugin.getDefault().getPluginPreferences().
-			    		getString( CRGMToPrismPlugin.JADEX_BASE_PATH ) + "/"; 
 				//close the monitor
 				monitor.done();
 				System.out.println("PARAM Formula created, exit status: " + exitStatus); 
-				System.out.println("Goal(s): " + this.goals + "\t\t\tTime: " + (new Date().getTime() - this.startTime) + "\t\tSize: " + FileUtility.fileSize(bx + this.goals + ".out"));
+				System.out.println("Goal(s): " + this.goals + "\t\t\tTime: " + (new Date().getTime() - this.startTime) + "\t\tSize: " + FileUtility.fileSize(targetFolder + "AgentRole_" + agentName + '/' + this.goals + ".out"));
 			}else{
 				System.out.println("Error generating PARAM Formula " + this.goals);
 			}

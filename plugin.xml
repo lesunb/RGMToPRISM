@@ -8,6 +8,7 @@
 			category="TAOM4EPreferencePage">
 		</page>
 	</extension>
+	
     <extension
          point="org.eclipse.ui.actionSets">
       <actionSet
@@ -16,7 +17,7 @@
             id="org.eclipse.ui.actionSets">
          <menu
                id="verificationMenu"
-               label="Formal &amp;Verification">
+               label="GODA">
             <separator
                   name="prismGroup">
             </separator>
@@ -29,6 +30,24 @@
                menubarPath="verificationMenu/prismGroup"
                toolbarPath="prismGroup"
                id="br.unb.cic.rtgoretoprism.action.PRISMCodeGenerationAction">
+         </action>
+         <action
+               label="&amp;Evaluate PRISM verification"
+               icon="src/main/resources/icons/sample.gif"
+               class="br.unb.cic.rtgoretoprism.action.EvaluatePRISMAction"
+               tooltip="Evaluate reliability verification by PRISM tool"
+               menubarPath="verificationMenu/prismGroup"
+               toolbarPath="prismGroup"
+               id="br.unb.cic.rtgoretoprism.action.EvaluatePRISMAction">
+         </action>
+         <action
+               label="&amp;Evaluate PARAM verification"
+               icon="src/main/resources/icons/sample.gif"
+               class="br.unb.cic.rtgoretoprism.action.EvaluatePARAMAction"
+               tooltip="Evaluate parametric formula generation by PARAM tool"
+               menubarPath="verificationMenu/prismGroup"
+               toolbarPath="prismGroup"
+               id="br.unb.cic.rtgoretoprism.action.EvaluatePARAMAction">
          </action>
       </actionSet>
    </extension>
@@ -48,9 +67,6 @@
          		path="additions">
 	      		<separator name="group1"/>
 	      	</menu>
-
-
-		    
 		    <action
         		id="it.itc.sra.taom4e.t2xJadexGenerator.RunKLAgent" 
 		        label="Run t2x (KL) Agent"
@@ -91,7 +107,7 @@
 			</action>
 		</viewerContribution>
 	</extension>
-   <extension point="org.eclipse.ui.popupMenus">
+    <extension point="org.eclipse.ui.popupMenus">
 		<viewerContribution
 			targetID="it.itc.sra.taom4e.platform.tropos.editor.contextmenu"
 			id="br.unb.cic.rtgoretoprism.vc.PRISMCodeGen">

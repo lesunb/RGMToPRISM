@@ -1,4 +1,4 @@
-package br.unb.cic.rtgoretoprism.generator.rtgore;
+package br.unb.cic.rtgoretoprism.generator.goda.parser;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -29,7 +29,6 @@ import br.unb.cic.CtxRegexParser.CLTContext;
 import br.unb.cic.CtxRegexParser.COrContext;
 import br.unb.cic.CtxRegexParser.CVarContext;
 import br.unb.cic.CtxRegexParser.ConditionContext;
-import br.unb.cic.CtxRegexParser.CtxContext;
 import br.unb.cic.CtxRegexParser.PrintExprContext;
 import br.unb.cic.CtxRegexParser.TriggerContext;
 import br.unb.cic.rtgoretoprism.model.ctx.ContextCondition;
@@ -76,7 +75,7 @@ public class CtxParser{
 	    
 	    ParseTree tree = parser.ctx();
 	    CtxFormulaParserVisitor CtxRegexVisitor = new CtxFormulaParserVisitor();
-	    return new Object[]{CtxRegexVisitor.memory, CtxRegexVisitor.visit(tree)};
+	    return new Object[]{CtxRegexVisitor.memory, CtxRegexVisitor.visit(tree), CtxRegexVisitor.type};
 	    
 	    //return new Object [] 	{CtxRegexVisitor.memory};
 	}
@@ -86,6 +85,7 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 
 	Set<String[]> ctxVars = new HashSet<String[]>();
 	List<ContextCondition> memory = new ArrayList<ContextCondition>();
+	CtxSymbols type = null;
 	
 	@Override
 	public String visitPrintExpr(PrintExprContext ctx) {
@@ -94,11 +94,13 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 	
 	@Override
 	public String visitCondition(ConditionContext ctx) {
+		type = CtxSymbols.COND;
 		return visit(ctx.expr());
 	}
 	
 	@Override
 	public String visitTrigger(TriggerContext ctx) {
+		type = CtxSymbols.TRIG;
 		return visit(ctx.expr());
 	}
 	
@@ -110,7 +112,7 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 		   ctx.getParent() instanceof ConditionContext ||
 		   ctx.getParent() instanceof TriggerContext){
 			ctxVars.add(new String[]{var, "bool"});
-			memory.add(new ContextCondition(var, CtxSymbols.BOOL, getEffectType(ctx.getParent()), "true"));
+			memory.add(new ContextCondition(var, CtxSymbols.BOOL,  "true"));
 		}else
 			ctxVars.add(new String[]{var, "double"});
 		return var;
@@ -120,7 +122,7 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 	public String visitCEQ(CEQContext ctx) {
 		String var = visit(ctx.expr(0));
 		String value = visit(ctx.expr(1));
-		memory.add(new ContextCondition(var, CtxSymbols.EQ, getEffectType(ctx.getParent()), value));
+		memory.add(new ContextCondition(var, CtxSymbols.EQ,  value));
 		return var + " = " + value;
 	}
 	
@@ -128,7 +130,7 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 	public String visitCDIFF(CDIFFContext ctx) {
 		String var = visit(ctx.expr(0));
 		String value = visit(ctx.expr(1));
-		memory.add(new ContextCondition(var, CtxSymbols.DIFF, getEffectType(ctx.getParent()), value));
+		memory.add(new ContextCondition(var, CtxSymbols.DIFF,  value));
 		return var + " != " + value;
 	}
 	
@@ -136,7 +138,7 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 	public String visitCLE(CLEContext ctx) {
 		String var = visit(ctx.expr(0));
 		String value = visit(ctx.expr(1));
-		memory.add(new ContextCondition(var, CtxSymbols.LE, getEffectType(ctx.getParent()), value));
+		memory.add(new ContextCondition(var, CtxSymbols.LE,  value));
 		return var + " <= " + value;
 	}
 	
@@ -144,7 +146,7 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 	public String visitCLT(CLTContext ctx) {
 		String var = visit(ctx.expr(0));
 		String value = visit(ctx.expr(1));
-		memory.add(new ContextCondition(var, CtxSymbols.LT, getEffectType(ctx.getParent()), value));
+		memory.add(new ContextCondition(var, CtxSymbols.LT,  value));
 		return var + " < " + value;
 	}
 	
@@ -152,7 +154,7 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 	public String visitCGE(CGEContext ctx) {
 		String var = visit(ctx.expr(0));
 		String value = visit(ctx.expr(1));
-		memory.add(new ContextCondition(var, CtxSymbols.GE, getEffectType(ctx.getParent()), value));
+		memory.add(new ContextCondition(var, CtxSymbols.GE,  value));
 		return var + " >= " + value;
 	}
 	
@@ -160,7 +162,7 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 	public String visitCGT(CGTContext ctx) {
 		String var = visit(ctx.expr(0));
 		String value = visit(ctx.expr(1));
-		memory.add(new ContextCondition(var, CtxSymbols.GT, getEffectType(ctx.getParent()), value));
+		memory.add(new ContextCondition(var, CtxSymbols.GT,  value));
 		return var + " > " + value;
 	}
 	

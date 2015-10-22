@@ -71,7 +71,7 @@ public class FileUtility {
 		PrintWriter file = null;
 		
 		try {
-			file = new PrintWriter(new BufferedWriter(new FileWriter(filename)));
+			file = new PrintWriter(new BufferedWriter(new FileWriter(filename, true)));
 			file.println(content);
 		} catch( IOException ioe ) {
 			throw ioe;
@@ -79,6 +79,23 @@ public class FileUtility {
 		finally {
 			file.close();
 		}
+	}
+	
+	/**
+	 * Delete the specified file
+	 * 
+	 * @param filename the target file
+	 * 
+	 * @throws IOException 
+	 * 
+	 */
+	public static void deleteFile(String filename, boolean onExit){
+		File file = null;
+		file = new File(filename);
+		if(onExit)
+			file.deleteOnExit();
+		else
+			file.delete();
 	}
 	
 	/**
@@ -132,5 +149,10 @@ public class FileUtility {
 
 	public static long fileSize(String string) {
 		return new File(string).length();		
+	}
+	
+	public static String convertStreamToString(java.io.InputStream is) {
+	    java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+	    return s.hasNext() ? s.next() : "";
 	}
 }

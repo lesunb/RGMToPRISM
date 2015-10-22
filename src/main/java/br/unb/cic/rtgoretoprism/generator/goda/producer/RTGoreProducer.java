@@ -28,7 +28,7 @@
  * </copyright>
  */
 
-package br.unb.cic.rtgoretoprism.generator.rtgore;
+package br.unb.cic.rtgoretoprism.generator.goda.producer;
 
 import it.itc.sra.taom4e.model.core.gencore.TroposModelElement;
 import it.itc.sra.taom4e.model.core.informalcore.Actor;
@@ -52,8 +52,10 @@ import java.util.TreeMap;
 
 import br.unb.cic.rtgoretoprism.console.ATCConsole;
 import br.unb.cic.rtgoretoprism.generator.CodeGenerationException;
+import br.unb.cic.rtgoretoprism.generator.goda.parser.RTParser;
+import br.unb.cic.rtgoretoprism.generator.goda.writer.PrismWriter;
+import br.unb.cic.rtgoretoprism.generator.goda.writer.dtmc.DTMCWriter;
 import br.unb.cic.rtgoretoprism.generator.kl.AgentDefinition;
-import br.unb.cic.rtgoretoprism.generator.rtgore.writer.DTMCWriter;
 import br.unb.cic.rtgoretoprism.model.kl.Const;
 import br.unb.cic.rtgoretoprism.model.kl.ElementContainer;
 import br.unb.cic.rtgoretoprism.model.kl.GoalContainer;
@@ -167,7 +169,7 @@ public class RTGoreProducer {
 			List<Plan> planList = tn.getAllCapabilityPlan( a );
 			
 			// write the DTMC PRISM file to the output folder given the template input folder
-			PrismWriter writer = new DTMCWriter( ad, planList, inputFolder, outputFolder, false);
+			PrismWriter writer = new DTMCWriter( ad, planList, inputFolder, outputFolder, true);
 			writer.writeModel();
 		}
 		

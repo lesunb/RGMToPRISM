@@ -58,7 +58,7 @@ public abstract class RTContainer extends ElementContainer implements Comparable
 	private Integer timePath = 0;
 	private Integer prevTimePath = 0;
 	private Integer futTimePath = 0;
-	private Integer cardNumber = 1;
+	private Integer cardNumber = 0;
 	private Const cardType = Const.SEQ;
 	private Map <RTContainer, LinkedList<RTContainer>> alternatives;
 	private LinkedList<RTContainer> firstAlternatives;

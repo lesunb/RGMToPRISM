@@ -30,19 +30,11 @@
 
 package br.unb.cic.rtgoretoprism.action;
 
-import it.itc.sra.taom4e.model.core.informalcore.Actor;
-import it.itc.sra.taom4e.model.core.informalcore.formalcore.FHardGoal;
-import it.itc.sra.taom4e.model.diagram.mixeddiagram.MD_ActorUI;
-import it.itc.sra.taom4e.model.diagram.mixeddiagram.MD_IntentionalUI;
-import it.itc.sra.taom4e.platform.edit.parts.mixeddiagram.MD_ActorUIEditPart;
-import it.itc.sra.taom4e.platform.edit.parts.mixeddiagram.MD_IntentionalUIEditPart;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
@@ -63,6 +55,12 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
 import br.unb.cic.rtgoretoprism.CRGMToPrismPlugin;
+import it.itc.sra.taom4e.model.core.informalcore.Actor;
+import it.itc.sra.taom4e.model.core.informalcore.formalcore.FHardGoal;
+import it.itc.sra.taom4e.model.diagram.mixeddiagram.MD_ActorUI;
+import it.itc.sra.taom4e.model.diagram.mixeddiagram.MD_IntentionalUI;
+import it.itc.sra.taom4e.platform.edit.parts.mixeddiagram.MD_ActorUIEditPart;
+import it.itc.sra.taom4e.platform.edit.parts.mixeddiagram.MD_IntentionalUIEditPart;
 
 /**
  * The basic abstract class for action that generate code

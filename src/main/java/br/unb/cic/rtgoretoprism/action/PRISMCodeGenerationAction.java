@@ -40,7 +40,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.IProgressService;
 
 import br.unb.cic.rtgoretoprism.generator.CodeGenerationException;
-import br.unb.cic.rtgoretoprism.generator.rtgore.RTGoreProducer;
+import br.unb.cic.rtgoretoprism.generator.goda.producer.RTGoreProducer;
 
 /**
  * This action let the user to start the process of generating agent code for

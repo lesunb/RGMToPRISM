@@ -1,4 +1,4 @@
-package br.unb.cic.rtgoretoprism.generator.rtgore;
+package br.unb.cic.rtgoretoprism.generator.goda.parser;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
