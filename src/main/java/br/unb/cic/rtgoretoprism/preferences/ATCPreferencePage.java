@@ -238,14 +238,14 @@ public class ATCPreferencePage extends PreferencePage implements IWorkbenchPrefe
 			getString( CRGMToPrismPlugin.JADEX_BASE_PATH );
 		
 		Group group = new Group( composite, SWT.SHADOW_ETCHED_IN );
-		group.setText("Jadex");
+		group.setText("PRISM/PARAM tools");
 		group.setLayout( new GridLayout( 3, false) ); 
 		
 		GridData data1 = new GridData( GridData.FILL_HORIZONTAL );
 		group.setLayoutData( data1 );
 		
 		Label label = new Label( group, SWT.NONE );
-		label.setText( "Library directory " );
+		label.setText( "Tools binaries directory " );
 		
 		jadexPathLabel = new Label( group, SWT.NONE );
 		jadexPathLabel.setText( value );
@@ -261,7 +261,7 @@ public class ATCPreferencePage extends PreferencePage implements IWorkbenchPrefe
 			public void widgetSelected(SelectionEvent e) {
 				DirectoryDialog dirDialog = new DirectoryDialog( jadexPathButton.getShell() );
 				
-				dirDialog.setText("Jadex library directory selection");
+				dirDialog.setText("PRISM and PARAM binaries directory selection");
 				dirDialog.setMessage("Select a directory");
 				
 				//get the path to the Jadex library directory

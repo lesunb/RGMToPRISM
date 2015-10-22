@@ -95,7 +95,7 @@ public class CRGMToPrismPlugin extends AbstractUIPlugin{
 		store.setDefault( ATC_INTERNAL_SOURCE_PATH, internalSourcePath );
 		store.setDefault( ATC_USE_INTERNAL_SOURCE_PATH, true );
 		store.setDefault( ATC_SOURCE_PATH, internalSourcePath );
-		store.setDefault( ATC_TARGET_PATH, currentWorkspace+"/RTGoreToPrismModels/dtmc/" );
+		store.setDefault( ATC_TARGET_PATH, currentWorkspace+"/CRGMToPrismModels/dtmc/" );
 		
 		//System.out.println***(ResourcesPlugin.getWorkspace().getPathVariableManager().getPathVariableNames());
 		
