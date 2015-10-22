@@ -144,7 +144,7 @@ public class EvaluatePRISMAction extends AbstractCodeGeneractionAction {
 			
 	        try {
 	        	agentName = "EvaluationActor";
-	        	String cmd = "./prism-4.2";
+	        	String cmd = "./prism";
 				String arg1 = agentName + ".pm";
 				String arg2 = "reachability.pctl";
 				
@@ -156,7 +156,7 @@ public class EvaluatePRISMAction extends AbstractCodeGeneractionAction {
 				AgentDefinition ad = evaluationProducer.generateCRGM();
 				PrismWriter writer = new DTMCWriter( ad, new ArrayList<Plan>(), sourceFolder, targetFolder, false);
 				writer.writeModel();					
-				Spawn spawn = new Spawn( new File(targetFolder + "AgentRole_" + agentName), out, out, this, new String[]{cmd, arg1, arg2});
+				Spawn spawn = new Spawn( new File(toolsFolder + "AgentRole_" + agentName), out, out, this, new String[]{cmd, arg1, arg2});
 				startTime = new Date().getTime();
 				spawn.start();
 				System.out.println("Initing evaluation of " + ad.planbase.size() + " leaf-tasks with current tree depth of " + currentDepth);

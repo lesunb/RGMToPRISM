@@ -86,6 +86,8 @@ public abstract class AbstractCodeGeneractionAction extends Action implements IW
 	/** generated file target folder */
 	protected String targetFolder;
 
+	/** PRISM/PARAM tools binaries folder */
+	protected String toolsFolder;
 
 	/**
 	 * Creates a new AbstractCodeGeneractionAction instance
@@ -118,6 +120,9 @@ public abstract class AbstractCodeGeneractionAction extends Action implements IW
 		//get generated agents' target folder
 		targetFolder = CRGMToPrismPlugin.getDefault().
 			getPluginPreferences().getString( CRGMToPrismPlugin.ATC_TARGET_PATH );
+		
+		toolsFolder = CRGMToPrismPlugin.getDefault().
+				getPluginPreferences().getString( CRGMToPrismPlugin.PRISM_PARAM_PATH );
 	}
 	
 	/**

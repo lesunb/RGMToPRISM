@@ -25,7 +25,7 @@ public class CRGMToPrismPlugin extends AbstractUIPlugin{
     public static final String ATC_SOURCE_PATH = "atc.source.path";
     public static final String ATC_TARGET_PATH = "atc.target.path";
     //jadex part
-    public static final String JADEX_BASE_PATH = "jadex.base.path";
+    public static final String PRISM_PARAM_PATH = "atc.tools.path";
     
     public static final String PLUGIN_ID = "br.unb.cic.rTGoreToPrism";
 	
@@ -110,7 +110,7 @@ public class CRGMToPrismPlugin extends AbstractUIPlugin{
 		} catch( Exception e ) { //should never happen
 			jadexLibSourcePath = "undefined";
 		}
-		store.setDefault( JADEX_BASE_PATH, jadexLibSourcePath);
+		store.setDefault( PRISM_PARAM_PATH, jadexLibSourcePath);
 
 	}
 	

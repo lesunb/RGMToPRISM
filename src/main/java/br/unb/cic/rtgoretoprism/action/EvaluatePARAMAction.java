@@ -148,7 +148,7 @@ public class EvaluatePARAMAction extends AbstractCodeGeneractionAction {
 				FileUtility.writeFile("Experiment with " + BRANCHES + " leaf-tasks\n", targetFolder + "AgentRole_" + agentName + "/experiment.out");
 				FileUtility.deleteFile(targetFolder + "AgentRole_" + agentName + "/reachability.pctl", false);
 				StringBuilder pctl = new StringBuilder("P=? [ true U (G0)]");
-	        	FileUtility.writeFile(pctl.toString(), targetFolder + "AgentRole_" + agentName + "/reachability.pctl");
+	        	FileUtility.writeFile(pctl.toString(), toolsFolder + "AgentRole_" + agentName + "/reachability.pctl");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

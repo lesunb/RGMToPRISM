@@ -46,17 +46,24 @@ In order to succesfull run the RGMToPRISM you need to patch Taom4e plugin. Do it
 
 * Window -> Preferences -> TAOM4E -> PRISM GENERATOR
 
-###Templates directory (optional)
+###Templates directory
 
 * Uncheck 'Use standard'
-* Click in 'Select' buton to select a Temaplate directory path
+* Click in 'Select' buton to select a Template directory path
 * Select the folder inside the project: src/main/resources/TemplateInput
 
 ###Output directory
 
-* Click in 'Select' buton to select a Temaplate directory path
+* Click in 'Select' buton to select a Output directory path
 * Select any system folder. Ex: ~/workspace/CRGMToPRISM/dtmc
 
+###PRISM/PARAM directory
+
+* Click in 'Select' buton to select a Tools directory path
+* Select any system folder. Ex: ~/workspace/CRGMToPRISM/tools
+* Copy the binaries of both [PRISM](http://www.prismmodelchecker.org/download.php) and [PARAM](http://depend.cs.uni-sb.de/tools/param/) to a specific folder without version suffixes:
+	* PATH/prism
+	* PATH/param
 
 ## Updating an ANTLR grammar
 

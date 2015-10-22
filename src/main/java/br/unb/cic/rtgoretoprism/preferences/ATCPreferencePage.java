@@ -184,7 +184,7 @@ public class ATCPreferencePage extends PreferencePage implements IWorkbenchPrefe
 
 		
 		Label targetLabel = new Label( codeGenGroup, SWT.NONE );
-		targetLabel.setText( "Target directory " );
+		targetLabel.setText( "Output directory " );
 
 		targetPathLabel = new Label( codeGenGroup, SWT.NONE );
 		targetPathLabel.setText( pv_targetPath );
@@ -245,7 +245,7 @@ public class ATCPreferencePage extends PreferencePage implements IWorkbenchPrefe
 		group.setLayoutData( data1 );
 		
 		Label label = new Label( group, SWT.NONE );
-		label.setText( "Tools binaries directory " );
+		label.setText( "Tools binaries directory" );
 		
 		jadexPathLabel = new Label( group, SWT.NONE );
 		jadexPathLabel.setText( value );

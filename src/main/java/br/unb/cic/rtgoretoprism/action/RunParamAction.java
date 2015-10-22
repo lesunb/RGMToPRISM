@@ -163,7 +163,7 @@ public class RunParamAction extends AbstractCodeGeneractionAction{
 		    		FileUtility.writeFile(pctl.toString(), targetFolder + "AgentRole_" + agentName + "/reachability.pctl");
 		    		this.goals = goals.toString();
 		    		
-					String cmd = "./param-2-2-64";
+					String cmd = "./param";
 					String arg1 = agentName + ".pm";
 					String arg2 = "reachability.pctl";		
 					String arg3 = "--result-file";
