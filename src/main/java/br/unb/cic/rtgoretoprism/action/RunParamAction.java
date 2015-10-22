@@ -175,7 +175,7 @@ public class RunParamAction extends AbstractCodeGeneractionAction{
 		
 					//run the process
 					startTime = new Date().getTime();
-					Spawn spawn = new Spawn( new File(targetFolder + "AgentRole_" + agentName), out, out, this, new String[]{cmd, arg1, arg2, arg3, arg4});
+					Spawn spawn = new Spawn( new File(toolsFolder), out, out, this, new String[]{cmd, arg1, arg2, arg3, arg4});
 					spawn.start();
 					
 					//remove the temporary pctl formula
