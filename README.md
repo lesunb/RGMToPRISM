@@ -63,9 +63,20 @@ File > New Project
 
 # Create a Tropos Diagram
 
-# Setup the code template folder
+## First time setup
 
-Eclipse > Preferences > 
+* Window -> Preferences -> TAOM4E -> PRISM GENERATOR
+
+###Templates directory
+
+* Uncheck 'Use standard'
+* Click in 'Select' buton to select a Template directory path
+* Select the folder inside the project: src/main/resources/TemplateInput
+
+###Output directory
+
+* Click in 'Select' buton to select a Output directory path
+* Select any system folder. Ex: ~/workspace/CRGMToPRISM/dtmc
 
 
 # Genearting The Prism Model
