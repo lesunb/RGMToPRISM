@@ -63,6 +63,10 @@ File > New Project
 
 # Create a Tropos Diagram
 
+# Setup the code template folder
+
+Eclipse > Preferences > 
+
 
 # Genearting The Prism Model
 
