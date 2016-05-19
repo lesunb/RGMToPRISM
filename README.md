@@ -100,3 +100,4 @@ In order to succesfull run the RGMToPRISM you need to patch Taom4e plugin. Do it
 * Contact the author by email
 	* danilo.filgueira[at]polimi[dot]it
 
+## Syntax used to name Goals and Tasks
