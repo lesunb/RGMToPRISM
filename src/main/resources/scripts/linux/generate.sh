@@ -1,6 +1,6 @@
 START=$(date +%s.%N)
 #./param-2-2-64 $1 $2 --result-file "${1/.pm/}"
-./param-2-2-64 "$1.pm" $2 --result-file $1
+./param "$1.pm" $2 --result-file $1
 ./mult_formula.sh $1'.out' $3
 END=$(date +%s.%N)
 DIFF=$(echo "($END - $START) * 1000" | bc)

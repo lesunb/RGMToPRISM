@@ -144,11 +144,11 @@ public class EvaluatePARAMAction extends AbstractCodeGeneractionAction {
 			//show user that work is progressing
 			monitor.beginTask("Evaluating PRISM model",  MAX_DEPTH);
 			try {
-				FileUtility.deleteFile(targetFolder + "AgentRole_" + agentName + "/experiment.out", false);
-				FileUtility.writeFile("Experiment with " + BRANCHES + " leaf-tasks\n", targetFolder + "AgentRole_" + agentName + "/experiment.out");
-				FileUtility.deleteFile(targetFolder + "AgentRole_" + agentName + "/reachability.pctl", false);
+				FileUtility.deleteFile(targetFolder + "/AgentRole_" + agentName + "/experiment.out", false);
+				FileUtility.writeFile("Experiment with " + BRANCHES + " leaf-tasks\n", targetFolder + "/AgentRole_" + agentName + "/experiment.out");
+				FileUtility.deleteFile(targetFolder + "/AgentRole_" + agentName + "/reachability.pctl", false);
 				StringBuilder pctl = new StringBuilder("P=? [ true U (G0)]");
-	        	FileUtility.writeFile(pctl.toString(), targetFolder + "AgentRole_" + agentName + "/reachability.pctl");
+	        	FileUtility.writeFile(pctl.toString(), targetFolder + "/AgentRole_" + agentName + "/reachability.pctl");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -169,11 +169,11 @@ public class EvaluatePARAMAction extends AbstractCodeGeneractionAction {
 				MessageConsoleStream out = myConsole.newMessageStream();
 				
 				//CRGMEvaluationCtProducer evaluationProducer = new CRGMEvaluationCtProducer(currentDepth, currentDepth - 1, BRANCHES, agentName);        								
-				CRGMEvaluationProducer evaluationProducer = new CRGMEvaluationProducer(MAX_DEPTH, Const.AND, Const.SEQ, Const.RTRY, agentName);
+				CRGMEvaluationProducer evaluationProducer = new CRGMEvaluationProducer(MAX_DEPTH, Const.AND, Const.SEQ, Const.TRY, agentName);
 				AgentDefinition ad = evaluationProducer.generateCRGM();
 				PrismWriter writer = new DTMCWriter( ad, new ArrayList<Plan>(), sourceFolder, targetFolder, true);
 				writer.writeModel();					
-				Spawn spawn = new Spawn( new File(sourceFolder + "../" + "scripts/linux"), out, out, this, new String[]{cmd, arg1, arg2, arg3});
+				Spawn spawn = new Spawn( new File(sourceFolder + "/../" + "scripts/linux"), out, out, this, new String[]{cmd, arg1, arg2, arg3});
 				spawn.start();				
 				System.out.println("Initing evaluation of " + ad.planbase.size() + " leaf-tasks with current tree depth of " + currentDepth);
 				System.out.println("Waiting for PRISM model to be built");
@@ -191,7 +191,7 @@ public class EvaluatePARAMAction extends AbstractCodeGeneractionAction {
 			String arg1 = agentName + ".out";
 			MessageConsole myConsole = ConsoleUtil.findConsole( agentName );
 			MessageConsoleStream out = myConsole.newMessageStream();
-			Spawn spawn = new Spawn( new File(sourceFolder + "../" + "scripts/linux"), out, out, this, new String[]{cmd, arg1});
+			Spawn spawn = new Spawn( new File(sourceFolder + "/../" + "scripts/linux"), out, out, this, new String[]{cmd, arg1});
 			spawn.start();
 		}
 		

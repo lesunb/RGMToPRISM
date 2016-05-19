@@ -322,8 +322,9 @@ public class PrismWriter {
 				//prevTaskFormula = pc.getClearElId();
 				if(!childFormula.isEmpty())
 					taskFormula.append("(" + childFormula + ")" + operator);
-			}			
-			taskFormula.replace(taskFormula.lastIndexOf(operator), taskFormula.length(), "");
+			}
+			if(taskFormula.length() > 0)
+				taskFormula.replace(taskFormula.lastIndexOf(operator), taskFormula.length(), "");
 			if(root instanceof GoalContainer)
 				planModules = planModules.append("\nformula " + root.getClearElId() + " = " + taskFormula + ";\n");
 			return new String [] {root.getClearElId(), taskFormula.toString()};
