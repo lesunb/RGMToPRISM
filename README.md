@@ -63,20 +63,45 @@ PDE ( Plug-in Development Environment (PDE) )
 	* PATH/prism
 	* PATH/param
 
-## Create a CRGMToPRISM Project
+## Using CRGMToPRISM
 
-* File > New Project
+### Create a CRGMToPRISM Project
 
-
-## Create a Tropos Diagram
-
-* File > New > Other > Tropos Model
+ * File > New Project
 
 
-## Genearting The Prism Model
+### Create a Tropos Diagram
+
+Right-click in the project folder (or subfolder) and:
+ * File > New > Other > Tropos Model
+
+
+### Genearting The Prism Model
 
 * NOTE: Before generate the PRISM code,  verify if thereisn't any TROPOS goal with missing labels.
 * NOTE2: You could have goals in your model that you can't see in the graphical representation. Refer to the the TROPOS outline view an remove any not labeled goal.
+
+### Syntax used to name Goals
+
+* Goals must use a **prefix G** followed by an **unique numeric ID** followed by a **colon** followed by a **textual description** . Ex: G1: Goal description, G2: Goal description, G3: Goal description
+
+### Syntax used to name Tasks
+
+* Same rule used for Goals, except that:
+	* Tasks must use a **prefix T** 
+	* First level tasks prefix should be followed by **unique numeric ID**. Ex: T1: Task description, T2: Task description, T3: Task description
+	* Second and subsequent level tasks prefix must be followed by the same **unique numeric ID** of its first level task, a **dot** and an **unique numeric ID**. Ex: T1.1: Tsk Dsc, T1.2: Tsk dsc (descendants of T1); T1.11: Tsk dsc, T1.12: Tsk dsc (descendantas of T1 -> T1.1); T2.11: Tsk dsc, T2.12: Tsk dsc, T2.13: Tsk dsc... (descendants of T2 -> T2.1) and so forward.
+
+### Syntax used to asign a *runtime annotation* to Goals and Tasks
+
+* Any non-leaf node that is refined/decomposed into two or more sub-nodes must have a *runtime annotation* as part of its name
+* Leaf-nodes and nodes refined by a single sub-node are trivial and require no *runtime annotation*; they may still receive an *runtime annotation* of type **opt(E)** in case their sub-node should be specified as **optional**
+* *runtime annotations* should be inside brakets and preceeded by a colon that separates the Goal|Task from the *runtime annotation*. Ex: G1:Goal description **[G2;G3#G4]**
+
+### A CRGM example
+
+![CRGM example]
+(https://github.com/lesunb/CRGMToPRISM/master/docs/CRGM.png)
 
 
 ## Plugin Structure
@@ -85,20 +110,18 @@ PDE ( Plug-in Development Environment (PDE) )
 * build.properties: The file used for describing the build process. Mainly, this is used to specify the needed libraries.
 * src: Plugin classes.
 
-#Development
+##Development
 
-## Updating an ANTLR grammar
+### Updating an ANTLR grammar
 
 * After updating any .g4 grammar file (for context or runtime annotations), use maven version 3 to recompile the java classes for your language (regex, parser, etc):
 	* At the project root folder, use (linux): mvn package -e
 	* Refresh the project folder in eclipse
 	* Restart the workspace used for testing the framework
 
-#Bugs? Doubts?
+##Bugs? Doubts?
 
 * Look for existing issues or create a new one describing your problem or doubt
 * Contact the author by email
 	* danilo.filgueira[at]polimi[dot]it
 	* TODO: add other team members contacts here
-
-## Syntax used to name Goals and Tasks
