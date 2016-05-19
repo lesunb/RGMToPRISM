@@ -101,3 +101,4 @@ PDE ( Plug-in Development Environment (PDE) )
 	* danilo.filgueira[at]polimi[dot]it
 	* TODO: add other team members contacts here
 
+## Syntax used to name Goals and Tasks
