@@ -81,7 +81,13 @@ Right-click in the project folder (or subfolder) and:
 * NOTE: Before generate the PRISM code,  verify if thereisn't any TROPOS goal with missing labels.
 * NOTE2: You could have goals in your model that you can't see in the graphical representation. Refer to the the TROPOS outline view an remove any not labeled goal.
 
-### Syntax used to lable Goals and Tasks: *IDENTIFIER*: *DESCRIPTION*
+### Syntax used to lable Goals and Tasks 
+
+Goals and tasks must have a lable according to the rules bellow. The general form of a lable is:
+
+* *IDENTIFIER*: *DESCRIPTION* *[runtime annotation]*
+
+#### *IDENTIFIER*: *DESCRIPTION*
 
 * Goals must use a **prefix G** followed by an **unique numeric ID** within the CRGM Goals set followed by a **colon** followed by a **textual description** . Ex: G1: Goal description, G2: Goal description, G3: Goal description
 
@@ -96,11 +102,12 @@ Right-click in the project folder (or subfolder) and:
 		* T1.11: Tsk dsc, T1.12: Tsk dsc (descendantas of T1 -> T1.1) 
 		* T2.11: Tsk dsc, T2.12: Tsk dsc, T2.13: Tsk dsc... (descendants of T2 -> T2.1) and so forward.
 
-### Syntax used to lable Goals and Tasks: *[runtime annotation]*
+#### *[runtime annotation]*
 
 * Any non-leaf node that is refined/decomposed into two or more sub-nodes must have a *runtime annotation* as part of its name
 * Leaf-nodes and nodes refined by a single sub-node are trivial and require no *runtime annotation*; they may still receive an *runtime annotation* of type **opt(E)** in case their sub-node should be specified as **optional**
 * *runtime annotations* should be inside brakets and preceeded by a colon that separates the Goal|Task from the *runtime annotation*. Ex: G1:Goal description **[G2;G3#G4]**
+* *runtime annotations* may come after space and/or a break line. As long as it is inside the brakets and after the description, it will be parsed
 
 ### A CRGM example
 
