@@ -104,10 +104,11 @@ Goals and tasks must have a lable according to the rules bellow. The general for
 
 #### *[runtime annotation]*
 
-* Any non-leaf node that is refined/decomposed into two or more sub-nodes must have a *runtime annotation* as part of its name
-* Leaf-nodes and nodes refined by a single sub-node are trivial and require no *runtime annotation*; they may still receive an *runtime annotation* of type **opt(E)** in case their sub-node should be specified as **optional**
-* *runtime annotations* should be inside brakets and preceeded by a colon that separates the Goal|Task from the *runtime annotation*. Ex: G1:Goal description **[G2;G3#G4]**
-* *runtime annotations* may come after space and/or a break line. As long as it is inside the brakets and after the description, it will be parsed
+* Any non-leaf node that is refined/decomposed into two or more sub-nodes must have a *runtime annotation* as part of its lable
+* Leaf-nodes and nodes refined by a single sub-node are trivial and require no *runtime annotation*; they may still receive a *runtime annotation* of type **opt(E)** in case their sub-node should be specified as **optional**
+* *runtime annotations* must be inside brakets and be placed after *DESCRIPTION*. Ex:
+* G1:Goal description **[G2;G3#G4]**
+* *runtime annotations* may be separated from *DESCRIPTION* with space(s) and/or break line(s). As long as it is inside the brakets and after *DESCRIPTION*, it will be parsed
 
 ### A CRGM example
 
