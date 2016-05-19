@@ -81,18 +81,22 @@ Right-click in the project folder (or subfolder) and:
 * NOTE: Before generate the PRISM code,  verify if thereisn't any TROPOS goal with missing labels.
 * NOTE2: You could have goals in your model that you can't see in the graphical representation. Refer to the the TROPOS outline view an remove any not labeled goal.
 
-### Syntax used to name Goals
+### Syntax used to lable Goals and Tasks: *IDENTIFIER*: *DESCRIPTION*
 
-* Goals must use a **prefix G** followed by an **unique numeric ID** followed by a **colon** followed by a **textual description** . Ex: G1: Goal description, G2: Goal description, G3: Goal description
-
-### Syntax used to name Tasks
+* Goals must use a **prefix G** followed by an **unique numeric ID** within the CRGM Goals set followed by a **colon** followed by a **textual description** . Ex: G1: Goal description, G2: Goal description, G3: Goal description
 
 * Same rule used for Goals, except that:
 	* Tasks must use a **prefix T** 
-	* First level tasks prefix should be followed by **unique numeric ID**. Ex: T1: Task description, T2: Task description, T3: Task description
-	* Second and subsequent level tasks prefix must be followed by the same **unique numeric ID** of its first level task, a **dot** and an **unique numeric ID**. Ex: T1.1: Tsk Dsc, T1.2: Tsk dsc (descendants of T1); T1.11: Tsk dsc, T1.12: Tsk dsc (descendantas of T1 -> T1.1); T2.11: Tsk dsc, T2.12: Tsk dsc, T2.13: Tsk dsc... (descendants of T2 -> T2.1) and so forward.
+	* Task level refers to the depth level after the goal they succeed
+	* Level 1 tasks' prefix should be followed by an **unique numeric ID** within their context. Ex:
+		* T1: Task description, T2: Task description, T3: Task description (for goal **G2**)
+		* T1: Task description, T2: Task description, T3: Task description (for goal **G3**)
+	* Second and subsequent level tasks prefix must be followed by the same **unique numeric ID** of its first level task, a **dot** and an **unique numeric ID**. Ex:
+		* T1.1: Tsk Dsc, T1.2: Tsk dsc (descendants of T1)
+		* T1.11: Tsk dsc, T1.12: Tsk dsc (descendantas of T1 -> T1.1) 
+		* T2.11: Tsk dsc, T2.12: Tsk dsc, T2.13: Tsk dsc... (descendants of T2 -> T2.1) and so forward.
 
-### Syntax used to asign a *runtime annotation* to Goals and Tasks
+### Syntax used to lable Goals and Tasks: *[runtime annotation]*
 
 * Any non-leaf node that is refined/decomposed into two or more sub-nodes must have a *runtime annotation* as part of its name
 * Leaf-nodes and nodes refined by a single sub-node are trivial and require no *runtime annotation*; they may still receive an *runtime annotation* of type **opt(E)** in case their sub-node should be specified as **optional**
