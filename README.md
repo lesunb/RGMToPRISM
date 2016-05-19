@@ -113,7 +113,7 @@ Goals and tasks must have a lable according to the rules bellow. The general for
 ### A CRGM example
 
 ![CRGM example]
-(https://github.com/lesunb/CRGMToPRISM/master/docs/CRGM.png)
+(https://github.com/lesunb/CRGMToPRISM/blob/master/docs/CRGM.png?raw=true)
 
 
 ## Plugin Structure
