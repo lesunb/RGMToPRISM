@@ -1,5 +1,5 @@
-# RGMToPRISM by Danilo Mendonça
-A Runtime Goal Model to PRISM model generator to be used with TAOM4E tool for TROPOS.
+# Goal-Oriented Dependability Analysis (GODA)
+A Contextual-Runtime Goal Model (CRGM) to PRISM model/PARAMetric formula generator to be used with the TAOM4E tool for TROPOS goal model.
 
 ## Environment:
 
@@ -113,7 +113,7 @@ Goals and tasks must have a lable according to the rules bellow. The general for
 ### A CRGM example
 
 ![CRGM example]
-(https://github.com/lesunb/CRGMToPRISM/master/docs/CRGM.png)
+(https://github.com/lesunb/CRGMToPRISM/blob/master/docs/CRGM.png?raw=true)
 
 
 ## Plugin Structure
