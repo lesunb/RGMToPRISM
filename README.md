@@ -3,7 +3,7 @@ A Runtime Goal Model to PRISM model generator to be used with TAOM4E tool for TR
 
 ## Environment:
 
-* Donwnload Eclipse 4.4 (http://www.eclipse.org/downloads/packages/eclipse-ide-java-developers/lunasr2)
+* Donwnload Eclipse 4.5 (http://www.eclipse.org/downloads/packages/eclipse-ide-java-developers/mars2)
 * Taom4e plugin (http://selab.fbk.eu/taom/) (see plugin instalation bellow)
 
 ## Install Plugin Taom4e
