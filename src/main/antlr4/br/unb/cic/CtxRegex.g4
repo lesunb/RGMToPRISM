@@ -19,11 +19,11 @@ expr:	expr op='<' expr			# cLT
     |   '(' expr ')'                # cParens
     ;
 
-BOOL		: [false|true] 				;
-VAR     	: ('a'..'z'|'A'..'Z'|'_')+  ;
-FLOAT		: DIGIT+'.'?DIGIT* 			;
-NEWLINE 	: [\r\n]+             		;
-WS	        : (' '|'\t')+ -> skip 		;
+BOOL		: [false|true] 					;
+VAR     	: ('a'..'z'|'A'..'Z'|'_')+DIGIT	;
+FLOAT		: DIGIT+'.'?DIGIT* 				;
+NEWLINE 	: [\r\n]+             			;
+WS	        : (' '|'\t')+ -> skip 			;
 
 fragment
-DIGIT		: [0-9]						;
+DIGIT		: [0-9]							;

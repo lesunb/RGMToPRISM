@@ -83,6 +83,8 @@ public class RTGoreProducer {
 	private Set<Actor> allActors;
 	/** the set of Actor for which code should be generated */
 	private Set<FHardGoal> allGoals;
+	/** defines if the generated code will be parametric (PARAM) or not (PRISM) **/
+	private boolean parametric;
 	
 	/** memory for the parsed RT regexes */
 	Map<String, Boolean[]> rtSortedGoals;
@@ -101,7 +103,7 @@ public class RTGoreProducer {
 	 * @param in the template input folder
 	 * @param out the generated code output folder
 	 */
-	public RTGoreProducer(Set<Actor> allActors, Set<FHardGoal> allGoals, String in, String out ) {
+	public RTGoreProducer(Set<Actor> allActors, Set<FHardGoal> allGoals, String in, String out, boolean parametric ) {
 		
 		tn = new TroposNavigator( allActors.iterator().next().eResource() );
 		//Set<Actor> allActors = getSystemActors();
@@ -116,6 +118,7 @@ public class RTGoreProducer {
 		this.rtAltGoals = new TreeMap<String, Set<String>>();
 		this.rtTryGoals = new TreeMap<String, String[]>();
 		this.rtOptGoals = new TreeMap<String, Boolean>();
+		this.parametric = parametric;
 	}
 	
 	/**
@@ -169,7 +172,7 @@ public class RTGoreProducer {
 			List<Plan> planList = tn.getAllCapabilityPlan( a );
 			
 			// write the DTMC PRISM file to the output folder given the template input folder
-			PrismWriter writer = new DTMCWriter( ad, planList, inputFolder, outputFolder, true);
+			PrismWriter writer = new DTMCWriter( ad, planList, inputFolder, outputFolder, parametric);
 			writer.writeModel();
 		}
 		
@@ -209,10 +212,11 @@ public class RTGoreProducer {
 		
 		
 		iterateGoals(ad, gc, declist, included);
-		//Set goals alternatives, tries, optional and cardinalities
 		iterateRts(gc, gc.getDecompGoals());
-		
 		iterateMeansEnds(g, gc, ad, included);
+		iterateRts(gc, gc.getDecompPlans());
+		//Set goals alternatives, tries, optional and cardinalities
+			
 							
 		if (tn.isGoalWhyDependency(g)) {
 			for (Dependency dep : tn.getGoalDependencies(g)) {

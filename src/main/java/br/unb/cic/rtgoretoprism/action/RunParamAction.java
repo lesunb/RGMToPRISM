@@ -51,6 +51,7 @@ import org.troposproject.util.ProcessCallback;
 import org.troposproject.util.Spawn;
 
 import br.unb.cic.rtgoretoprism.console.ConsoleUtil;
+import br.unb.cic.rtgoretoprism.generator.goda.producer.RTGoreProducer;
 import br.unb.cic.rtgoretoprism.generator.kl.AgentDefinition;
 import br.unb.cic.rtgoretoprism.util.FileUtility;
 import it.itc.sra.taom4e.model.core.informalcore.Actor;
@@ -148,6 +149,10 @@ public class RunParamAction extends AbstractCodeGeneractionAction{
 		    		//we expect something like BASIC_AGENT_PACKAGE_PREFIX_XXX
 		    		//get the name of the agent to be started
 		    		//String agentName = folderName.substring( PathLocation.BASIC_AGENT_PACKAGE_PREFIX.length() );
+		    		
+		    		RTGoreProducer producer = new RTGoreProducer(selectedActors, selectedGoals, sourceFolder, targetFolder, true);
+					producer.run();
+		    		
 		    		agentName = actor.getName().replaceAll("\n", "_");			    						
 		    		
 		    		StringBuilder pctl = new StringBuilder("P=? [ true U (");
@@ -159,13 +164,13 @@ public class RunParamAction extends AbstractCodeGeneractionAction{
 		    			i++;
 		    		}
 		    		pctl.append(") ]");
-		    		FileUtility.deleteFile(targetFolder + "AgentRole_" + agentName + "/reachability.pctl", false);
-		    		FileUtility.writeFile(pctl.toString(), targetFolder + "AgentRole_" + agentName + "/reachability.pctl");
+		    		FileUtility.deleteFile(targetFolder + "/AgentRole_" + agentName + "/reachability.pctl", false);
+		    		FileUtility.writeFile(pctl.toString(), targetFolder + "/AgentRole_" + agentName + "/reachability.pctl");
 		    		this.goals = goals.toString();
 		    		
 					String cmd = "./param";
-					String arg1 = agentName + ".pm";
-					String arg2 = "reachability.pctl";		
+					String arg1 = targetFolder + "/AgentRole_" + agentName + "/" + agentName + ".pm";
+					String arg2 = targetFolder + "/AgentRole_" + agentName + "/reachability.pctl";		
 					String arg3 = "--result-file";
 					String arg4 = goals.toString();
 					

@@ -89,7 +89,7 @@ public class PRISMCodeGenerationAction extends AbstractCodeGeneractionAction {
 
 					try {*/
 						//generate the source code for the KL side
-						RTGoreProducer producer = new RTGoreProducer(selectedActors, selectedGoals, sourceFolder, targetFolder );
+						RTGoreProducer producer = new RTGoreProducer(selectedActors, selectedGoals, sourceFolder, targetFolder, false );
 						producer.run();
 					/*
 						//refresh workspace folder
