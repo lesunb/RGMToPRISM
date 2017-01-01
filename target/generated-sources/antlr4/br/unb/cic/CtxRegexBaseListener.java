@@ -17,39 +17,26 @@ public class CtxRegexBaseListener implements CtxRegexListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCLE(@NotNull CtxRegexParser.CLEContext ctx) { }
+	@Override public void enterCGE(@NotNull CtxRegexParser.CGEContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitCLE(@NotNull CtxRegexParser.CLEContext ctx) { }
+	@Override public void exitCGE(@NotNull CtxRegexParser.CGEContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCOr(@NotNull CtxRegexParser.COrContext ctx) { }
+	@Override public void enterCInt(@NotNull CtxRegexParser.CIntContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitCOr(@NotNull CtxRegexParser.COrContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterTrigger(@NotNull CtxRegexParser.TriggerContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTrigger(@NotNull CtxRegexParser.TriggerContext ctx) { }
+	@Override public void exitCInt(@NotNull CtxRegexParser.CIntContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
@@ -69,84 +56,6 @@ public class CtxRegexBaseListener implements CtxRegexListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterPrintExpr(@NotNull CtxRegexParser.PrintExprContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitPrintExpr(@NotNull CtxRegexParser.PrintExprContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterCLT(@NotNull CtxRegexParser.CLTContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitCLT(@NotNull CtxRegexParser.CLTContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterCEQ(@NotNull CtxRegexParser.CEQContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitCEQ(@NotNull CtxRegexParser.CEQContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterCondition(@NotNull CtxRegexParser.ConditionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitCondition(@NotNull CtxRegexParser.ConditionContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterCGT(@NotNull CtxRegexParser.CGTContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitCGT(@NotNull CtxRegexParser.CGTContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterCGE(@NotNull CtxRegexParser.CGEContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitCGE(@NotNull CtxRegexParser.CGEContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterCFloat(@NotNull CtxRegexParser.CFloatContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -160,13 +69,13 @@ public class CtxRegexBaseListener implements CtxRegexListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCBool(@NotNull CtxRegexParser.CBoolContext ctx) { }
+	@Override public void enterCOr(@NotNull CtxRegexParser.COrContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitCBool(@NotNull CtxRegexParser.CBoolContext ctx) { }
+	@Override public void exitCOr(@NotNull CtxRegexParser.COrContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
@@ -186,13 +95,78 @@ public class CtxRegexBaseListener implements CtxRegexListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCParens(@NotNull CtxRegexParser.CParensContext ctx) { }
+	@Override public void enterCLT(@NotNull CtxRegexParser.CLTContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitCParens(@NotNull CtxRegexParser.CParensContext ctx) { }
+	@Override public void exitCLT(@NotNull CtxRegexParser.CLTContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterTrigger(@NotNull CtxRegexParser.TriggerContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTrigger(@NotNull CtxRegexParser.TriggerContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCNum(@NotNull CtxRegexParser.CNumContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCNum(@NotNull CtxRegexParser.CNumContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCEQ(@NotNull CtxRegexParser.CEQContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCEQ(@NotNull CtxRegexParser.CEQContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCGT(@NotNull CtxRegexParser.CGTContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCGT(@NotNull CtxRegexParser.CGTContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCondition(@NotNull CtxRegexParser.ConditionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCondition(@NotNull CtxRegexParser.ConditionContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
@@ -219,6 +193,45 @@ public class CtxRegexBaseListener implements CtxRegexListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitCDIFF(@NotNull CtxRegexParser.CDIFFContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCLE(@NotNull CtxRegexParser.CLEContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCLE(@NotNull CtxRegexParser.CLEContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterPrintExpr(@NotNull CtxRegexParser.PrintExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPrintExpr(@NotNull CtxRegexParser.PrintExprContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCBool(@NotNull CtxRegexParser.CBoolContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCBool(@NotNull CtxRegexParser.CBoolContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

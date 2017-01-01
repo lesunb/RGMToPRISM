@@ -24,8 +24,10 @@ import br.unb.cic.CtxRegexParser.CEQContext;
 import br.unb.cic.CtxRegexParser.CFloatContext;
 import br.unb.cic.CtxRegexParser.CGEContext;
 import br.unb.cic.CtxRegexParser.CGTContext;
+import br.unb.cic.CtxRegexParser.CIntContext;
 import br.unb.cic.CtxRegexParser.CLEContext;
 import br.unb.cic.CtxRegexParser.CLTContext;
+import br.unb.cic.CtxRegexParser.CNumContext;
 import br.unb.cic.CtxRegexParser.COrContext;
 import br.unb.cic.CtxRegexParser.CVarContext;
 import br.unb.cic.CtxRegexParser.ConditionContext;
@@ -53,6 +55,8 @@ public class CtxParser{
 	    
 	    //Passing the input to the lexer to create tokens
 	    CtxRegexLexer lexer = new CtxRegexLexer(cs);
+	    lexer.removeErrorListeners();
+	    lexer.addErrorListener(ThrowingErrorListener.INSTANCE);
 	    
 	    CommonTokenStream tokens = new CommonTokenStream(lexer);
 	    
@@ -107,62 +111,93 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 	@Override
 	public String visitCVar(CVarContext ctx) {
 		String var = ctx.VAR().getText();
+		
 		if(ctx.getParent() instanceof CAndContext ||
 		   ctx.getParent() instanceof COrContext ||
 		   ctx.getParent() instanceof ConditionContext ||
 		   ctx.getParent() instanceof TriggerContext){
 			ctxVars.add(new String[]{var, "bool"});
-			memory.add(new ContextCondition(var, CtxSymbols.BOOL,  "true"));
-		}else
-			ctxVars.add(new String[]{var, "double"});
+			memory.add(new ContextCondition(var, CtxSymbols.BOOL,  CtxSymbols.BOOL, "true"));
+		}
 		return var;
-	}	
+	}
+	
+	@Override
+	public String visitCNum(CNumContext ctx) {
+		return ctx.getText();
+	}
 	
 	@Override
 	public String visitCEQ(CEQContext ctx) {
-		String var = visit(ctx.expr(0));
-		String value = visit(ctx.expr(1));
-		memory.add(new ContextCondition(var, CtxSymbols.EQ,  value));
+		String var = visit(ctx.expr());
+		String value = ctx.value().getChild(0).getText();
+		CtxSymbols type = checkTypeVar(var, value);
+		/*if(!ctxVars.contains(var)){
+			type = checkTypeVar(var, value);
+		}*/
+		//String value = visit(ctx.expr(1));
+		memory.add(new ContextCondition(var, CtxSymbols.EQ,  type, value));
 		return var + " = " + value;
 	}
 	
 	@Override
 	public String visitCDIFF(CDIFFContext ctx) {
-		String var = visit(ctx.expr(0));
-		String value = visit(ctx.expr(1));
-		memory.add(new ContextCondition(var, CtxSymbols.DIFF,  value));
+		String var = visit(ctx.expr());
+		String value = ctx.value().getChild(0).getText();
+		CtxSymbols type = checkTypeVar(var, value);
+		memory.add(new ContextCondition(var, CtxSymbols.DIFF, type, value));
 		return var + " != " + value;
 	}
 	
+	private CtxSymbols checkTypeVar(String var, String value) {
+		if(ctxVars.contains(var)){
+			return CtxSymbols.BOOL;
+		}
+		if(value.equals("true") || value.equals("false")){
+			ctxVars.add(new String[]{var, "bool"});
+			return CtxSymbols.BOOL;
+		}else if (value.contains(".")){
+			ctxVars.add(new String[]{var, "double"});
+			return CtxSymbols.DOUBLE;
+		}else{
+			ctxVars.add(new String[]{var, "int"});
+			return CtxSymbols.INT;
+		}
+	}
+
 	@Override
 	public String visitCLE(CLEContext ctx) {
-		String var = visit(ctx.expr(0));
-		String value = visit(ctx.expr(1));
-		memory.add(new ContextCondition(var, CtxSymbols.LE,  value));
+		String var = visit(ctx.expr());
+		String value = visit(ctx.num());
+		CtxSymbols type = checkTypeVar(var, value);
+		memory.add(new ContextCondition(var, CtxSymbols.LE, type, value));
 		return var + " <= " + value;
 	}
 	
 	@Override
 	public String visitCLT(CLTContext ctx) {
-		String var = visit(ctx.expr(0));
-		String value = visit(ctx.expr(1));
-		memory.add(new ContextCondition(var, CtxSymbols.LT,  value));
+		String var = visit(ctx.expr());
+		String value = visit(ctx.num());
+		CtxSymbols type = checkTypeVar(var, value);
+		memory.add(new ContextCondition(var, CtxSymbols.LT, type, value));
 		return var + " < " + value;
 	}
 	
 	@Override
 	public String visitCGE(CGEContext ctx) {
-		String var = visit(ctx.expr(0));
-		String value = visit(ctx.expr(1));
-		memory.add(new ContextCondition(var, CtxSymbols.GE,  value));
+		String var = visit(ctx.expr());
+		String value = visit(ctx.num());
+		CtxSymbols type = checkTypeVar(var, value);
+		memory.add(new ContextCondition(var, CtxSymbols.GE, type, value));
 		return var + " >= " + value;
 	}
 	
 	@Override
 	public String visitCGT(CGTContext ctx) {
-		String var = visit(ctx.expr(0));
-		String value = visit(ctx.expr(1));
-		memory.add(new ContextCondition(var, CtxSymbols.GT,  value));
+		String var = visit(ctx.expr());
+		String value = visit(ctx.num());
+		CtxSymbols type = checkTypeVar(var, value);
+		memory.add(new ContextCondition(var, CtxSymbols.GT, type, value));
 		return var + " > " + value;
 	}
 	
@@ -188,6 +223,11 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 	@Override
 	public String visitCFloat(CFloatContext ctx) {		
 		return ctx.FLOAT().getText();
+	}
+	
+	@Override
+	public String visitCInt(CIntContext ctx){
+		return ctx.INT().getText();
 	}
 	
 	private CtxSymbols getEffectType(ParserRuleContext ctx){
