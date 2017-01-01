@@ -17,12 +17,13 @@ public class CtxRegexParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		T__9=1, T__8=2, T__7=3, T__6=4, T__5=5, T__4=6, T__3=7, T__2=8, T__1=9, 
-		T__0=10, BOOL=11, VAR=12, INT=13, FLOAT=14, NEWLINE=15, WS=16;
+		T__11=1, T__10=2, T__9=3, T__8=4, T__7=5, T__6=6, T__5=7, T__4=8, T__3=9, 
+		T__2=10, T__1=11, T__0=12, BOOL=13, VAR=14, INT=15, FLOAT=16, NEWLINE=17, 
+		WS=18;
 	public static final String[] tokenNames = {
-		"<INVALID>", "'<='", "'&'", "'assertion condition '", "'!='", "'>='", 
-		"'|'", "'<'", "'='", "'assertion trigger '", "'>'", "BOOL", "VAR", "INT", 
-		"FLOAT", "NEWLINE", "WS"
+		"<INVALID>", "'<='", "'&'", "'assertion condition '", "'('", "'!='", "')'", 
+		"'>='", "'|'", "'<'", "'='", "'assertion trigger '", "'>'", "BOOL", "VAR", 
+		"INT", "FLOAT", "NEWLINE", "WS"
 	};
 	public static final int
 		RULE_ctx = 0, RULE_expr = 1, RULE_value = 2, RULE_num = 3;
@@ -153,13 +154,13 @@ public class CtxRegexParser extends Parser {
 			{
 			setState(14);
 			switch (_input.LA(1)) {
-			case T__7:
+			case T__9:
 				{
 				_localctx = new ConditionContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
 
-				setState(9); match(T__7);
+				setState(9); match(T__9);
 				setState(10); expr(0);
 				}
 				break;
@@ -272,6 +273,25 @@ public class CtxRegexParser extends Parser {
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof CtxRegexVisitor ) return ((CtxRegexVisitor<? extends T>)visitor).visitCGT(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class CParensContext extends ExprContext {
+		public ExprContext expr() {
+			return getRuleContext(ExprContext.class,0);
+		}
+		public CParensContext(ExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof CtxRegexListener ) ((CtxRegexListener)listener).enterCParens(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof CtxRegexListener ) ((CtxRegexListener)listener).exitCParens(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof CtxRegexVisitor ) return ((CtxRegexVisitor<? extends T>)visitor).visitCParens(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -446,32 +466,49 @@ public class CtxRegexParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			{
-			_localctx = new CVarContext(_localctx);
-			_ctx = _localctx;
-			_prevctx = _localctx;
+			setState(29);
+			switch (_input.LA(1)) {
+			case VAR:
+				{
+				_localctx = new CVarContext(_localctx);
+				_ctx = _localctx;
+				_prevctx = _localctx;
 
-			setState(24); match(VAR);
+				setState(24); match(VAR);
+				}
+				break;
+			case T__8:
+				{
+				_localctx = new CParensContext(_localctx);
+				_ctx = _localctx;
+				_prevctx = _localctx;
+				setState(25); match(T__8);
+				setState(26); expr(0);
+				setState(27); match(T__6);
+				}
+				break;
+			default:
+				throw new NoViableAltException(this);
 			}
 			_ctx.stop = _input.LT(-1);
-			setState(52);
+			setState(57);
 			_errHandler.sync(this);
-			_alt = getInterpreter().adaptivePredict(_input,3,_ctx);
+			_alt = getInterpreter().adaptivePredict(_input,4,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					if ( _parseListeners!=null ) triggerExitRuleEvent();
 					_prevctx = _localctx;
 					{
-					setState(50);
-					switch ( getInterpreter().adaptivePredict(_input,2,_ctx) ) {
+					setState(55);
+					switch ( getInterpreter().adaptivePredict(_input,3,_ctx) ) {
 					case 1:
 						{
 						_localctx = new CAndContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(26);
-						if (!(precpred(_ctx, 3))) throw new FailedPredicateException(this, "precpred(_ctx, 3)");
-						setState(27); ((CAndContext)_localctx).op = match(T__8);
-						setState(28); expr(4);
+						setState(31);
+						if (!(precpred(_ctx, 4))) throw new FailedPredicateException(this, "precpred(_ctx, 4)");
+						setState(32); ((CAndContext)_localctx).op = match(T__10);
+						setState(33); expr(5);
 						}
 						break;
 
@@ -479,10 +516,10 @@ public class CtxRegexParser extends Parser {
 						{
 						_localctx = new COrContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(29);
-						if (!(precpred(_ctx, 2))) throw new FailedPredicateException(this, "precpred(_ctx, 2)");
-						setState(30); ((COrContext)_localctx).op = match(T__4);
-						setState(31); expr(3);
+						setState(34);
+						if (!(precpred(_ctx, 3))) throw new FailedPredicateException(this, "precpred(_ctx, 3)");
+						setState(35); ((COrContext)_localctx).op = match(T__4);
+						setState(36); expr(4);
 						}
 						break;
 
@@ -490,10 +527,10 @@ public class CtxRegexParser extends Parser {
 						{
 						_localctx = new CLTContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(32);
-						if (!(precpred(_ctx, 9))) throw new FailedPredicateException(this, "precpred(_ctx, 9)");
-						setState(33); ((CLTContext)_localctx).op = match(T__3);
-						setState(34); num();
+						setState(37);
+						if (!(precpred(_ctx, 10))) throw new FailedPredicateException(this, "precpred(_ctx, 10)");
+						setState(38); ((CLTContext)_localctx).op = match(T__3);
+						setState(39); num();
 						}
 						break;
 
@@ -501,10 +538,10 @@ public class CtxRegexParser extends Parser {
 						{
 						_localctx = new CLEContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(35);
-						if (!(precpred(_ctx, 8))) throw new FailedPredicateException(this, "precpred(_ctx, 8)");
-						setState(36); ((CLEContext)_localctx).op = match(T__9);
-						setState(37); num();
+						setState(40);
+						if (!(precpred(_ctx, 9))) throw new FailedPredicateException(this, "precpred(_ctx, 9)");
+						setState(41); ((CLEContext)_localctx).op = match(T__11);
+						setState(42); num();
 						}
 						break;
 
@@ -512,10 +549,10 @@ public class CtxRegexParser extends Parser {
 						{
 						_localctx = new CGTContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(38);
-						if (!(precpred(_ctx, 7))) throw new FailedPredicateException(this, "precpred(_ctx, 7)");
-						setState(39); ((CGTContext)_localctx).op = match(T__0);
-						setState(40); num();
+						setState(43);
+						if (!(precpred(_ctx, 8))) throw new FailedPredicateException(this, "precpred(_ctx, 8)");
+						setState(44); ((CGTContext)_localctx).op = match(T__0);
+						setState(45); num();
 						}
 						break;
 
@@ -523,10 +560,10 @@ public class CtxRegexParser extends Parser {
 						{
 						_localctx = new CGEContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(41);
-						if (!(precpred(_ctx, 6))) throw new FailedPredicateException(this, "precpred(_ctx, 6)");
-						setState(42); ((CGEContext)_localctx).op = match(T__5);
-						setState(43); num();
+						setState(46);
+						if (!(precpred(_ctx, 7))) throw new FailedPredicateException(this, "precpred(_ctx, 7)");
+						setState(47); ((CGEContext)_localctx).op = match(T__5);
+						setState(48); num();
 						}
 						break;
 
@@ -534,10 +571,10 @@ public class CtxRegexParser extends Parser {
 						{
 						_localctx = new CEQContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(44);
-						if (!(precpred(_ctx, 5))) throw new FailedPredicateException(this, "precpred(_ctx, 5)");
-						setState(45); ((CEQContext)_localctx).op = match(T__2);
-						setState(46); value();
+						setState(49);
+						if (!(precpred(_ctx, 6))) throw new FailedPredicateException(this, "precpred(_ctx, 6)");
+						setState(50); ((CEQContext)_localctx).op = match(T__2);
+						setState(51); value();
 						}
 						break;
 
@@ -545,18 +582,18 @@ public class CtxRegexParser extends Parser {
 						{
 						_localctx = new CDIFFContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(47);
-						if (!(precpred(_ctx, 4))) throw new FailedPredicateException(this, "precpred(_ctx, 4)");
-						setState(48); ((CDIFFContext)_localctx).op = match(T__6);
-						setState(49); value();
+						setState(52);
+						if (!(precpred(_ctx, 5))) throw new FailedPredicateException(this, "precpred(_ctx, 5)");
+						setState(53); ((CDIFFContext)_localctx).op = match(T__7);
+						setState(54); value();
 						}
 						break;
 					}
 					} 
 				}
-				setState(54);
+				setState(59);
 				_errHandler.sync(this);
-				_alt = getInterpreter().adaptivePredict(_input,3,_ctx);
+				_alt = getInterpreter().adaptivePredict(_input,4,_ctx);
 			}
 			}
 		}
@@ -623,21 +660,21 @@ public class CtxRegexParser extends Parser {
 		ValueContext _localctx = new ValueContext(_ctx, getState());
 		enterRule(_localctx, 4, RULE_value);
 		try {
-			setState(57);
+			setState(62);
 			switch (_input.LA(1)) {
 			case INT:
 			case FLOAT:
 				_localctx = new CNumContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(55); num();
+				setState(60); num();
 				}
 				break;
 			case BOOL:
 				_localctx = new CBoolContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(56); match(BOOL);
+				setState(61); match(BOOL);
 				}
 				break;
 			default:
@@ -705,20 +742,20 @@ public class CtxRegexParser extends Parser {
 		NumContext _localctx = new NumContext(_ctx, getState());
 		enterRule(_localctx, 6, RULE_num);
 		try {
-			setState(61);
+			setState(66);
 			switch (_input.LA(1)) {
 			case INT:
 				_localctx = new CIntContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(59); match(INT);
+				setState(64); match(INT);
 				}
 				break;
 			case FLOAT:
 				_localctx = new CFloatContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(60); match(FLOAT);
+				setState(65); match(FLOAT);
 				}
 				break;
 			default:
@@ -752,45 +789,45 @@ public class CtxRegexParser extends Parser {
 	}
 	private boolean expr_sempred(ExprContext _localctx, int predIndex) {
 		switch (predIndex) {
-		case 1: return precpred(_ctx, 3);
+		case 1: return precpred(_ctx, 4);
 
-		case 2: return precpred(_ctx, 2);
+		case 2: return precpred(_ctx, 3);
 
-		case 3: return precpred(_ctx, 9);
+		case 3: return precpred(_ctx, 10);
 
-		case 4: return precpred(_ctx, 8);
+		case 4: return precpred(_ctx, 9);
 
-		case 5: return precpred(_ctx, 7);
+		case 5: return precpred(_ctx, 8);
 
-		case 6: return precpred(_ctx, 6);
+		case 6: return precpred(_ctx, 7);
 
-		case 7: return precpred(_ctx, 5);
+		case 7: return precpred(_ctx, 6);
 
-		case 8: return precpred(_ctx, 4);
+		case 8: return precpred(_ctx, 5);
 		}
 		return true;
 	}
 
 	public static final String _serializedATN =
-		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\22B\4\2\t\2\4\3\t"+
+		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\24G\4\2\t\2\4\3\t"+
 		"\3\4\4\t\4\4\5\t\5\3\2\3\2\3\2\3\2\3\2\3\2\5\2\21\n\2\3\2\3\2\7\2\25\n"+
-		"\2\f\2\16\2\30\13\2\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3"+
-		"\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\7\3\65\n\3"+
-		"\f\3\16\38\13\3\3\4\3\4\5\4<\n\4\3\5\3\5\5\5@\n\5\3\5\2\4\2\4\6\2\4\6"+
-		"\b\2\2J\2\20\3\2\2\2\4\31\3\2\2\2\6;\3\2\2\2\b?\3\2\2\2\n\13\b\2\1\2\13"+
-		"\f\7\5\2\2\f\21\5\4\3\2\r\16\7\13\2\2\16\21\5\4\3\2\17\21\7\21\2\2\20"+
-		"\n\3\2\2\2\20\r\3\2\2\2\20\17\3\2\2\2\21\26\3\2\2\2\22\23\f\6\2\2\23\25"+
-		"\7\21\2\2\24\22\3\2\2\2\25\30\3\2\2\2\26\24\3\2\2\2\26\27\3\2\2\2\27\3"+
-		"\3\2\2\2\30\26\3\2\2\2\31\32\b\3\1\2\32\33\7\16\2\2\33\66\3\2\2\2\34\35"+
-		"\f\5\2\2\35\36\7\4\2\2\36\65\5\4\3\6\37 \f\4\2\2 !\7\b\2\2!\65\5\4\3\5"+
-		"\"#\f\13\2\2#$\7\t\2\2$\65\5\b\5\2%&\f\n\2\2&\'\7\3\2\2\'\65\5\b\5\2("+
-		")\f\t\2\2)*\7\f\2\2*\65\5\b\5\2+,\f\b\2\2,-\7\7\2\2-\65\5\b\5\2./\f\7"+
-		"\2\2/\60\7\n\2\2\60\65\5\6\4\2\61\62\f\6\2\2\62\63\7\6\2\2\63\65\5\6\4"+
-		"\2\64\34\3\2\2\2\64\37\3\2\2\2\64\"\3\2\2\2\64%\3\2\2\2\64(\3\2\2\2\64"+
-		"+\3\2\2\2\64.\3\2\2\2\64\61\3\2\2\2\658\3\2\2\2\66\64\3\2\2\2\66\67\3"+
-		"\2\2\2\67\5\3\2\2\28\66\3\2\2\29<\5\b\5\2:<\7\r\2\2;9\3\2\2\2;:\3\2\2"+
-		"\2<\7\3\2\2\2=@\7\17\2\2>@\7\20\2\2?=\3\2\2\2?>\3\2\2\2@\t\3\2\2\2\b\20"+
-		"\26\64\66;?";
+		"\2\f\2\16\2\30\13\2\3\3\3\3\3\3\3\3\3\3\3\3\5\3 \n\3\3\3\3\3\3\3\3\3\3"+
+		"\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3"+
+		"\3\3\3\3\7\3:\n\3\f\3\16\3=\13\3\3\4\3\4\5\4A\n\4\3\5\3\5\5\5E\n\5\3\5"+
+		"\2\4\2\4\6\2\4\6\b\2\2P\2\20\3\2\2\2\4\37\3\2\2\2\6@\3\2\2\2\bD\3\2\2"+
+		"\2\n\13\b\2\1\2\13\f\7\5\2\2\f\21\5\4\3\2\r\16\7\r\2\2\16\21\5\4\3\2\17"+
+		"\21\7\23\2\2\20\n\3\2\2\2\20\r\3\2\2\2\20\17\3\2\2\2\21\26\3\2\2\2\22"+
+		"\23\f\6\2\2\23\25\7\23\2\2\24\22\3\2\2\2\25\30\3\2\2\2\26\24\3\2\2\2\26"+
+		"\27\3\2\2\2\27\3\3\2\2\2\30\26\3\2\2\2\31\32\b\3\1\2\32 \7\20\2\2\33\34"+
+		"\7\6\2\2\34\35\5\4\3\2\35\36\7\b\2\2\36 \3\2\2\2\37\31\3\2\2\2\37\33\3"+
+		"\2\2\2 ;\3\2\2\2!\"\f\6\2\2\"#\7\4\2\2#:\5\4\3\7$%\f\5\2\2%&\7\n\2\2&"+
+		":\5\4\3\6\'(\f\f\2\2()\7\13\2\2):\5\b\5\2*+\f\13\2\2+,\7\3\2\2,:\5\b\5"+
+		"\2-.\f\n\2\2./\7\16\2\2/:\5\b\5\2\60\61\f\t\2\2\61\62\7\t\2\2\62:\5\b"+
+		"\5\2\63\64\f\b\2\2\64\65\7\f\2\2\65:\5\6\4\2\66\67\f\7\2\2\678\7\7\2\2"+
+		"8:\5\6\4\29!\3\2\2\29$\3\2\2\29\'\3\2\2\29*\3\2\2\29-\3\2\2\29\60\3\2"+
+		"\2\29\63\3\2\2\29\66\3\2\2\2:=\3\2\2\2;9\3\2\2\2;<\3\2\2\2<\5\3\2\2\2"+
+		"=;\3\2\2\2>A\5\b\5\2?A\7\17\2\2@>\3\2\2\2@?\3\2\2\2A\7\3\2\2\2BE\7\21"+
+		"\2\2CE\7\22\2\2DB\3\2\2\2DC\3\2\2\2E\t\3\2\2\2\t\20\26\379;@D";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

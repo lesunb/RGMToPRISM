@@ -173,6 +173,19 @@ public class CtxRegexBaseListener implements CtxRegexListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterCParens(@NotNull CtxRegexParser.CParensContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCParens(@NotNull CtxRegexParser.CParensContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterCAnd(@NotNull CtxRegexParser.CAndContext ctx) { }
 	/**
 	 * {@inheritDoc}

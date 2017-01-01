@@ -135,49 +135,46 @@ public class RTGoreProducer {
 		
 		long startTime = new Date().getTime();
 		
-		try{
-			for( Actor a : allActors ) {
-				if(!a.isIsSystem())
-					return;
-				
-				ATCConsole.println( "Generating DTMC model for: " + a.getName() );
-				
-				//generate the AgentDefinition object for the current actor
-				AgentDefinition ad = new AgentDefinition( a );
-				
-				// analyse all root goals
-				for( FHardGoal rootgoal : tn.getRootGoals(a) ) {
-					Const type, request;
-					
-					if( tn.isDelegated(rootgoal) ) {
-						type = Const.ACHIEVE;
-						request=Const.REQUEST;
-					} else {
-						// type=Const.MAINTAIN;					
-						//TODO:  For now only achieve is implemented, this has to be a maintain-goal!
-						type = Const.ACHIEVE; 
-						request = Const.NONE;
-					}
-					
-					//create the goalcontainer for this one
-					GoalContainer gc = ad.createGoal(rootgoal, type);
-					gc.setRequest(request);
-					
-					//add to the root goal list
-					ad.addRootGoal(gc);
-					addGoal(rootgoal, gc, ad, false);
-									
-				}		
-				//TODO: check this planlist creation, maybe it can be added on the fly
-				//the list of root plans for current agent' capabilities
-				List<Plan> planList = tn.getAllCapabilityPlan( a );
-				
-				// write the DTMC PRISM file to the output folder given the template input folder
-				PrismWriter writer = new DTMCWriter( ad, planList, inputFolder, outputFolder, parametric);
-				writer.writeModel();
-			}
-		}catch(Exception e) {
-			ATCConsole.println( "Error creating DTMC model: " + e.getMessage());
+
+		for( Actor a : allActors ) {
+			if(!a.isIsSystem())
+				return;
+
+			ATCConsole.println( "Generating DTMC model for: " + a.getName() );
+
+			//generate the AgentDefinition object for the current actor
+			AgentDefinition ad = new AgentDefinition( a );
+
+			// analyse all root goals
+			for( FHardGoal rootgoal : tn.getRootGoals(a) ) {
+				Const type, request;
+
+				if( tn.isDelegated(rootgoal) ) {
+					type = Const.ACHIEVE;
+					request=Const.REQUEST;
+				} else {
+					// type=Const.MAINTAIN;					
+					//TODO:  For now only achieve is implemented, this has to be a maintain-goal!
+					type = Const.ACHIEVE; 
+					request = Const.NONE;
+				}
+
+				//create the goalcontainer for this one
+				GoalContainer gc = ad.createGoal(rootgoal, type);
+				gc.setRequest(request);
+
+				//add to the root goal list
+				ad.addRootGoal(gc);
+				addGoal(rootgoal, gc, ad, false);
+
+			}		
+			//TODO: check this planlist creation, maybe it can be added on the fly
+			//the list of root plans for current agent' capabilities
+			List<Plan> planList = tn.getAllCapabilityPlan( a );
+
+			// write the DTMC PRISM file to the output folder given the template input folder
+			PrismWriter writer = new DTMCWriter( ad, planList, inputFolder, outputFolder, parametric);
+			writer.writeModel();
 		}
 		ATCConsole.println( "DTMC model created in " + (new Date().getTime() - startTime) + "ms.");
 	}

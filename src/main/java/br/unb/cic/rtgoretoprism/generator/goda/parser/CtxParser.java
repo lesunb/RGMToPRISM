@@ -35,6 +35,7 @@ import br.unb.cic.CtxRegexParser.ConditionContext;
 import br.unb.cic.CtxRegexParser.PrintExprContext;
 import br.unb.cic.CtxRegexParser.TriggerContext;
 import br.unb.cic.ThrowingErrorListener;
+import br.unb.cic.rtgoretoprism.console.ATCConsole;
 import br.unb.cic.rtgoretoprism.model.ctx.ContextCondition;
 import br.unb.cic.rtgoretoprism.model.ctx.CtxSymbols;
 
@@ -50,9 +51,9 @@ public class CtxParser{
 	
 	public static Object[] parseRegex(String regex) throws IOException, ParseCancellationException {
 		//Reading the DSL script
-	    InputStream is = new ByteArrayInputStream((regex + '\n').getBytes("UTF-8"));
+InputStream is = new ByteArrayInputStream((regex + '\n').getBytes("UTF-8"));
 	    
-	    //Loading the DSL script into the ANTLR stream.
+	    //Loading the DSL  into the ANTLR stream.
 	    CharStream cs = new ANTLRInputStream(is);
 	    
 	    //Passing the input to the lexer to create tokens
@@ -64,7 +65,8 @@ public class CtxParser{
 	    
 	    //Passing the tokens to the parser to create the parse trea. 
 	    CtxRegexParser parser = new CtxRegexParser(tokens);
-	    
+	    parser.removeErrorListeners();
+	    parser.addErrorListener(ThrowingErrorListener.INSTANCE);
 	    //Semantic model to be populated
 	    //Graph g = new Graph();
 	    
@@ -81,6 +83,9 @@ public class CtxParser{
 	    
 	    ParseTree tree = parser.ctx();
 	    CtxFormulaParserVisitor CtxRegexVisitor = new CtxFormulaParserVisitor();
+	    //rtRegexVisitor.visit(tree);
+	    
+	    
 	    return new Object[]{CtxRegexVisitor.memory, CtxRegexVisitor.visit(tree), CtxRegexVisitor.type};
 	    
 	    //return new Object [] 	{CtxRegexVisitor.memory};
@@ -112,6 +117,10 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 	
 	@Override
 	public String visitCVar(CVarContext ctx) {
+		
+		/*if(ctx.VAR() == null){
+			return null;
+		}*/
 		String var = ctx.VAR().getText();
 		
 		if(ctx.getParent() instanceof CAndContext ||
@@ -133,16 +142,13 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 	public String visitCEQ(CEQContext ctx) {
 		String var = visit(ctx.expr());
 		String value = ctx.value().getChild(0).getText();
-		CtxSymbols type = null;
+		CtxSymbols type = checkTypeVar(var, value);
+/*		CtxSymbols type = null;
 		try {
 			type = checkTypeVar(var, value);
 		} catch (Exception e) {
-			return null;
-		}
-		/*if(!ctxVars.contains(var)){
-			type = checkTypeVar(var, value);
+			ATCConsole.println( "Error creating DTMC model.");
 		}*/
-		//String value = visit(ctx.expr(1));
 		memory.add(new ContextCondition(var, CtxSymbols.EQ,  type, value));
 		return var + " = " + value;
 	}
@@ -151,22 +157,24 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 	public String visitCDIFF(CDIFFContext ctx) {
 		String var = visit(ctx.expr());
 		String value = ctx.value().getChild(0).getText();
-		CtxSymbols type = null;
+		CtxSymbols type = checkTypeVar(var, value);
+/*		CtxSymbols type = null;
 		try {
 			type = checkTypeVar(var, value);
 		} catch (Exception e) {
-			return null;
-		}
+			ATCConsole.println( "Error creating DTMC model.");
+		}*/
 		memory.add(new ContextCondition(var, CtxSymbols.DIFF, type, value));
 		return var + " != " + value;
 	}
 	
-	private CtxSymbols checkTypeVar(String var, String value) throws Exception {
+	private CtxSymbols checkTypeVar(String var, String value) /*throws Exception*/ {
+
+		/*if (value == null || var == null) {
+			throw new Exception();
+		}*/
 		if(ctxVars.contains(var)){
 			return CtxSymbols.BOOL;
-		}
-		else if (value == null) {
-			throw new Exception();
 		}
 		else if(value.equals("true") || value.equals("false")){
 			ctxVars.add(new String[]{var, "bool"});
@@ -184,12 +192,13 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 	public String visitCLE(CLEContext ctx) {
 		String var = visit(ctx.expr());
 		String value = visit(ctx.num());
-		CtxSymbols type = null;
+		CtxSymbols type = checkTypeVar(var, value);
+/*		CtxSymbols type = null;
 		try {
 			type = checkTypeVar(var, value);
 		} catch (Exception e) {
-			return null;
-		}
+			ATCConsole.println( "Error creating DTMC model.");
+		}*/
 		memory.add(new ContextCondition(var, CtxSymbols.LE, type, value));
 		return var + " <= " + value;
 	}
@@ -198,12 +207,13 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 	public String visitCLT(CLTContext ctx) {
 		String var = visit(ctx.expr());
 		String value = visit(ctx.num());
-		CtxSymbols type = null;
+		CtxSymbols type = checkTypeVar(var, value);
+/*		CtxSymbols type = null;
 		try {
 			type = checkTypeVar(var, value);
 		} catch (Exception e) {
-			return null;
-		}
+			ATCConsole.println( "Error creating DTMC model.");
+		}*/
 		memory.add(new ContextCondition(var, CtxSymbols.LT, type, value));
 		return var + " < " + value;
 	}
@@ -212,13 +222,13 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 	public String visitCGE(CGEContext ctx) {
 		String var = visit(ctx.expr());
 		String value = visit(ctx.num());
-		CtxSymbols type = null;
+		CtxSymbols type = checkTypeVar(var, value);
+/*		CtxSymbols type = null;
 		try {
 			type = checkTypeVar(var, value);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			ATCConsole.println( "Error creating DTMC model.");
+		}*/
 		memory.add(new ContextCondition(var, CtxSymbols.GE, type, value));
 		return var + " >= " + value;
 	}
@@ -227,13 +237,13 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 	public String visitCGT(CGTContext ctx) {
 		String var = visit(ctx.expr());
 		String value = visit(ctx.num());
-		CtxSymbols type = null;
+		CtxSymbols type = checkTypeVar(var, value);
+/*		CtxSymbols type = null;
 		try {
 			type = checkTypeVar(var, value);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			ATCConsole.println( "Error creating DTMC model.");
+		}*/
 		memory.add(new ContextCondition(var, CtxSymbols.GT, type, value));
 		return var + " > " + value;
 	}

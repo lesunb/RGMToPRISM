@@ -165,6 +165,19 @@ public interface CtxRegexListener extends ParseTreeListener {
 	void exitCondition(@NotNull CtxRegexParser.ConditionContext ctx);
 
 	/**
+	 * Enter a parse tree produced by the {@code cParens}
+	 * labeled alternative in {@link CtxRegexParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterCParens(@NotNull CtxRegexParser.CParensContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code cParens}
+	 * labeled alternative in {@link CtxRegexParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitCParens(@NotNull CtxRegexParser.CParensContext ctx);
+
+	/**
 	 * Enter a parse tree produced by the {@code cAnd}
 	 * labeled alternative in {@link CtxRegexParser#expr}.
 	 * @param ctx the parse tree

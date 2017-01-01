@@ -108,6 +108,14 @@ public interface CtxRegexVisitor<T> extends ParseTreeVisitor<T> {
 	T visitCondition(@NotNull CtxRegexParser.ConditionContext ctx);
 
 	/**
+	 * Visit a parse tree produced by the {@code cParens}
+	 * labeled alternative in {@link CtxRegexParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCParens(@NotNull CtxRegexParser.CParensContext ctx);
+
+	/**
 	 * Visit a parse tree produced by the {@code cAnd}
 	 * labeled alternative in {@link CtxRegexParser#expr}.
 	 * @param ctx the parse tree
