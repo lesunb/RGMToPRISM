@@ -18,7 +18,7 @@ public class RTRegexParser extends Parser {
 		new PredictionContextCache();
 	public static final int
 		T__5=1, T__4=2, T__3=3, T__2=4, T__1=5, T__0=6, FLOAT=7, SEQ=8, INT=9, 
-		C_SEQ=10, C_INT=11, C_RTRY=12, ALT=13, TASK=14, GOAL=15, SKIP=16, NEWLINE=17, 
+		C_SEQ=10, C_INT=11, C_RTRY=12, ALT=13, TASK=14, GOAL=15, SKIPP=16, NEWLINE=17, 
 		WS=18;
 	public static final String[] tokenNames = {
 		"<INVALID>", "'try('", "'opt('", "':'", "'?'", "'('", "')'", "FLOAT", 
@@ -110,7 +110,7 @@ public class RTRegexParser extends Parser {
 			case T__1:
 			case TASK:
 			case GOAL:
-			case SKIP:
+			case SKIPP:
 				_localctx = new PrintExprContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
@@ -211,7 +211,7 @@ public class RTRegexParser extends Parser {
 		}
 	}
 	public static class GSkipContext extends ExprContext {
-		public TerminalNode SKIP() { return getToken(RTRegexParser.SKIP, 0); }
+		public TerminalNode SKIPP() { return getToken(RTRegexParser.SKIPP, 0); }
 		public GSkipContext(ExprContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
@@ -357,12 +357,12 @@ public class RTRegexParser extends Parser {
 				setState(21); expr(0);
 				}
 				break;
-			case SKIP:
+			case SKIPP:
 				{
 				_localctx = new GSkipContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(23); match(SKIP);
+				setState(23); match(SKIPP);
 				}
 				break;
 			case TASK:

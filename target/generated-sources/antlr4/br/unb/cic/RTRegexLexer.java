@@ -18,7 +18,7 @@ public class RTRegexLexer extends Lexer {
 		new PredictionContextCache();
 	public static final int
 		T__5=1, T__4=2, T__3=3, T__2=4, T__1=5, T__0=6, FLOAT=7, SEQ=8, INT=9, 
-		C_SEQ=10, C_INT=11, C_RTRY=12, ALT=13, TASK=14, GOAL=15, SKIP=16, NEWLINE=17, 
+		C_SEQ=10, C_INT=11, C_RTRY=12, ALT=13, TASK=14, GOAL=15, SKIPP=16, NEWLINE=17, 
 		WS=18;
 	public static String[] modeNames = {
 		"DEFAULT_MODE"
@@ -31,7 +31,7 @@ public class RTRegexLexer extends Lexer {
 	};
 	public static final String[] ruleNames = {
 		"T__5", "T__4", "T__3", "T__2", "T__1", "T__0", "FLOAT", "SEQ", "INT", 
-		"C_SEQ", "C_INT", "C_RTRY", "ALT", "TASK", "GOAL", "SKIP", "NEWLINE", 
+		"C_SEQ", "C_INT", "C_RTRY", "ALT", "TASK", "GOAL", "SKIPP", "NEWLINE", 
 		"WS", "DIGIT"
 	};
 

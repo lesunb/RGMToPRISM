@@ -12,6 +12,7 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import br.unb.cic.CtxRegexBaseVisitor;
@@ -33,6 +34,7 @@ import br.unb.cic.CtxRegexParser.CVarContext;
 import br.unb.cic.CtxRegexParser.ConditionContext;
 import br.unb.cic.CtxRegexParser.PrintExprContext;
 import br.unb.cic.CtxRegexParser.TriggerContext;
+import br.unb.cic.ThrowingErrorListener;
 import br.unb.cic.rtgoretoprism.model.ctx.ContextCondition;
 import br.unb.cic.rtgoretoprism.model.ctx.CtxSymbols;
 
@@ -46,7 +48,7 @@ public class CtxParser{
 		}
 	}
 	
-	public static Object[] parseRegex(String regex) throws IOException{
+	public static Object[] parseRegex(String regex) throws IOException, ParseCancellationException {
 		//Reading the DSL script
 	    InputStream is = new ByteArrayInputStream((regex + '\n').getBytes("UTF-8"));
 	    
@@ -131,7 +133,12 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 	public String visitCEQ(CEQContext ctx) {
 		String var = visit(ctx.expr());
 		String value = ctx.value().getChild(0).getText();
-		CtxSymbols type = checkTypeVar(var, value);
+		CtxSymbols type = null;
+		try {
+			type = checkTypeVar(var, value);
+		} catch (Exception e) {
+			return null;
+		}
 		/*if(!ctxVars.contains(var)){
 			type = checkTypeVar(var, value);
 		}*/
@@ -144,16 +151,24 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 	public String visitCDIFF(CDIFFContext ctx) {
 		String var = visit(ctx.expr());
 		String value = ctx.value().getChild(0).getText();
-		CtxSymbols type = checkTypeVar(var, value);
+		CtxSymbols type = null;
+		try {
+			type = checkTypeVar(var, value);
+		} catch (Exception e) {
+			return null;
+		}
 		memory.add(new ContextCondition(var, CtxSymbols.DIFF, type, value));
 		return var + " != " + value;
 	}
 	
-	private CtxSymbols checkTypeVar(String var, String value) {
+	private CtxSymbols checkTypeVar(String var, String value) throws Exception {
 		if(ctxVars.contains(var)){
 			return CtxSymbols.BOOL;
 		}
-		if(value.equals("true") || value.equals("false")){
+		else if (value == null) {
+			throw new Exception();
+		}
+		else if(value.equals("true") || value.equals("false")){
 			ctxVars.add(new String[]{var, "bool"});
 			return CtxSymbols.BOOL;
 		}else if (value.contains(".")){
@@ -169,7 +184,12 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 	public String visitCLE(CLEContext ctx) {
 		String var = visit(ctx.expr());
 		String value = visit(ctx.num());
-		CtxSymbols type = checkTypeVar(var, value);
+		CtxSymbols type = null;
+		try {
+			type = checkTypeVar(var, value);
+		} catch (Exception e) {
+			return null;
+		}
 		memory.add(new ContextCondition(var, CtxSymbols.LE, type, value));
 		return var + " <= " + value;
 	}
@@ -178,7 +198,12 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 	public String visitCLT(CLTContext ctx) {
 		String var = visit(ctx.expr());
 		String value = visit(ctx.num());
-		CtxSymbols type = checkTypeVar(var, value);
+		CtxSymbols type = null;
+		try {
+			type = checkTypeVar(var, value);
+		} catch (Exception e) {
+			return null;
+		}
 		memory.add(new ContextCondition(var, CtxSymbols.LT, type, value));
 		return var + " < " + value;
 	}
@@ -187,7 +212,13 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 	public String visitCGE(CGEContext ctx) {
 		String var = visit(ctx.expr());
 		String value = visit(ctx.num());
-		CtxSymbols type = checkTypeVar(var, value);
+		CtxSymbols type = null;
+		try {
+			type = checkTypeVar(var, value);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		memory.add(new ContextCondition(var, CtxSymbols.GE, type, value));
 		return var + " >= " + value;
 	}
@@ -196,7 +227,13 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 	public String visitCGT(CGTContext ctx) {
 		String var = visit(ctx.expr());
 		String value = visit(ctx.num());
-		CtxSymbols type = checkTypeVar(var, value);
+		CtxSymbols type = null;
+		try {
+			type = checkTypeVar(var, value);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		memory.add(new ContextCondition(var, CtxSymbols.GT, type, value));
 		return var + " > " + value;
 	}
