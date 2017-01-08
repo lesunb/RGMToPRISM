@@ -33,7 +33,7 @@ num:	INT							#cInt
 	;    
 
 BOOL		: ('false'|'true') 					;
-VAR     	: ('a'..'z'|'A'..'Z'|'_')+DIGIT+	;
+VAR     	: ('a'..'z'|'A'..'Z'|'_')+DIGIT*	;
 INT			: DIGIT+							;
 FLOAT		: DIGIT+'.'DIGIT* 					;
 NEWLINE 	: [\r\n]+             				;
