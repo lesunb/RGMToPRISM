@@ -51,7 +51,7 @@ public class CtxParser{
 	
 	public static Object[] parseRegex(String regex) throws IOException, ParseCancellationException {
 		//Reading the DSL script
-InputStream is = new ByteArrayInputStream((regex + '\n').getBytes("UTF-8"));
+		InputStream is = new ByteArrayInputStream((regex + '\n').getBytes("UTF-8"));
 	    
 	    //Loading the DSL  into the ANTLR stream.
 	    CharStream cs = new ANTLRInputStream(is);
@@ -67,28 +67,11 @@ InputStream is = new ByteArrayInputStream((regex + '\n').getBytes("UTF-8"));
 	    CtxRegexParser parser = new CtxRegexParser(tokens);
 	    parser.removeErrorListeners();
 	    parser.addErrorListener(ThrowingErrorListener.INSTANCE);
-	    //Semantic model to be populated
-	    //Graph g = new Graph();
-	    
-	    //Adding the listener to facilitate walking through parse tree. 
-	    //parser.addParseListener(new MyCtxRegexBaseListener());
-	    
-	    //invoking the parser. 
-	    //parser.prog();
-	    
-	    //Graph.printGraph(g);
-	    
-	    //ParseTreeWalker walker = new ParseTreeWalker();
-	    //walker.walk(new MyCtxRegexBaseListener(), parser.prog());
 	    
 	    ParseTree tree = parser.ctx();
 	    CtxFormulaParserVisitor CtxRegexVisitor = new CtxFormulaParserVisitor();
-	    //rtRegexVisitor.visit(tree);
-	    
 	    
 	    return new Object[]{CtxRegexVisitor.memory, CtxRegexVisitor.visit(tree), CtxRegexVisitor.type};
-	    
-	    //return new Object [] 	{CtxRegexVisitor.memory};
 	}
 }
 
@@ -118,9 +101,6 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 	@Override
 	public String visitCVar(CVarContext ctx) {
 		
-		/*if(ctx.VAR() == null){
-			return null;
-		}*/
 		String var = ctx.VAR().getText();
 		
 		if(ctx.getParent() instanceof CAndContext ||
@@ -143,12 +123,7 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 		String var = visit(ctx.expr());
 		String value = ctx.value().getChild(0).getText();
 		CtxSymbols type = checkTypeVar(var, value);
-/*		CtxSymbols type = null;
-		try {
-			type = checkTypeVar(var, value);
-		} catch (Exception e) {
-			ATCConsole.println( "Error creating DTMC model.");
-		}*/
+
 		memory.add(new ContextCondition(var, CtxSymbols.EQ,  type, value));
 		return var + " = " + value;
 	}
@@ -158,21 +133,13 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 		String var = visit(ctx.expr());
 		String value = ctx.value().getChild(0).getText();
 		CtxSymbols type = checkTypeVar(var, value);
-/*		CtxSymbols type = null;
-		try {
-			type = checkTypeVar(var, value);
-		} catch (Exception e) {
-			ATCConsole.println( "Error creating DTMC model.");
-		}*/
+
 		memory.add(new ContextCondition(var, CtxSymbols.DIFF, type, value));
 		return var + " != " + value;
 	}
 	
-	private CtxSymbols checkTypeVar(String var, String value) /*throws Exception*/ {
+	private CtxSymbols checkTypeVar(String var, String value) {
 
-		/*if (value == null || var == null) {
-			throw new Exception();
-		}*/
 		if(ctxVars.contains(var)){
 			return CtxSymbols.BOOL;
 		}
@@ -193,12 +160,7 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 		String var = visit(ctx.expr());
 		String value = visit(ctx.num());
 		CtxSymbols type = checkTypeVar(var, value);
-/*		CtxSymbols type = null;
-		try {
-			type = checkTypeVar(var, value);
-		} catch (Exception e) {
-			ATCConsole.println( "Error creating DTMC model.");
-		}*/
+
 		memory.add(new ContextCondition(var, CtxSymbols.LE, type, value));
 		return var + " <= " + value;
 	}
@@ -208,12 +170,7 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 		String var = visit(ctx.expr());
 		String value = visit(ctx.num());
 		CtxSymbols type = checkTypeVar(var, value);
-/*		CtxSymbols type = null;
-		try {
-			type = checkTypeVar(var, value);
-		} catch (Exception e) {
-			ATCConsole.println( "Error creating DTMC model.");
-		}*/
+
 		memory.add(new ContextCondition(var, CtxSymbols.LT, type, value));
 		return var + " < " + value;
 	}
@@ -223,12 +180,7 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 		String var = visit(ctx.expr());
 		String value = visit(ctx.num());
 		CtxSymbols type = checkTypeVar(var, value);
-/*		CtxSymbols type = null;
-		try {
-			type = checkTypeVar(var, value);
-		} catch (Exception e) {
-			ATCConsole.println( "Error creating DTMC model.");
-		}*/
+
 		memory.add(new ContextCondition(var, CtxSymbols.GE, type, value));
 		return var + " >= " + value;
 	}
@@ -238,12 +190,7 @@ class CtxFormulaParserVisitor extends  CtxRegexBaseVisitor<String> {
 		String var = visit(ctx.expr());
 		String value = visit(ctx.num());
 		CtxSymbols type = checkTypeVar(var, value);
-/*		CtxSymbols type = null;
-		try {
-			type = checkTypeVar(var, value);
-		} catch (Exception e) {
-			ATCConsole.println( "Error creating DTMC model.");
-		}*/
+
 		memory.add(new ContextCondition(var, CtxSymbols.GT, type, value));
 		return var + " > " + value;
 	}
