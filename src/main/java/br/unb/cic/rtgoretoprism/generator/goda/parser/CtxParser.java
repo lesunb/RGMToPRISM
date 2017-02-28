@@ -34,7 +34,6 @@ import br.unb.cic.CtxRegexParser.CVarContext;
 import br.unb.cic.CtxRegexParser.ConditionContext;
 import br.unb.cic.CtxRegexParser.PrintExprContext;
 import br.unb.cic.CtxRegexParser.TriggerContext;
-import br.unb.cic.ThrowingErrorListener;
 import br.unb.cic.rtgoretoprism.console.ATCConsole;
 import br.unb.cic.rtgoretoprism.model.ctx.ContextCondition;
 import br.unb.cic.rtgoretoprism.model.ctx.CtxSymbols;
