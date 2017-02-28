@@ -591,8 +591,17 @@ public class PrismWriter {
 	}
 	
 	private void addCtxVar(List<ContextCondition> ctxs){
-		for(ContextCondition ctxCondition : ctxs)
-			ctxVars.put(ctxCondition.getVar(), ctxCondition.getOp() == CtxSymbols.BOOL ? "bool" : "double");
+		String type;
+		for(ContextCondition ctxCondition : ctxs){
+			if(ctxCondition.getType() == CtxSymbols.BOOL){
+				type = "bool";
+			}else if(ctxCondition.getType() == CtxSymbols.DOUBLE){
+				type = "double";
+			}else{
+				type = "int";
+			}
+			ctxVars.put(ctxCondition.getVar(), type);
+		}
 	}
 	
 	private void processPlanFormula(PlanContainer plan, StringBuilder planFormula, Const decType) throws IOException{

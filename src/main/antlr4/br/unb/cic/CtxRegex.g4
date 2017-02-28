@@ -1,29 +1,43 @@
 grammar CtxRegex;
+
+@rulecatch {
+   catch (RecognitionException e) {
+    throw e;
+   }
+}
+
 ctx:	ctx NEWLINE					# printExpr
 	|	'assertion condition 'expr 	# condition
 	|	'assertion trigger 'expr 	# trigger
 	|	NEWLINE                     # blank
 	;
 
-expr:	expr op='<' expr			# cLT
-    |	expr op='<=' expr			# cLE
-    |	expr op='>' expr			# cGT
-    |	expr op='>=' expr			# cGE        
-	|	expr op='=' expr			# cEQ
-	|	expr op='!=' expr			# cDIFF
+expr:	expr op='<' num				# cLT
+    |	expr op='<=' num			# cLE
+    |	expr op='>' num				# cGT
+    |	expr op='>=' num			# cGE        
+	|	expr op='=' value			# cEQ
+	|	expr op='!=' value			# cDIFF
 	|	expr op='&' expr			# cAnd
-	|	expr op='|' expr			# cOr	
-	|	BOOL						# cBool  
-    |   VAR                         # cVar
-    |   FLOAT						# cFloat
-    |   '(' expr ')'                # cParens
-    ;
+	|	expr op='|' expr			# cOr
+	|	VAR							# cVar
+	|   '(' expr ')'                # cParens
+	;
 
-BOOL		: [false|true] 					;
-VAR     	: ('a'..'z'|'A'..'Z'|'_')+DIGIT	;
-FLOAT		: DIGIT+'.'?DIGIT* 				;
-NEWLINE 	: [\r\n]+             			;
-WS	        : (' '|'\t')+ -> skip 			;
+value:	num							# cNum
+	|	BOOL						# cBool
+	;
+
+num:	INT							#cInt
+	|	FLOAT						#cFloat
+	;    
+
+BOOL		: ('false'|'true') 					;
+VAR     	: ('a'..'z'|'A'..'Z'|'_')+DIGIT*	;
+INT			: DIGIT+							;
+FLOAT		: DIGIT+'.'DIGIT* 					;
+NEWLINE 	: [\r\n]+             				;
+WS	        : (' '|'\t')+ -> skip 				;
 
 fragment
 DIGIT		: [0-9]							;
