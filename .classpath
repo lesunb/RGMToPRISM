@@ -37,6 +37,6 @@
 	<classpathentry kind="var" path="M2_REPO/org/antlr/antlr-runtime/3.5.2/antlr-runtime-3.5.2.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/antlr/ST4/4.0.8/ST4-4.0.8.jar"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry kind="lib" path="/Users/gabrielasolano/Downloads/antlr-4.5.3-complete.jar"/>
+	<classpathentry kind="lib" path="lib/antlr-4.5.3-complete.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
