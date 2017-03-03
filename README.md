@@ -25,6 +25,9 @@ PDE ( Plug-in Development Environment (PDE) )
  * Patch Taom4e Plugin:
   In order to succesfull run the RGMToPRISM you need to patch Taom4e plugin. Do it by as follow:
    Replace the taom4eplatform.jar present in your <eclipse folder>/plugins/it.itc.sra.taom4e.platform_0.6.3.1 by the one in RGMToPRISM/lib .
+  
+ * Update dependencies:
+  At the project root folder, use: mvn install
 
 
 ## Import RGMToPRISM project to eclipse
