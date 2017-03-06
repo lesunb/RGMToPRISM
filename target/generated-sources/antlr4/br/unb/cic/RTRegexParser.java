@@ -18,10 +18,10 @@ public class RTRegexParser extends Parser {
 		new PredictionContextCache();
 	public static final int
 		T__5=1, T__4=2, T__3=3, T__2=4, T__1=5, T__0=6, FLOAT=7, SEQ=8, INT=9, 
-		C_SEQ=10, C_INT=11, C_RTRY=12, ALT=13, TASK=14, GOAL=15, SKIP=16, NEWLINE=17, 
+		C_SEQ=10, C_INT=11, C_RTRY=12, ALT=13, TASK=14, GOAL=15, SKIPP=16, NEWLINE=17, 
 		WS=18;
 	public static final String[] tokenNames = {
-		"<INVALID>", "'try('", "')'", "':'", "'('", "'?'", "'opt('", "FLOAT", 
+		"<INVALID>", "'try('", "'opt('", "':'", "'?'", "'('", "')'", "FLOAT", 
 		"';'", "'#'", "'+'", "'%'", "'@'", "'|'", "'T'", "'G'", "'skip'", "NEWLINE", 
 		"WS"
 	};
@@ -79,10 +79,10 @@ public class RTRegexParser extends Parser {
 		}
 	}
 	public static class PrintExprContext extends RtContext {
-		public TerminalNode NEWLINE() { return getToken(RTRegexParser.NEWLINE, 0); }
 		public ExprContext expr() {
 			return getRuleContext(ExprContext.class,0);
 		}
+		public TerminalNode NEWLINE() { return getToken(RTRegexParser.NEWLINE, 0); }
 		public PrintExprContext(RtContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
@@ -106,11 +106,11 @@ public class RTRegexParser extends Parser {
 			setState(8);
 			switch (_input.LA(1)) {
 			case T__5:
-			case T__2:
-			case T__0:
+			case T__4:
+			case T__1:
 			case TASK:
 			case GOAL:
-			case SKIP:
+			case SKIPP:
 				_localctx = new PrintExprContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
@@ -151,64 +151,6 @@ public class RTRegexParser extends Parser {
 			super.copyFrom(ctx);
 		}
 	}
-	public static class GIdContext extends ExprContext {
-		public Token t;
-		public TerminalNode FLOAT() { return getToken(RTRegexParser.FLOAT, 0); }
-		public GIdContext(ExprContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof RTRegexListener ) ((RTRegexListener)listener).enterGId(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof RTRegexListener ) ((RTRegexListener)listener).exitGId(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof RTRegexVisitor ) return ((RTRegexVisitor<? extends T>)visitor).visitGId(this);
-			else return visitor.visitChildren(this);
-		}
-	}
-	public static class GCardContext extends ExprContext {
-		public Token op;
-		public TerminalNode FLOAT() { return getToken(RTRegexParser.FLOAT, 0); }
-		public ExprContext expr() {
-			return getRuleContext(ExprContext.class,0);
-		}
-		public GCardContext(ExprContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof RTRegexListener ) ((RTRegexListener)listener).enterGCard(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof RTRegexListener ) ((RTRegexListener)listener).exitGCard(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof RTRegexVisitor ) return ((RTRegexVisitor<? extends T>)visitor).visitGCard(this);
-			else return visitor.visitChildren(this);
-		}
-	}
-	public static class GOptContext extends ExprContext {
-		public ExprContext expr() {
-			return getRuleContext(ExprContext.class,0);
-		}
-		public GOptContext(ExprContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof RTRegexListener ) ((RTRegexListener)listener).enterGOpt(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof RTRegexListener ) ((RTRegexListener)listener).exitGOpt(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof RTRegexVisitor ) return ((RTRegexVisitor<? extends T>)visitor).visitGOpt(this);
-			else return visitor.visitChildren(this);
-		}
-	}
 	public static class ParensContext extends ExprContext {
 		public ExprContext expr() {
 			return getRuleContext(ExprContext.class,0);
@@ -225,6 +167,24 @@ public class RTRegexParser extends Parser {
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof RTRegexVisitor ) return ((RTRegexVisitor<? extends T>)visitor).visitParens(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class GIdContext extends ExprContext {
+		public Token t;
+		public TerminalNode FLOAT() { return getToken(RTRegexParser.FLOAT, 0); }
+		public GIdContext(ExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof RTRegexListener ) ((RTRegexListener)listener).enterGId(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof RTRegexListener ) ((RTRegexListener)listener).exitGId(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof RTRegexVisitor ) return ((RTRegexVisitor<? extends T>)visitor).visitGId(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -247,6 +207,23 @@ public class RTRegexParser extends Parser {
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof RTRegexVisitor ) return ((RTRegexVisitor<? extends T>)visitor).visitGTry(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class GSkipContext extends ExprContext {
+		public TerminalNode SKIPP() { return getToken(RTRegexParser.SKIPP, 0); }
+		public GSkipContext(ExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof RTRegexListener ) ((RTRegexListener)listener).enterGSkip(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof RTRegexListener ) ((RTRegexListener)listener).exitGSkip(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof RTRegexVisitor ) return ((RTRegexVisitor<? extends T>)visitor).visitGSkip(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -273,6 +250,46 @@ public class RTRegexParser extends Parser {
 			else return visitor.visitChildren(this);
 		}
 	}
+	public static class GOptContext extends ExprContext {
+		public ExprContext expr() {
+			return getRuleContext(ExprContext.class,0);
+		}
+		public GOptContext(ExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof RTRegexListener ) ((RTRegexListener)listener).enterGOpt(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof RTRegexListener ) ((RTRegexListener)listener).exitGOpt(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof RTRegexVisitor ) return ((RTRegexVisitor<? extends T>)visitor).visitGOpt(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class GCardContext extends ExprContext {
+		public Token op;
+		public ExprContext expr() {
+			return getRuleContext(ExprContext.class,0);
+		}
+		public TerminalNode FLOAT() { return getToken(RTRegexParser.FLOAT, 0); }
+		public GCardContext(ExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof RTRegexListener ) ((RTRegexListener)listener).enterGCard(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof RTRegexListener ) ((RTRegexListener)listener).exitGCard(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof RTRegexVisitor ) return ((RTRegexVisitor<? extends T>)visitor).visitGCard(this);
+			else return visitor.visitChildren(this);
+		}
+	}
 	public static class GAltContext extends ExprContext {
 		public Token op;
 		public List<ExprContext> expr() {
@@ -296,23 +313,6 @@ public class RTRegexParser extends Parser {
 			else return visitor.visitChildren(this);
 		}
 	}
-	public static class GSkipContext extends ExprContext {
-		public TerminalNode SKIP() { return getToken(RTRegexParser.SKIP, 0); }
-		public GSkipContext(ExprContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof RTRegexListener ) ((RTRegexListener)listener).enterGSkip(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof RTRegexListener ) ((RTRegexListener)listener).exitGSkip(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof RTRegexVisitor ) return ((RTRegexVisitor<? extends T>)visitor).visitGSkip(this);
-			else return visitor.visitChildren(this);
-		}
-	}
 
 	public final ExprContext expr() throws RecognitionException {
 		return expr(0);
@@ -332,15 +332,15 @@ public class RTRegexParser extends Parser {
 			{
 			setState(30);
 			switch (_input.LA(1)) {
-			case T__0:
+			case T__4:
 				{
 				_localctx = new GOptContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
 
-				setState(11); match(T__0);
+				setState(11); match(T__4);
 				setState(12); expr(0);
-				setState(13); match(T__4);
+				setState(13); match(T__0);
 				}
 				break;
 			case T__5:
@@ -350,19 +350,19 @@ public class RTRegexParser extends Parser {
 				_prevctx = _localctx;
 				setState(15); match(T__5);
 				setState(16); expr(0);
-				setState(17); match(T__4);
-				setState(18); match(T__1);
+				setState(17); match(T__0);
+				setState(18); match(T__2);
 				setState(19); expr(0);
 				setState(20); match(T__3);
 				setState(21); expr(0);
 				}
 				break;
-			case SKIP:
+			case SKIPP:
 				{
 				_localctx = new GSkipContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(23); match(SKIP);
+				setState(23); match(SKIPP);
 				}
 				break;
 			case TASK:
@@ -381,14 +381,14 @@ public class RTRegexParser extends Parser {
 				setState(25); match(FLOAT);
 				}
 				break;
-			case T__2:
+			case T__1:
 				{
 				_localctx = new ParensContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(26); match(T__2);
+				setState(26); match(T__1);
 				setState(27); expr(0);
-				setState(28); match(T__4);
+				setState(28); match(T__0);
 				}
 				break;
 			default:
@@ -493,10 +493,10 @@ public class RTRegexParser extends Parser {
 		"\3\3\3\3\3\3\3\3\3\7\3,\n\3\f\3\16\3/\13\3\3\3\2\3\4\4\2\4\2\5\3\2\20"+
 		"\21\3\2\n\13\3\2\f\16\66\2\n\3\2\2\2\4 \3\2\2\2\6\7\5\4\3\2\7\b\7\23\2"+
 		"\2\b\13\3\2\2\2\t\13\7\23\2\2\n\6\3\2\2\2\n\t\3\2\2\2\13\3\3\2\2\2\f\r"+
-		"\b\3\1\2\r\16\7\b\2\2\16\17\5\4\3\2\17\20\7\4\2\2\20!\3\2\2\2\21\22\7"+
-		"\3\2\2\22\23\5\4\3\2\23\24\7\4\2\2\24\25\7\7\2\2\25\26\5\4\3\2\26\27\7"+
+		"\b\3\1\2\r\16\7\4\2\2\16\17\5\4\3\2\17\20\7\b\2\2\20!\3\2\2\2\21\22\7"+
+		"\3\2\2\22\23\5\4\3\2\23\24\7\b\2\2\24\25\7\6\2\2\25\26\5\4\3\2\26\27\7"+
 		"\5\2\2\27\30\5\4\3\2\30!\3\2\2\2\31!\7\22\2\2\32\33\t\2\2\2\33!\7\t\2"+
-		"\2\34\35\7\6\2\2\35\36\5\4\3\2\36\37\7\4\2\2\37!\3\2\2\2 \f\3\2\2\2 \21"+
+		"\2\34\35\7\7\2\2\35\36\5\4\3\2\36\37\7\b\2\2\37!\3\2\2\2 \f\3\2\2\2 \21"+
 		"\3\2\2\2 \31\3\2\2\2 \32\3\2\2\2 \34\3\2\2\2!-\3\2\2\2\"#\f\t\2\2#$\7"+
 		"\17\2\2$,\5\4\3\n%&\f\6\2\2&\'\t\3\2\2\',\5\4\3\7()\f\n\2\2)*\t\4\2\2"+
 		"*,\7\t\2\2+\"\3\2\2\2+%\3\2\2\2+(\3\2\2\2,/\3\2\2\2-+\3\2\2\2-.\3\2\2"+
