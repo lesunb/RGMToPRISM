@@ -1,0 +1,35 @@
+	<goals>
+		<!-- default values: metalevelreasoning enabled, exclude when tried. -->
+$GOALS
+		
+		<!-- The meta-level goals for choosing between plans (and goals). -->
+$METAGOALS
+	</goals>
+
+	<plans>
+		<!-- Initial plans for handling message requests. They have the task to
+			create appropriate subgoals. They use waitqueues to store
+ 			message events that arrived during the plan was busy. -->
+$REQUESTPLANS
+		
+		<plan name="informChangePlan">
+			<body>new InformChangePlan()</body>
+			<trigger>
+				<messageevent ref="inform_ChangeEnv"/>
+			</trigger>
+		</plan>
+		
+		<!-- Plans triggered by a parent goal, used to dispatch a child goal. -->
+$DISPATCHPLANS
+
+		<!-- Plans associated to an AND-decomposed goal, used to dispatch all subgoals in sequence. -->
+$DISPATCHANDPLANS
+		
+		<!-- Meta-Plans associated to their Metagoals, used to chose between alternative Plans 
+			(and so between goals)-->
+$METAPLANS
+			
+		<!-- Real Plans that hold the activity part of a capability and "do" the requested things. -->
+$REALPLANS
+				
+	</plans>

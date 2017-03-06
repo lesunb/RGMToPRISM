@@ -1,0 +1,6 @@
+		<plan name="requestPlan_$NAME">
+			<body>new GoalRequestPlan("$NAME")</body>
+			<trigger>
+				<messageevent ref="request_$NAME"/>
+			</trigger>
+		</plan>

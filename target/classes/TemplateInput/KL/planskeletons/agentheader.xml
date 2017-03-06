@@ -1,0 +1,39 @@
+<!--
+	Automatic implementation of Tropos goal diagrams to Jadex.
+	"T2X" Author: Mirko Morandini, ITC-irsT / University of Trento (I), 2006 
+	Auto-generated file, please change it to your needs.
+-->
+<agent xmlns="http://jadex.sourceforge.net/jadex"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://jadex.sourceforge.net/jadex 
+	                    http://jadex.sourceforge.net/jadex-0.96.xsd"
+	name="$NAME"
+	package="$PACKAGE">
+
+	<imports>
+		<import>jadex.util.*</import>
+		<import>jadex.adapter.fipa.*</import>
+		<import>jadex.runtime.*</import>
+		<import>java.util.logging.*</import>
+		<import>$BDI_PLAN_PACKAGE.*</import>
+		<import>$UTIL_PACKAGE.plans.*</import>
+		<import>$UTIL_PACKAGE.components.*</import>
+	</imports>
+
+	<beliefs>
+		<!-- The belief contains the tropos hierarchy as facts. -->
+		<beliefset name="goals" class="TGoal">
+$BBGOALS		</beliefset>
+		<beliefset name="softgoals" class="TSoftgoal">
+$BBSOFTGOALS		</beliefset>
+		<beliefset name="decomp" class="TLink">
+$DECOMP		</beliefset>
+		<beliefset name="meansend" class="TLink">
+$MEANSEND		</beliefset>
+		<beliefset name="contributions" class="TContrib">
+$CONTRIB		</beliefset>
+		<beliefset name="dependencies" class="TDependency">
+			<!--TDependency: 'why'-Goal(must be AND-decomposed), Dependum, Dependee -->
+$DEPENDENCIES		</beliefset>
+		<!--$RESOURCES-->
+	</beliefs>

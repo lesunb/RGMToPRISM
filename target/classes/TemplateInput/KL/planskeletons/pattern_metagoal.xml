@@ -1,0 +1,7 @@
+		<metagoal name="meta_$NAME">
+			<parameterset name="applicables" class="ICandidateInfo"/>
+			<parameterset name="result" class="ICandidateInfo" direction="out"/>
+			<trigger>
+				<goal ref="$NAME"/>
+			</trigger>
+		</metagoal>

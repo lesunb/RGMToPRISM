@@ -1,0 +1,4 @@
+		<achievegoal name="$NAME">
+			<parameter name="param" class="String"/>
+			<parameter name="result" class="String" direction="out"/>
+		</achievegoal>
