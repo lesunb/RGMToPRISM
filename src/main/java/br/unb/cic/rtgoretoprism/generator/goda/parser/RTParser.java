@@ -63,7 +63,6 @@ public class RTParser{
 	    ParseTree tree = parser.rt();
 	    CustomRTRegexVisitor rtRegexVisitor = new CustomRTRegexVisitor(uid);
 	    rtRegexVisitor.visit(tree);
-	    
 	    return new Object [] 	{rtRegexVisitor.timeMemory, 
 	    						rtRegexVisitor.cardMemory, 
 	    						rtRegexVisitor.altMemory,
@@ -113,8 +112,9 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 			Boolean [] pathTimeB = timeMemory.get(gidB);			
 			if(ctx.op.getType() == RTRegexParser.INT){
 				pathTimeB[0] = true;
-			}else if(ctx.op.getType() == RTRegexParser.SEQ)
+			}else if(ctx.op.getType() == RTRegexParser.SEQ){
 				pathTimeB[1] = true;
+			}
 		}
 		return gidAo + '-' + gidBo;
 	}
