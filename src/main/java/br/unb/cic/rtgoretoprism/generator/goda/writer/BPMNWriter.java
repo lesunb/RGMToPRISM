@@ -58,7 +58,7 @@ public class BPMNWriter{
 	}
 
 	public void end(RTContainer n){
-		System.out.println(n.getName());
+		System.out.println(getName_noRT(n.getName()));
 		System.out.println("[[Terminal_Event]]");	
 		System.out.println("======== "+ a.getName() + " ========");	
 		System.out.println( "\n=> BPMN created!");
@@ -91,7 +91,7 @@ public class BPMNWriter{
 
 	public void get_ctx(RTContainer n, int ctx){ //print context condition
 		int index = n.getFulfillmentConditions().size()-1;
-		System.out.print("<< Exclusive_Gateway : ");
+		System.out.print("<< Exclusive_Gateway_ctx : ");
 		for(int i=0;i<n.getFulfillmentConditions().size()-1-ctx;i++)
 			System.out.print("(" + n.getFulfillmentConditions().get(i).substring(n.getFulfillmentConditions().get(i).indexOf("assertion")+10, n.getFulfillmentConditions().get(i).length()) + "?);");
 		System.out.print("(" + n.getFulfillmentConditions().get(index-ctx).substring(n.getFulfillmentConditions().get(index-ctx).indexOf("assertion")+10, n.getFulfillmentConditions().get(index-ctx).length()) + "?)");
@@ -128,21 +128,35 @@ public class BPMNWriter{
 				return a.getDecompPlans().get(element); 
 	}
 	
-	public String take_last(RTContainer n){ //takes the last node inside the sub-tree, for [RETURN]
+	public String take_last(RTContainer n, String name, int ctx){ //takes the last node inside the sub-tree, for [RETURN]
 		String rule = n.getRtRegex();
-		String back=" ";
-		if(rule.indexOf('#') != -1 && n.getDecomposition()==Const.AND){
-			back="PARALLEL_GATEWAY";
-		}else if(rule.indexOf('#') != -1 && n.getDecomposition()==Const.OR){
-			back="INCLUSIVE_GATEWAY";
-		}else if(rule.contains("opt") || rule.indexOf('|') != -1){
-			back="EXCLUSIVE_GATEWAY";
-		}else{
+		String back = name;
+		if(container_size(n)>0){
+			back = getName_noRT(container_element(n,true).getName());
+			back = take_last(container_element(n,true), back, ctx);
+		}
 
+		if(rule!=null){
+			if((rule.indexOf('#') != -1 && n.getDecomposition()==Const.AND) || rule.indexOf('%') != -1)
+				back = "PARALLEL_GATEWAY (From RT: " + getName_noRT(n.getName()) + ") ";
+			if(rule.indexOf('#') != -1 && n.getDecomposition()==Const.OR)
+				back = "INCLUSIVE_GATEWAY (From RT: " + getName_noRT(n.getName()) + ") ";
+			if(rule.contains("opt") || rule.indexOf('|') != -1)
+				back = "EXCLUSIVE_GATEWAY (From RT: " + getName_noRT(n.getName()) + ") ";
+			if(rule.contains("try")){
+				for(int i=0;i<container_size(n);i++){
+					String args1 = n.getRtRegex().substring(n.getRtRegex().indexOf("(") + 1, n.getRtRegex().indexOf(")"));
+					if(args1.equals(getName_forRT(container_element(n,i).getName())))
+						back = getName_noRT(container_element(n,i).getName());
+				}
+			}
 			if(container_size(n)>0)
-				back = take_last(container_element(n,false));
-			else
-				back = n.getName();
+					back = take_last(container_element(n,true), back, ctx);
+		}
+
+		if(ctx_on(n)&&(n.getFulfillmentConditions().size()>ctx)){
+			ctx+=1000000; // It's to avoid future changes
+			back = "EXCLUSIVE_GATEWAY_CTX (From: " + getName_noRT(n.getName()) + ") ";
 		}
 		return back;
 	}
@@ -245,14 +259,13 @@ public class BPMNWriter{
 	}
 
 	public void run_k(RTContainer n, int ctx){ //n+k
-		System.out.println(n.getRtRegex().indexOf("+"));
 		String args = n.getRtRegex().substring(n.getRtRegex().indexOf("+") + 1, n.getRtRegex().length());
 		int k = Integer.parseInt(args);
 		running(container_element(n,0), ctx);
 		System.out.println(getName_noRT(container_element(n,0).getName()));
 		System.out.println("<< Exclusive_Gateway : " + getName_noRT(container_element(n,0).getName()) + " was satisfied " + k + " times? >>");
 		System.out.println("-----------------------No");
-		System.out.println("[RETURN TO " + take_last(container_element(n,0)) +"]");
+		System.out.println("[ RETURN TO " + take_last(n, getName_noRT(n.getName()), ctx) +"]");
 		System.out.println("-----------------------Yes");
 	}
 
@@ -269,7 +282,6 @@ public class BPMNWriter{
 	}
 
 	public void try_k(RTContainer n, int ctx){ //n@k
-		
 		String args = n.getRtRegex().substring(n.getRtRegex().indexOf("@") + 1, n.getRtRegex().length());
 		int k = Integer.parseInt(args);
 		running(container_element(n,0), ctx);
@@ -278,7 +290,7 @@ public class BPMNWriter{
 		System.out.println("-----------------------No"); 
 		System.out.println("<< Exclusive_Gateway : Attemp < " + k + "? >>");
 		System.out.println("-----------------------Yes");
-		System.out.println("[RETURN TO " + take_last(container_element(n,0)) +"]");
+		System.out.println("[ RETURN TO " + take_last(n, getName_noRT(n.getName()),ctx) +"]");
 		System.out.println("-----------------------No");
 		System.out.println("[Final Event]");
 		System.out.println("<< End Exclusive_Gateway >>");
