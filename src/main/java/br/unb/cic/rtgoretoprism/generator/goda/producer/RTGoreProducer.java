@@ -128,22 +128,22 @@ public class RTGoreProducer {
 	 * @throws CodeGenerationException 
 	 * @throws IOException 
 	 */
-	public void run() throws CodeGenerationException, IOException {
+	public AgentDefinition run() throws CodeGenerationException, IOException {
 		ATCConsole.println("Starting PRISM Model Generation Process (Knowledge Level)" );
 		ATCConsole.println("\tTemplate Input Folder: " + inputFolder );
 		ATCConsole.println("\tOutput Folder: " + outputFolder );
 		
 		long startTime = new Date().getTime();
-		
+		AgentDefinition ad = null;
 
 		for( Actor a : allActors ) {
 			if(!a.isIsSystem())
-				return;
+				return ad;
 
 			ATCConsole.println( "Generating DTMC model for: " + a.getName() );
 
 			//generate the AgentDefinition object for the current actor
-			AgentDefinition ad = new AgentDefinition( a );
+			ad = new AgentDefinition( a );
 
 			// analyse all root goals
 			for( FHardGoal rootgoal : tn.getRootGoals(a) ) {
@@ -177,6 +177,7 @@ public class RTGoreProducer {
 			writer.writeModel();
 		}
 		ATCConsole.println( "DTMC model created in " + (new Date().getTime() - startTime) + "ms.");
+		return ad;
 	}
 	
 	/**
@@ -199,7 +200,7 @@ public class RTGoreProducer {
 		//gc.setRequest(Const.REQUEST);
 			
 		String rtRegex = gc.getRtRegex();
-		storeRegexResults(gc.getUid(), rtRegex);
+		storeRegexResults(gc.getUid(), rtRegex, gc.getDecomposition());
 		
 		List<FHardGoal> declist = (List<FHardGoal>) tn.getBooleanDec(g, FHardGoal.class);
 		sortIntentionalElements(declist);
@@ -326,7 +327,7 @@ public class RTGoreProducer {
 		//Integer prevPath = pc.getPrevTimePath();
 		//Integer rootPath = pc.getTimePath();
 		//Integer rootTime = pc.getTimeSlot();
-		storeRegexResults(pc.getUid(), pc.getRtRegex());
+		storeRegexResults(pc.getUid(), pc.getRtRegex(), pc.getDecomposition());
 
 		if (tn.isMeansEndDec(p)){
 			List<FPlan> melist = tn.getMeansEndMeanPlans(p);
@@ -592,9 +593,9 @@ public class RTGoreProducer {
 
 	
 	@SuppressWarnings("unchecked")
-	private void storeRegexResults(String uid, String rtRegex) throws IOException {
+	private void storeRegexResults(String uid, String rtRegex, Const decType) throws IOException {
 		if(rtRegex != null){
-			Object [] res = RTParser.parseRegex(uid, rtRegex + '\n');
+			Object [] res = RTParser.parseRegex(uid, rtRegex + '\n', decType);
 			rtSortedGoals.putAll((Map<String, Boolean[]>) res [0]);
 			rtCardGoals.putAll((Map<String, Object[]>) res [1]);
 			rtAltGoals.putAll((Map<String, Set<String>>) res [2]);

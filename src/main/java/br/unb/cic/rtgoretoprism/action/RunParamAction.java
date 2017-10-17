@@ -31,6 +31,7 @@
 package br.unb.cic.rtgoretoprism.action;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -51,6 +52,8 @@ import org.troposproject.util.ProcessCallback;
 import org.troposproject.util.Spawn;
 
 import br.unb.cic.rtgoretoprism.console.ConsoleUtil;
+import br.unb.cic.rtgoretoprism.generator.CodeGenerationException;
+import br.unb.cic.rtgoretoprism.generator.goda.producer.PARAMProducer;
 import br.unb.cic.rtgoretoprism.generator.goda.producer.RTGoreProducer;
 import br.unb.cic.rtgoretoprism.generator.kl.AgentDefinition;
 import br.unb.cic.rtgoretoprism.util.FileUtility;
@@ -105,13 +108,23 @@ public class RunParamAction extends AbstractCodeGeneractionAction{
         IWorkbench wb = PlatformUI.getWorkbench();
         IProgressService ps = wb.getProgressService();
 
-    	try {
+    	/* Generating PCTL Formula */
+        try {
 			ps.busyCursorWhile(new RunnableWithProgressCallback());
+			
 		} catch (InvocationTargetException | InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
+        /* Generating PARAM formulas */
+		try {
+			PARAMProducer producer = new PARAMProducer(selectedActors, selectedGoals, sourceFolder, targetFolder, toolsFolder);
+			producer.run();
+		} catch (CodeGenerationException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
 	@Override
