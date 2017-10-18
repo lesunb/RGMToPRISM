@@ -1,6 +1,5 @@
 package br.unb.cic.rtgoretoprism.paramwrapper;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,8 +11,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import br.unb.cic.rtgoretoprism.console.ATCConsole;
 import br.unb.cic.rtgoretoprism.generator.CodeGenerationException;
+import br.unb.cic.rtgoretoprism.generator.goda.writer.ManageWriter;
 import br.unb.cic.rtgoretoprism.util.PathLocation;
 
 
@@ -37,35 +36,17 @@ public class ParamWrapper implements ParametricModelChecker {
 	    this.paramPath = prismParamPath + "/param";
 	    this.prismPath = prismParamPath + "/prism";
 	    this.outputFolder = output + "/" + PathLocation.BASIC_AGENT_PACKAGE_PREFIX + agentName + "/";
-	    this.fileName = fileName + ".out";
+	    this.fileName = fileName;
 	}
 
 	@Override
 	public void getReliability(String model) throws CodeGenerationException {
 
-		String reliabilityProperty = "P=? [ true U s = 2 ]";
+		String reliabilityProperty = "P=? [ true U (s" + fileName + " = 2) ]";
 		String formula = evaluate(model, reliabilityProperty);
 		
-		PrintWriter paramFormulaFile = createFile();
-		printFormula(paramFormulaFile, formula);
-	}
-	
-	private PrintWriter createFile() throws CodeGenerationException {
-		try {
-			PrintWriter adfFile = new PrintWriter( 
-					new BufferedWriter(	new FileWriter( outputFolder + fileName ) ) );
-			
-			return adfFile;
-		} catch (IOException e) {
-			String msg = "Error: Can't create output model file.";
-			ATCConsole.println( msg );
-			throw new CodeGenerationException( msg );
-		}
-	}
-	
-	private void printFormula(PrintWriter paramFormulaFile, String formula) {
-		paramFormulaFile.print(formula);
-		paramFormulaFile.close();
+		PrintWriter paramFormulaFile = ManageWriter.createFile(fileName + ".out", outputFolder);
+		ManageWriter.printModel(paramFormulaFile, formula);
 	}
 	
 	private String evaluate(String model, String property) {
@@ -94,7 +75,8 @@ public class ParamWrapper implements ParametricModelChecker {
 			                                           propertyFile.getAbsolutePath(),
 			                                           resultsFile.getAbsolutePath());
 			}
-			return formula.trim().replaceAll("\\s+", "");
+			//return formula.trim().replaceAll("\\s+", "");
+			return formula;
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, e.toString(), e);
 		}
@@ -132,8 +114,15 @@ public class ParamWrapper implements ParametricModelChecker {
 			LOGGER.log(Level.SEVERE, e.toString(), e);
 		}
 		List<String> lines = Files.readAllLines(Paths.get(resultsPath), Charset.forName("UTF-8"));
+		
+		String result = "";
+		for(String line : lines) {
+			result = result + line + "\n";
+		}
+		
+		return result; 
 		// Formula
-		return lines.get(lines.size()-1);
+		//return lines.get(lines.size()-1);
 	}
 
 }

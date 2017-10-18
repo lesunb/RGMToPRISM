@@ -188,9 +188,10 @@ public class PrismWriter {
 		String planPkgName = basicAgentPackage + ".plans";
 		
 		//read some of the used template
-		header = readFileAsString( prismInputFolder + "modelheader.pm" );
-		body = readFileAsString( prismInputFolder + "modelbody.pm" );
-		evalBash = readFileAsString( prismInputFolder + "eval_formula.sh" );
+		
+		header = ManageWriter.readFileAsString( prismInputFolder + "modelheader.pm" );
+		body = ManageWriter.readFileAsString( prismInputFolder + "modelbody.pm" );
+		evalBash = ManageWriter.readFileAsString( prismInputFolder + "eval_formula.sh" );
 		//footer = readFileAsString( planInputFolder + "agentfooter.xml" );
 
 		//update some template placeholder
@@ -203,8 +204,10 @@ public class PrismWriter {
 		//create the model output dir
 		writeAnOutputDir( agentOutputFolder );
 		//create the output PRISM file */
-		PrintWriter modelFile = createPrismFile( ad.getAgentName(), agentOutputFolder );
-		PrintWriter evalBashFile = createBashFile( "eval_formula", agentOutputFolder );
+		
+		PrintWriter modelFile = ManageWriter.createFile(ad.getAgentName() + ".pm", agentOutputFolder);
+		PrintWriter evalBashFile = ManageWriter.createFile("eval_formula.sh", agentOutputFolder);
+		
 		//Reads all softgoals from the softgoals list and writes them into the belief base.
 		//writeBBSoftGoals( ad.softgoalbase );
 		//Writes all goals to the ADF file
@@ -246,21 +249,22 @@ public class PrismWriter {
 	private void writePrismModel( String input, LinkedList<GoalContainer> rootGoals, 
 			String planOutputFolder, String pkgName, String utilPkgName, String planPkgName ) throws CodeGenerationException, IOException {
 
-		leafGoalPattern 				= readFileAsString(input + "pattern_leafgoal.pm");
-		andDecPattern 					= readFileAsString(input + "pattern_and.pm");
-		xorDecPattern 					= readFileAsString(input + "pattern_xor.pm");
-		xorDecHeaderPattern 			= readFileAsString(input + "pattern_xor_header.pm");
-		xorSkippedPattern	 			= readFileAsString(input + "pattern_skip_xor.pm");
-		xorNotSkippedPattern	 		= readFileAsString(input + "pattern_skip_not_xor.pm");
-		seqRenamePattern				= readFileAsString(input + "pattern_seq_rename.pm");
-		trySDecPattern	 				= readFileAsString(input + "pattern_try_success.pm");
-		tryFDecPattern	 				= readFileAsString(input + "pattern_try_fail.pm");
-		optDecPattern 					= readFileAsString(input + "pattern_opt.pm");
-		optHeaderPattern	 			= readFileAsString(input + "pattern_opt_header.pm");
-		seqCardPattern	 				= readFileAsString(input + "pattern_card_seq.pm");
-		intlCardPattern	 				= readFileAsString(input + "pattern_card_retry.pm");//TODO: create retry in a separate pattern
-		ctxGoalPattern	 				= readFileAsString(input + "pattern_ctx_goal.pm");
-		ctxTaskPattern	 				= readFileAsString(input + "pattern_ctx_task.pm");
+		leafGoalPattern 				= ManageWriter.readFileAsString(input + "pattern_leafgoal.pm");
+		andDecPattern 					= ManageWriter.readFileAsString(input + "pattern_and.pm");
+		xorDecPattern 					= ManageWriter.readFileAsString(input + "pattern_xor.pm");
+		xorDecHeaderPattern 			= ManageWriter.readFileAsString(input + "pattern_xor_header.pm");
+		xorSkippedPattern	 			= ManageWriter.readFileAsString(input + "pattern_skip_xor.pm");
+		xorNotSkippedPattern	 		= ManageWriter.readFileAsString(input + "pattern_skip_not_xor.pm");
+		seqRenamePattern				= ManageWriter.readFileAsString(input + "pattern_seq_rename.pm");
+		trySDecPattern	 				= ManageWriter.readFileAsString(input + "pattern_try_success.pm");
+		tryFDecPattern	 				= ManageWriter.readFileAsString(input + "pattern_try_fail.pm");
+		optDecPattern 					= ManageWriter.readFileAsString(input + "pattern_opt.pm");
+		optHeaderPattern	 			= ManageWriter.readFileAsString(input + "pattern_opt_header.pm");
+		seqCardPattern	 				= ManageWriter.readFileAsString(input + "pattern_card_seq.pm");
+		intlCardPattern	 				= ManageWriter.readFileAsString(input + "pattern_card_retry.pm");//TODO: create retry in a separate pattern
+		ctxGoalPattern	 				= ManageWriter.readFileAsString(input + "pattern_ctx_goal.pm");
+		ctxTaskPattern	 				= ManageWriter.readFileAsString(input + "pattern_ctx_task.pm");
+		
 		Collections.sort(rootGoals);
 		
 		for( GoalContainer root : rootGoals ) {
@@ -274,8 +278,6 @@ public class PrismWriter {
 				sbCtxVars.append(constOrParam + " " + ctxVars.get(ctx) + " " + ctx + ";\n");
 			planModules = planModules.append(sbCtxVars.toString());
 		}
-		
-		//System.out.println(planModules);
 	}
 
 
@@ -760,52 +762,6 @@ public class PrismWriter {
 	}
 
 	/**
-	 * Create agent PRISM file
-	 * 
-	 * @param agentName name of the current agent
-	 * @param output the output dir
-	 * 
-	 * @return the created (empyt) ADF file
-	 * @throws CodeGenerationException
-	 */
-	private PrintWriter createPrismFile( String agentName, String output ) throws CodeGenerationException {
-		try {
-			String adf = agentName + ".pm";
-			PrintWriter adfFile = new PrintWriter( 
-					new BufferedWriter(	new FileWriter( output + adf ) ) );
-			
-			return adfFile;
-		} catch (IOException e) {
-			String msg = "Error: Can't create output model file.";
-			ATCConsole.println( msg );
-			throw new CodeGenerationException( msg );
-		}
-	}
-	
-	/**
-	 * Create agent BASH file
-	 * 
-	 * @param agentName name of the current agent
-	 * @param output the output dir
-	 * 
-	 * @return the created (empyt) ADF file
-	 * @throws CodeGenerationException
-	 */
-	private PrintWriter createBashFile( String bashName, String output ) throws CodeGenerationException {
-		try {
-			String adf = bashName + ".sh";
-			PrintWriter adfFile = new PrintWriter( 
-					new BufferedWriter(	new FileWriter( output + adf ) ) );
-			
-			return adfFile;
-		} catch (IOException e) {
-			String msg = "Error: Can't create output model file.";
-			ATCConsole.println( msg );
-			throw new CodeGenerationException( msg );
-		}
-	}
-
-	/**
 	 * replaces all placeholders in the ADF skeleton and writes the ADF file.
 	 * 
 	 * @param adf the file to be written to
@@ -830,11 +786,14 @@ public class PrismWriter {
 		body = body.replace(GOAL_MODULES_TAG, planModules);
 
 		//footer = footer.replace(EVENTS_TAG, adfevents);
+		
+		String model = header + "\n" + body;
+		ManageWriter.printModel(adf, model);
 
-		adf.println(header);
-		adf.println(body);
+		//adf.println(header);
+		//adf.println(body);
 		//adf.println(footer);
-		adf.close();
+		//adf.close();
 	}
 
 	private void printEvalBash( PrintWriter pw ){
@@ -842,8 +801,7 @@ public class PrismWriter {
 		evalBash = evalBash.replace(PARAMS_BASH_TAG, evalFormulaParams);
 		evalBash = evalBash.replace(REPLACE_BASH_TAG, evalFormulaReplace);
 		
-		pw.print(evalBash + '\n');
-		pw.close();
+		ManageWriter.printModel(pw, evalBash);
 	}
 	
 	/**
@@ -894,29 +852,7 @@ public class PrismWriter {
 		}
 	}*/
 
-	
-	/**
-	 * Read the specified file into a String
-	 * 
-	 * @param filePath the path of the file to read
-	 * 
-	 * @return the file content as a String
-	 * 
-	 * @throws CodeGenerationException 
-	 */
-	private String readFileAsString( String filePath ) throws CodeGenerationException {
-		String res = null;
-		
-		try {
-			res = FileUtility.readFileAsString( filePath );			
-		} catch (IOException e) {
-			String msg = "Error: file " + filePath + " not found.";
-			ATCConsole.println( msg );
-			throw new CodeGenerationException( msg );
-		}
-		
-		return res;
-	}
+
 
 	/**
 	 * Write the specified content into a file

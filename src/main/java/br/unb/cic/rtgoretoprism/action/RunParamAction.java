@@ -109,13 +109,13 @@ public class RunParamAction extends AbstractCodeGeneractionAction{
         IProgressService ps = wb.getProgressService();
 
     	/* Generating PCTL Formula */
-        try {
+        /*try {
 			ps.busyCursorWhile(new RunnableWithProgressCallback());
 			
 		} catch (InvocationTargetException | InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 		
         /* Generating PARAM formulas */
 		try {

@@ -85,8 +85,14 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 	Map<String, Boolean> optMemory = new HashMap<String, Boolean>();
 	
 	public CustomRTRegexVisitor(String uid, Const decType) {
-		this.uid = uid;
 		this.decType = decType;
+		
+		if (uid.contains("_")) {
+			this.uid = uid.substring(0, uid.indexOf('_'));
+		}
+		else {
+			this.uid = uid;
+		}
 	}
 	
 	@Override
@@ -98,8 +104,11 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 	@Override
 	public String visitGId(GIdContext ctx) {
 		String gid = ctx.t.getText() + ctx.FLOAT().toString();
-		if(ctx.t.getType() == RTRegexParser.TASK)
+		if(ctx.t.getType() == RTRegexParser.TASK) {
+			gid = gid.replaceAll("\\.", "_");
 			gid = uid + '_' + gid;
+		}
+			
 		if ( !timeMemory.containsKey(gid) ){
 			timeMemory.put(gid, new Boolean[]{false,false});			
 			//cardMemory.put(gid, 1);
