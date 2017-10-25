@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import br.unb.cic.rtgoretoprism.console.ATCConsole;
 import br.unb.cic.rtgoretoprism.generator.CodeGenerationException;
@@ -32,7 +34,8 @@ public class PARAMProducer {
 	private Set<FHardGoal> allGoals;
 	
 	private String agentName;
-	private List<String> leaves = new ArrayList<String>();
+	private List<String> leavesId = new ArrayList<String>();
+	private List<String> opts_formula = new ArrayList<String>();
 
 	public PARAMProducer(Set<Actor> allActors, Set<FHardGoal> allGoals, String in, String out, String tools) {
 		
@@ -59,7 +62,7 @@ public class PARAMProducer {
 			//Generate pctl formula
 			generatePctlFormula();
 			
-			// Run article algorithm
+			// Compose goal formula
 			String nodeForm = composeNodeForm(ad.rootlist.getFirst(), null);
 			
 			//Print formula
@@ -69,8 +72,7 @@ public class PARAMProducer {
 	}
 
 	private void generatePctlFormula() throws IOException {
-
-		//agentName = actor.getName().replaceAll("\n", "_");			    						
+			    						
 		StringBuilder pctl = new StringBuilder("P=? [ true U (");
 		StringBuilder goals = new StringBuilder();
 		int i = 0;
@@ -104,12 +106,23 @@ public class PARAMProducer {
 
 		String body = ManageWriter.readFileAsString(paramInputFolder + "formulabody.param");
 		
-		for (String leaf : this.leaves) {
-			body = body + leaf + (leaf.equals(leaves.get(leaves.size()-1))? "]\n[" : ", ");
+		for (String opt : this.opts_formula) {
+			
+			body = body + opt + ", ";
 		}
 		
-		for (String leaf : this.leaves) {
-			body = body + "[0,1]" + (leaf.equals(leaves.get(leaves.size()-1))? "]\n" : " ");
+		for (String leaf : this.leavesId) {
+			
+			body = body + "rTask" + leaf + (leaf.equals(leavesId.get(leavesId.size()-1))? "]\n[" : ", ");
+		}
+		
+		for (String opt : this.opts_formula) {
+			
+			body = body + "[0, 1] ";
+		}
+		
+		for (String leaf : this.leavesId) {
+			body = body + "[0, 1]" + (leaf.equals(leavesId.get(leavesId.size()-1))? "]\n" : " ");
 		}
 		
 		body = body + "  1*" + nodeForm;
@@ -160,19 +173,15 @@ public class PARAMProducer {
 		/*If leaf task*/
 		if ((decompGoal.size() == 0) && (decompPlans.size() == 0)) {
 			
-			String planName = rootPlan.getClearElId();
-			this.leaves.add(planName);
+			this.leavesId.add(nodeId);
 			
 			//Create DTMC model (param)
-			ParamWriter writer = new ParamWriter(sourceFolder, targetFolder, agentName, planName);
-			writer.writeModel();
+			ParamWriter writer = new ParamWriter(sourceFolder, nodeId);
+			String model = writer.writeModel();
 			
 			//Call to param
-			ParamWrapper paramWrapper = new ParamWrapper(targetFolder, toolsFolder, agentName,  planName);
-			paramWrapper.getReliability(writer.getModel());
-			
-			//Delete DTMC model
-			writer.deleteModel();
+			ParamWrapper paramWrapper = new ParamWrapper(toolsFolder, nodeId);
+			nodeForm = paramWrapper.getFormula(model);
 		}
 
 		return nodeForm;
@@ -184,10 +193,16 @@ public class PARAMProducer {
 			nodeForm = subNodeForm;
 		}
 		else {
+			subNodeId = restricToString(subNodeId);
+			subNodeForm = restricToString(subNodeForm);
 			nodeForm = nodeForm.replaceAll(subNodeId, subNodeForm);
 		}
 		
 		return nodeForm;
+	}
+
+	private String restricToString(String subNodeString) {
+		return " " + subNodeString + " ";
 	}
 
 	private String getNodeForm(Const decType, String rtAnnot, String uid) throws IOException {
@@ -197,6 +212,23 @@ public class PARAMProducer {
 		}
 		
 		Object [] res = RTParser.parseRegex(uid, rtAnnot + '\n', decType);
+		
+		checkOptDeclaration((String) res[5]);
+		
 		return (String) res[5];
+	}
+
+	private void checkOptDeclaration(String formula) {
+		
+		if (formula.contains("OPT")) {
+			String regex = "OPT_(.*?) ";
+			Matcher match = Pattern.compile(regex).matcher(formula);
+			while (match.find()) {
+				String optDeclaration = "OPT_" + match.group(1);
+				if (!this.opts_formula.contains(optDeclaration)) {
+					this.opts_formula.add(optDeclaration);
+				}
+			}
+		} 
 	}
 }

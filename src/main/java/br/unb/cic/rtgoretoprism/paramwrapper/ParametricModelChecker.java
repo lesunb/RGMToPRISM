@@ -9,8 +9,9 @@ public interface ParametricModelChecker {
 	 * with the string "success".
 	 *
 	 * @param fdtmc FDTMC to be evaluated.
+	 * @return TODO
 	 * @return Formula parameterized on the transition probabilities.
 	 * @throws CodeGenerationException 
 	 */
-	public void getReliability(String model) throws CodeGenerationException;
+	public String getFormula(String model) throws CodeGenerationException;
 }

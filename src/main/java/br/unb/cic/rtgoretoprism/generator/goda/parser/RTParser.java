@@ -113,7 +113,6 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 			timeMemory.put(gid, new Boolean[]{false,false});			
 			//cardMemory.put(gid, 1);
 		}
-		//paramFormula = gid;
 		return gid;
 	}
 	
@@ -147,10 +146,10 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 		}
 		
 		if (decType.equals(Const.AND)) {
-			paramFormula = "(" + paramFormulaAo + "*" + paramFormulaBo + ")";
+			paramFormula = "( " + paramFormulaAo + " * " + paramFormulaBo + " )";
 		}
 		else {
-			paramFormula = "(MAX(" + paramFormulaAo + "," + paramFormulaBo + "))";
+			paramFormula = "(MAX( " + paramFormulaAo + " , " + paramFormulaBo + " ))";
 		}
 		return gidAo + '-' + gidBo;
 	}
@@ -158,7 +157,13 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 	@Override
 	public String visitGAlt(GAltContext ctx) {
 		String gidAo = visit(ctx.expr(0));
+		String paramFormulaAo = gidAo;
+		paramFormulaAo = checkNestedRT(paramFormulaAo);
+		
 		String gidBo = visit(ctx.expr(1));
+		String paramFormulaBo = gidBo;
+		paramFormulaBo = checkNestedRT(paramFormulaBo);
+		
 		String [] gidAs = gidAo.split("-");
 		String [] gidBs = gidBo.split("-");		
 		
@@ -170,6 +175,13 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 				}
 			}
 		}
+		
+		String XAo = "X_" + gidAo;
+		String XBo = "X_" + gidBo;
+		paramFormula = "( " + XAo + " * " + paramFormulaAo
+				+ " - " + XAo + " * " + XBo + " * " + paramFormulaBo
+				+ " + " + XBo + " * " + paramFormulaBo + " )";
+		
 		return gidAo + '-' + gidBo;
 	}
 	
@@ -182,7 +194,12 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 	@Override
 	public String visitGOpt(GOptContext ctx) {
 		String gId = super.visit(ctx.expr());
+		String paramFormulaId = gId;
+		paramFormulaId = checkNestedRT(paramFormulaId);
+		
+		paramFormula = "(OPT_" + gId + " * " + paramFormulaId + " - " + "OPT_" + gId + " + 1)"; 
 		optMemory.put(gId, true);
+		
 		return gId;
 	}
 	
@@ -195,15 +212,15 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 		String k = ctx.FLOAT().getText();
 		if(ctx.op.getType() == RTRegexParser.C_INT) {
 			cardMemory.put(gid, new Object[]{Const.INT,Integer.parseInt(ctx.FLOAT().getText())});
-			paramFormula = "((" + paramFormulaId + ")^" + k + ")";
+			paramFormula = "(( " + paramFormulaId + " )^" + k + ")";
 		}
 		else if(ctx.op.getType() == RTRegexParser.C_SEQ) {
 			cardMemory.put(gid, new Object[]{Const.SEQ,Integer.parseInt(ctx.FLOAT().getText())});
-			paramFormula = "((" + paramFormulaId + ")^" + k + ")";
+			paramFormula = "(( " + paramFormulaId + " )^" + k + ")";
 		}
 		else {
 			cardMemory.put(gid, new Object[]{Const.RTRY,Integer.parseInt(ctx.FLOAT().getText())});
-			paramFormula = "(1-(1-" + paramFormulaId + ")^" + k + "+1)";
+			paramFormula = "(1-(1- " + paramFormulaId + " )^(" + k + "+1))";
 		}
 		return gid;
 	}
@@ -232,7 +249,7 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 			pathTimeF[1] = pathTimeF[1] = true;
 		}
 		tryMemory.put(gidT, new String[]{gidS, gidF});
-		paramFormula = "(" + paramFormulaT + "*" + paramFormulaS + "-" + paramFormulaT + "*" + paramFormulaF + "+" + paramFormulaF + ")";
+		paramFormula = "( " + paramFormulaT + " * " + paramFormulaS + " - " + paramFormulaT + " * " + paramFormulaF + " + " + paramFormulaF + " )";
 		return gidT;
 	}
 	
