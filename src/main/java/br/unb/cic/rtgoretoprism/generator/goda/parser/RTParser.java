@@ -105,7 +105,7 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 	public String visitGId(GIdContext ctx) {
 		String gid = ctx.t.getText() + ctx.FLOAT().toString();
 		if(ctx.t.getType() == RTRegexParser.TASK) {
-			gid = gid.replaceAll("\\.", "_");
+			//gid = gid.replaceAll("\\.", "_");
 			gid = uid + '_' + gid;
 		}
 			
@@ -128,11 +128,11 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 	@Override
 	public String visitGTime(GTimeContext ctx) {
 		String gidAo = visit(ctx.expr(0));
-		String paramFormulaAo = gidAo;
+		String paramFormulaAo = gidAo.replaceAll("\\.", "_");
 		paramFormulaAo = checkNestedRT(paramFormulaAo);
 		
 		String gidBo = visit(ctx.expr(1));
-		String paramFormulaBo = gidBo;
+		String paramFormulaBo = gidBo.replaceAll("\\.", "_");
 		paramFormulaBo = checkNestedRT(paramFormulaBo);
 		
 		//String [] gidAs = gidAo.split("-");
@@ -149,7 +149,9 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 			paramFormula = "( " + paramFormulaAo + " * " + paramFormulaBo + " )";
 		}
 		else {
-			paramFormula = "(MAX( " + paramFormulaAo + " , " + paramFormulaBo + " ))";
+			//paramFormula = "(MAX( " + paramFormulaAo + " , " + paramFormulaBo + " ))";
+			paramFormula = "(-1 * ( " + paramFormulaAo + " * " + paramFormulaBo + " ) + "
+					+ paramFormulaAo + " + " + paramFormulaBo + " )";
 		}
 		return gidAo + '-' + gidBo;
 	}
@@ -157,11 +159,11 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 	@Override
 	public String visitGAlt(GAltContext ctx) {
 		String gidAo = visit(ctx.expr(0));
-		String paramFormulaAo = gidAo;
+		String paramFormulaAo = gidAo.replaceAll("\\.", "_");
 		paramFormulaAo = checkNestedRT(paramFormulaAo);
 		
 		String gidBo = visit(ctx.expr(1));
-		String paramFormulaBo = gidBo;
+		String paramFormulaBo = gidBo.replaceAll("\\.", "_");
 		paramFormulaBo = checkNestedRT(paramFormulaBo);
 		
 		String [] gidAs = gidAo.split("-");
@@ -176,8 +178,8 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 			}
 		}
 		
-		String XAo = "X_" + gidAo;
-		String XBo = "X_" + gidBo;
+		String XAo = "OPT_" + gidAo.replaceAll("\\.", "_");
+		String XBo = "OPT_" + gidBo.replaceAll("\\.", "_");
 		paramFormula = "( " + XAo + " * " + paramFormulaAo
 				+ " - " + XAo + " * " + XBo + " * " + paramFormulaBo
 				+ " + " + XBo + " * " + paramFormulaBo + " )";
@@ -194,10 +196,12 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 	@Override
 	public String visitGOpt(GOptContext ctx) {
 		String gId = super.visit(ctx.expr());
-		String paramFormulaId = gId;
+		String paramFormulaId = gId.replaceAll("\\.", "_");
 		paramFormulaId = checkNestedRT(paramFormulaId);
 		
-		paramFormula = "(OPT_" + gId + " * " + paramFormulaId + " - " + "OPT_" + gId + " + 1)"; 
+		String clearId = gId.replaceAll("\\.", "_");
+		paramFormula = "(OPT_" + clearId + " * " + paramFormulaId
+				+ " - " + "OPT_" + clearId + " + 1)"; 
 		optMemory.put(gId, true);
 		
 		return gId;
@@ -206,7 +210,7 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 	@Override
 	public String visitGCard(GCardContext ctx) {		
 		String gid = visit(ctx.expr());
-		String paramFormulaId = gid;
+		String paramFormulaId = gid.replaceAll("\\.", "_");
 		paramFormulaId = checkNestedRT(paramFormulaId);
 		
 		String k = ctx.FLOAT().getText();
@@ -220,7 +224,9 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 		}
 		else {
 			cardMemory.put(gid, new Object[]{Const.RTRY,Integer.parseInt(ctx.FLOAT().getText())});
-			paramFormula = "(1-(1- " + paramFormulaId + " )^(" + k + "+1))";
+			
+			k = String.valueOf(Integer.valueOf(k) + 1);
+			paramFormula = "(1 - (1 - " + paramFormulaId + " )^" + k + ")";
 		}
 		return gid;
 	}
@@ -228,28 +234,32 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 	@Override
 	public String visitGTry(GTryContext ctx) {
 		String gidT = visit(ctx.expr(0));
-		String paramFormulaT = gidT;
+		String paramFormulaT = gidT.replaceAll("\\.", "_");
 		paramFormulaT = checkNestedRT(paramFormulaT);
 		
 		String gidS = visit(ctx.expr(1));
-		String paramFormulaS = gidS;
+		String paramFormulaS = "1";
 		paramFormulaS = checkNestedRT(paramFormulaS);
 		
 		String gidF = visit(ctx.expr(2));
-		String paramFormulaF = gidF;
+		String paramFormulaF = "0";
 		paramFormulaF = checkNestedRT(paramFormulaF);
 		
 		Boolean [] pathTimeS, pathTimeF; 
 		if(gidS != null){
 			pathTimeS = timeMemory.get(gidS);
 			pathTimeS[1] = pathTimeS[1] = true;
+			paramFormulaS = gidS.replaceAll("\\.", "_");
 		}
 		if(gidF != null){
 			pathTimeF = timeMemory.get(gidF);
 			pathTimeF[1] = pathTimeF[1] = true;
+			paramFormulaF = gidF.replaceAll("\\.", "_");
 		}
 		tryMemory.put(gidT, new String[]{gidS, gidF});
-		paramFormula = "( " + paramFormulaT + " * " + paramFormulaS + " - " + paramFormulaT + " * " + paramFormulaF + " + " + paramFormulaF + " )";
+		paramFormula = "( " + paramFormulaT + " * " + paramFormulaS
+				+ " - " + paramFormulaT + " * " + paramFormulaF
+				+ " + " + paramFormulaF + " )";
 		return gidT;
 	}
 	

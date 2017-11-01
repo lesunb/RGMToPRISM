@@ -125,7 +125,7 @@ public class PARAMProducer {
 			body = body + "[0, 1]" + (leaf.equals(leavesId.get(leavesId.size()-1))? "]\n" : " ");
 		}
 		
-		body = body + "  1*" + nodeForm;
+		body = body + "  " + nodeForm;
 		
 		return body;
 	}
