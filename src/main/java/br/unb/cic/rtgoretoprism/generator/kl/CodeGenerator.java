@@ -35,6 +35,7 @@ import java.io.IOException;
 
 import br.unb.cic.rtgoretoprism.console.ATCConsole;
 import br.unb.cic.rtgoretoprism.generator.CodeGenerationException;
+import br.unb.cic.rtgoretoprism.generator.goda.writer.ManageWriter;
 import br.unb.cic.rtgoretoprism.util.FileUtility;
 import br.unb.cic.rtgoretoprism.util.PathLocation;
 
@@ -195,7 +196,8 @@ public class CodeGenerator {
 				continue;
 			}
 
-			String file = readFileAsString( curr.getAbsolutePath() );
+			//String file = readFileAsString( curr.getAbsolutePath() );
+			String file = ManageWriter.readFileAsString( curr.getAbsolutePath() );
 			
 			//update tags
 			file = file.replace( UTIL_PACKAGE_NAME_TAG, utilPkg );
@@ -222,7 +224,8 @@ public class CodeGenerator {
 //		ATCConsole.println( "Generating class " + agentClassNameInputTemplate + 
 //				"for agent " + agentName + " and capapility " + capName );
 
-		String file = readFileAsString( inputFolder + TESTER_AGENT_TEMPLATE_INPUT_NAME );
+		//String file = readFileAsString( inputFolder + TESTER_AGENT_TEMPLATE_INPUT_NAME );
+		String file = ManageWriter.readFileAsString( inputFolder + TESTER_AGENT_TEMPLATE_INPUT_NAME );
 		
 		//update tags
 		file = file.replace( FSM_NAME_TAG, fsmName );
@@ -250,7 +253,8 @@ public class CodeGenerator {
 		
 //		ATCConsole.println("Generating CapabilitiesAgent class "+ classname +" for agent " + agentName );
 		
-		String file = readFileAsString( inputFolder + classname );
+		//String file = readFileAsString( inputFolder + classname );
+		String file = ManageWriter.readFileAsString( inputFolder + classname );
 		
 		//update tags
 		file = file.replace( AGENT_PACKAGE_NAME_TAG, agentPkg );
@@ -285,7 +289,7 @@ public class CodeGenerator {
 	 * 
 	 * @throws CodeGenerationException 
 	 */
-	private String readFileAsString( String filePath ) throws CodeGenerationException {
+	/*private String readFileAsString( String filePath ) throws CodeGenerationException {
 		String res = null;
 		
 		try {
@@ -297,7 +301,7 @@ public class CodeGenerator {
 		}
 		
 		return res;
-	}
+	}*/
 	
 	/**
 	 * Write the specified content into a file

@@ -68,6 +68,7 @@ public class CtxParser{
 	    parser.addErrorListener(ThrowingErrorListener.INSTANCE);
 	    
 	    ParseTree tree = parser.ctx();
+	    //System.out.println(tree.toStringTree(parser));
 	    CtxFormulaParserVisitor CtxRegexVisitor = new CtxFormulaParserVisitor();
 	    
 	    return new Object[]{CtxRegexVisitor.memory, CtxRegexVisitor.visit(tree), CtxRegexVisitor.type};
