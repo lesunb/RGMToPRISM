@@ -1,6 +1,3 @@
-# Goal-Oriented Dependability Analysis (GODA)
-A Contextual-Runtime Goal Model (CRGM) to PRISM model/PARAMetric formula generator to be used with the TAOM4E tool for TROPOS goal model. Alternatively, GODA is available at [docker](https://hub.docker.com/r/asbmails2/eclipse_mars_goda_conf/). A web interface for [GODA in piStar](https://pistargoda.herokuapp.com) is also available.  
-
 ## Environment:
 
 * Donwnload Eclipse 4.5 (http://www.eclipse.org/downloads/packages/eclipse-ide-java-developers/mars2)
