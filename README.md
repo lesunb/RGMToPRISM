@@ -137,7 +137,7 @@ Goals and tasks must have a lable according to the rules bellow. The general for
 
 ## GODA's Web version
 
-* If you feel less prone to install the source code and just go through modelling and analysing your goal model through GODA, we are working on a [web interface for GODA.](https://pistargoda.herokuapp.com) as an extension to the [piStar tool from colleagues at Federal University of Pernambuco](http://www.cin.ufpe.br/%7Ejhcp/pistar/#). Thanks to Leandro Bergman.
+* If you feel less prone to install the source code and just go through modelling and analysing your goal model through GODA, we are working on a [web interface for GODA](https://pistargoda.herokuapp.com) as an extension to the [piStar tool](http://www.cin.ufpe.br/%7Ejhcp/pistar/#) from colleagues at Federal University of Pernambuco. Thanks to Leandro Bergman.
 
 ## Bugs? Doubts?
 
