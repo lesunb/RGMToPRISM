@@ -133,11 +133,11 @@ Goals and tasks must have a lable according to the rules bellow. The general for
 
 ## GODA @ DOCKER
 
-* We are happy to announce that a docker version for GODA is readily available at (https://hub.docker.com/r/asbmails2/eclipse_mars_goda_conf/). 
+* We are happy to announce that a docker version for GODA is readily available at: https://hub.docker.com/r/asbmails2/eclipse_mars_goda_conf/
 
 ## GODA's Web version
 
-* If you feel less prone to install the source code and just go through the modelling aspects of GODA, we are working on a [web interface for GODA.] (https://pistargoda.herokuapp.com). 
+* If you feel less prone to install the source code and just go through the modelling aspects of GODA, we are working on a [web interface for GODA.](https://pistargoda.herokuapp.com) 
 
 ## Bugs? Doubts?
 
