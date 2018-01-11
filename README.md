@@ -131,9 +131,18 @@ Goals and tasks must have a lable according to the rules bellow. The general for
 	* Refresh the project folder in eclipse
 	* Restart the workspace used for testing the framework
 
-##Bugs? Doubts?
+## GODA @ DOCKER
+
+* We are happy to announce that a docker version for GODA is readily available at (https://hub.docker.com/r/asbmails2/eclipse_mars_goda_conf/). 
+
+## GODA's Web version
+
+* If you feel less prone to install the source code and just go through the modelling aspects of GODA, we are working on a [web interface for GODA.] (https://pistargoda.herokuapp.com). 
+
+## Bugs? Doubts?
 
 * Look for existing issues or create a new one describing your problem or doubt
 * Contact the author by email
 	* danilo.filgueira[at]polimi[dot]it
+	* genainarodrigues[at]gmail[dot]com
 	* TODO: add other team members contacts here
