@@ -31,7 +31,7 @@ import br.unb.cic.rtgoretoprism.model.kl.Const;
 
 public class RTParser{
 	
-	public static Object[] parseRegex(String uid, String regex) throws IOException{
+	public static Object[] parseRegex(String uid, String regex, Const decType) throws IOException{
 		//Reading the DSL script
 	    InputStream is = new ByteArrayInputStream(regex.getBytes("UTF-8"));
 	    
@@ -61,27 +61,37 @@ public class RTParser{
 	    //walker.walk(new MyRTRegexBaseListener(), parser.prog());
 	    
 	    ParseTree tree = parser.rt();
-	    CustomRTRegexVisitor rtRegexVisitor = new CustomRTRegexVisitor(uid);
+	    CustomRTRegexVisitor rtRegexVisitor = new CustomRTRegexVisitor(uid, decType);
 	    rtRegexVisitor.visit(tree);
 	    return new Object [] 	{rtRegexVisitor.timeMemory, 
 	    						rtRegexVisitor.cardMemory, 
 	    						rtRegexVisitor.altMemory,
 	    						rtRegexVisitor.tryMemory,
-	    						rtRegexVisitor.optMemory};
+	    						rtRegexVisitor.optMemory,
+	    						rtRegexVisitor.paramFormula};
 	}
 }
 
 class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 
 	final String uid;
+	final Const decType;
+	String paramFormula = new String();
 	Map<String, Boolean[]> timeMemory = new HashMap<String, Boolean[]>();		
 	Map<String, Object[]> cardMemory = new HashMap<String, Object[]>();
 	Map<String, Set<String>> altMemory = new HashMap<String, Set<String>>();
 	Map<String, String[]> tryMemory = new HashMap<String, String[]>();
 	Map<String, Boolean> optMemory = new HashMap<String, Boolean>();
 	
-	public CustomRTRegexVisitor(String uid) {
-		this.uid = uid;
+	public CustomRTRegexVisitor(String uid, Const decType) {
+		this.decType = decType;
+		
+		if (uid.contains("_")) {
+			this.uid = uid.substring(0, uid.indexOf('_'));
+		}
+		else {
+			this.uid = uid;
+		}
 	}
 	
 	@Override
@@ -93,8 +103,11 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 	@Override
 	public String visitGId(GIdContext ctx) {
 		String gid = ctx.t.getText() + ctx.FLOAT().toString();
-		if(ctx.t.getType() == RTRegexParser.TASK)
+		if(ctx.t.getType() == RTRegexParser.TASK) {
+			//gid = gid.replaceAll("\\.", "_");
 			gid = uid + '_' + gid;
+		}
+			
 		if ( !timeMemory.containsKey(gid) ){
 			timeMemory.put(gid, new Boolean[]{false,false});			
 			//cardMemory.put(gid, 1);
@@ -102,10 +115,25 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 		return gid;
 	}
 	
+	private String checkNestedRT (String paramFormulaAux) {
+		
+		if (!paramFormula.isEmpty()) {
+			paramFormulaAux = paramFormula;
+			paramFormula = "";
+		}
+		return paramFormulaAux;
+	}
+	
 	@Override
 	public String visitGTime(GTimeContext ctx) {
 		String gidAo = visit(ctx.expr(0));
+		String paramFormulaAo = gidAo.replaceAll("\\.", "_");
+		paramFormulaAo = checkNestedRT(paramFormulaAo);
+		
 		String gidBo = visit(ctx.expr(1));
+		String paramFormulaBo = gidBo.replaceAll("\\.", "_");
+		paramFormulaBo = checkNestedRT(paramFormulaBo);
+		
 		//String [] gidAs = gidAo.split("-");
 		String [] gidBs = gidBo.split("-");
 		for(String gidB : gidBs){
@@ -116,13 +144,28 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 				pathTimeB[1] = true;
 			}
 		}
+		
+		if (decType.equals(Const.AND)) {
+			paramFormula = "( " + paramFormulaAo + " * " + paramFormulaBo + " )";
+		}
+		else {
+			//paramFormula = "(MAX( " + paramFormulaAo + " , " + paramFormulaBo + " ))";
+			paramFormula = "(-1 * ( " + paramFormulaAo + " * " + paramFormulaBo + " ) + "
+					+ paramFormulaAo + " + " + paramFormulaBo + " )";
+		}
 		return gidAo + '-' + gidBo;
 	}
 	
 	@Override
 	public String visitGAlt(GAltContext ctx) {
 		String gidAo = visit(ctx.expr(0));
+		String paramFormulaAo = gidAo.replaceAll("\\.", "_");
+		paramFormulaAo = checkNestedRT(paramFormulaAo);
+		
 		String gidBo = visit(ctx.expr(1));
+		String paramFormulaBo = gidBo.replaceAll("\\.", "_");
+		paramFormulaBo = checkNestedRT(paramFormulaBo);
+		
 		String [] gidAs = gidAo.split("-");
 		String [] gidBs = gidBo.split("-");		
 		
@@ -134,6 +177,13 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 				}
 			}
 		}
+		
+		String XAo = "OPT_" + gidAo.replaceAll("\\.", "_");
+		String XBo = "OPT_" + gidBo.replaceAll("\\.", "_");
+		paramFormula = "( " + XAo + " * " + paramFormulaAo
+				+ " - " + XAo + " * " + XBo + " * " + paramFormulaBo
+				+ " + " + XBo + " * " + paramFormulaBo + " )";
+		
 		return gidAo + '-' + gidBo;
 	}
 	
@@ -146,37 +196,70 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 	@Override
 	public String visitGOpt(GOptContext ctx) {
 		String gId = super.visit(ctx.expr());
+		String paramFormulaId = gId.replaceAll("\\.", "_");
+		paramFormulaId = checkNestedRT(paramFormulaId);
+		
+		String clearId = gId.replaceAll("\\.", "_");
+		paramFormula = "(OPT_" + clearId + " * " + paramFormulaId
+				+ " - " + "OPT_" + clearId + " + 1)"; 
 		optMemory.put(gId, true);
+		
 		return gId;
 	}
 	
 	@Override
 	public String visitGCard(GCardContext ctx) {		
 		String gid = visit(ctx.expr());
-		if(ctx.op.getType() == RTRegexParser.C_INT)
+		String paramFormulaId = gid.replaceAll("\\.", "_");
+		paramFormulaId = checkNestedRT(paramFormulaId);
+		
+		String k = ctx.FLOAT().getText();
+		if(ctx.op.getType() == RTRegexParser.C_INT) {
 			cardMemory.put(gid, new Object[]{Const.INT,Integer.parseInt(ctx.FLOAT().getText())});
-		else if(ctx.op.getType() == RTRegexParser.C_SEQ)
+			paramFormula = "(( " + paramFormulaId + " )^" + k + ")";
+		}
+		else if(ctx.op.getType() == RTRegexParser.C_SEQ) {
 			cardMemory.put(gid, new Object[]{Const.SEQ,Integer.parseInt(ctx.FLOAT().getText())});
-		else
+			paramFormula = "(( " + paramFormulaId + " )^" + k + ")";
+		}
+		else {
 			cardMemory.put(gid, new Object[]{Const.RTRY,Integer.parseInt(ctx.FLOAT().getText())});
+			
+			k = String.valueOf(Integer.valueOf(k) + 1);
+			paramFormula = "(1 - (1 - " + paramFormulaId + " )^" + k + ")";
+		}
 		return gid;
 	}
 	
 	@Override
 	public String visitGTry(GTryContext ctx) {
 		String gidT = visit(ctx.expr(0));
+		String paramFormulaT = gidT.replaceAll("\\.", "_");
+		paramFormulaT = checkNestedRT(paramFormulaT);
+		
 		String gidS = visit(ctx.expr(1));
+		String paramFormulaS = "1";
+		paramFormulaS = checkNestedRT(paramFormulaS);
+		
 		String gidF = visit(ctx.expr(2));
+		String paramFormulaF = "0";
+		paramFormulaF = checkNestedRT(paramFormulaF);
+		
 		Boolean [] pathTimeS, pathTimeF; 
 		if(gidS != null){
 			pathTimeS = timeMemory.get(gidS);
 			pathTimeS[1] = pathTimeS[1] = true;
+			paramFormulaS = gidS.replaceAll("\\.", "_");
 		}
 		if(gidF != null){
 			pathTimeF = timeMemory.get(gidF);
 			pathTimeF[1] = pathTimeF[1] = true;
+			paramFormulaF = gidF.replaceAll("\\.", "_");
 		}
-		tryMemory.put(gidT, new String[]{gidS, gidF});		
+		tryMemory.put(gidT, new String[]{gidS, gidF});
+		paramFormula = "( " + paramFormulaT + " * " + paramFormulaS
+				+ " - " + paramFormulaT + " * " + paramFormulaF
+				+ " + " + paramFormulaF + " )";
 		return gidT;
 	}
 	

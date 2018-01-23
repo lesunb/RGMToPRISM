@@ -1,0 +1,15 @@
+dtmc
+
+param double rTask$PLAN_ID$;
+
+module $PLAN_ID$_Task
+	s$PLAN_ID$ :[0..4] init 0;
+	
+	[] s$PLAN_ID$ = 0 -> (s$PLAN_ID$'=1);//init to running
+	
+
+	[] s$PLAN_ID$ =  1 -> rTask$PLAN_ID$ : (s$PLAN_ID$'=2) + (1 - rTask$PLAN_ID$) : (s$PLAN_ID$'=4);//running to final state
+	[] s$PLAN_ID$ = 2 -> (s$PLAN_ID$'=2);//final state success
+	[] s$PLAN_ID$ = 3 -> (s$PLAN_ID$'=3);//final state skipped
+	[] s$PLAN_ID$ = 4 -> (s$PLAN_ID$'=4);//final state failure
+endmodule
