@@ -339,7 +339,7 @@ public class RTGoreProducer {
 			//Set goals alternatives and tries
 			iterateRts(pc, pc.getDecompPlans());
 		}
-		else if (tn.isBooleanDecAND(p)){			
+		else {			
 			List<FPlan> decList = (List<FPlan>) tn.getBooleanDec(p, FPlan.class);
 			sortIntentionalElements(decList);
 			// sets decomposition flag and creates the Metagoal+plan,
@@ -352,6 +352,7 @@ public class RTGoreProducer {
 			//Set goals alternatives and tries
 			iterateRts(pc, pc.getDecompPlans());
 		}
+
 	}
 	
 	private void iteratePlans(AgentDefinition ad, PlanContainer pc, List<FPlan> decList) throws IOException{
