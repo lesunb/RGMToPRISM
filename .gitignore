@@ -1,5 +1,8 @@
 # Created by https://www.gitignore.io
 
+.DS_Store
+.settings
+
 ### Maven ###
 target/
 pom.xml.tag
