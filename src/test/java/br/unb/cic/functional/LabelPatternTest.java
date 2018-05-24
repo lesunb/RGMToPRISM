@@ -24,11 +24,10 @@ public class LabelPatternTest {
 	@Test
 	public void TestCase3() throws IOException {
 
-		String goalName = "Main goal: test pattern error [G1;G2]";
+		String goalName = "Main goal: test pattern error";
 		
 		//id, branch, depth
-		String[] elementsName = {"G1: leaf one", "1", "1",
-				"G2: leaf two", "2", "1"};
+		String[] elementsName = {"T1: leaf", "1", "1"};
 		
 		//Add elements to new register
 		InformationRegister[] info = new InformationRegister[elementsName.length/3];
@@ -37,7 +36,7 @@ public class LabelPatternTest {
 		try{
 			
 			//Create CRGM java model		
-			CRGMTestProducer producer = new CRGMTestProducer(2, 2, 2, "EvaluationActor");
+			CRGMTestProducer producer = new CRGMTestProducer(2, 0, 1, "EvaluationActor");
 			agentDefinition = producer.generateCRGM(goalName, info, null);
 
 			//Run Goda
