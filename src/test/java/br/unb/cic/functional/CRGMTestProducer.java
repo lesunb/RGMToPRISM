@@ -93,14 +93,14 @@ public class CRGMTestProducer{
 		if(index == info.length)
 			return;
 
-		if(info[index].depth == MAX_DEPTH)
+		if(info[index].getDepth() == MAX_DEPTH)
 			return;
 
 		currentDepth++;
 		for(int branch = 0; branch < MAX_BRANCH; branch++){
 
-			if(index != info.length && currentDepth == info[index].depth){
-				RTContainer nextParent = createElement(parent, info[index].depth, info[index].branch, info[index].id);
+			if(index != info.length && currentDepth == info[index].getDepth()){
+				RTContainer nextParent = createElement(parent, info[index].getDepth(), info[index].getBranch(), info[index].getId());
 				index++;
 				addElement(nextParent, info, currentDepth);
 			}else{
