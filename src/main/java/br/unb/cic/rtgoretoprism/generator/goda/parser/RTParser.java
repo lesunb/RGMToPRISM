@@ -40,11 +40,15 @@ public class RTParser{
 	    
 	    //Passing the input to the lexer to create tokens
 	    RTRegexLexer lexer = new RTRegexLexer(cs);
+	    lexer.removeErrorListeners();
+	    lexer.addErrorListener(ThrowingErrorListener.INSTANCE);
 	    
 	    CommonTokenStream tokens = new CommonTokenStream(lexer);
 	    
 	    //Passing the tokens to the parser to create the parse trea. 
 	    RTRegexParser parser = new RTRegexParser(tokens);
+	    parser.removeErrorListeners();
+	    parser.addErrorListener(ThrowingErrorListener.INSTANCE);
 	    
 	    //Semantic model to be populated
 	    //Graph g = new Graph();
@@ -214,7 +218,7 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 		paramFormulaId = checkNestedRT(paramFormulaId);
 		
 		String k = ctx.FLOAT().getText();
-		if(ctx.op.getType() == RTRegexParser.C_INT) {
+		if(ctx.op.getType() == RTRegexParser.INT) {
 			cardMemory.put(gid, new Object[]{Const.INT,Integer.parseInt(ctx.FLOAT().getText())});
 			paramFormula = "(( " + paramFormulaId + " )^" + k + ")";
 		}

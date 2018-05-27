@@ -1,9 +1,16 @@
 grammar RTRegex;
+
+@rulecatch {
+   catch (RecognitionException e) {
+    throw e;
+   }
+}
+
 rt:     expr NEWLINE                            # printExpr
   |     NEWLINE                                 # blank
   ;
 
-expr:   expr op=('+'|'%'|'@') FLOAT			# gCard
+expr:   expr op=('+'|'#'|'@') FLOAT				# gCard
     |	expr op='|' expr						# gAlt
     |	'opt(' expr ')'							# gOpt
     |   'try(' expr ')' '?' expr ':' expr		# gTry
@@ -17,7 +24,6 @@ FLOAT		: DIGIT+'.'?DIGIT* 	;
 SEQ         : ';'				;
 INT			: '#'				;
 C_SEQ		: '+'				;
-C_INT		: '%'				;
 C_RTRY		: '@'				;
 ALT			: '|'				;
 TASK		: 'T'				;
