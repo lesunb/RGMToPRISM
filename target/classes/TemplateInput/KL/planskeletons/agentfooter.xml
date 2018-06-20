@@ -1,0 +1,103 @@
+
+	<events>
+		<!-- Specifies a request to achieve a goal (one per goal). -->
+$EVENTS
+		
+		<!--messages for informs on environment changes-->
+		<messageevent name="inform_ChangeEnv" direction="receive"
+			type="fipa">
+			<parameter name="performative" class="String" direction="fixed">
+				<value>SFipa.INFORM</value>
+			</parameter>
+			<parameter name="content-start" class="String" direction="fixed">
+				<value>"change "</value>
+			</parameter>
+		</messageevent>
+		
+		<!--FIPA-messages needed to communicate with other agents-->		
+		<messageevent name="request" direction="send" type="fipa">
+			<parameter name="performative" class="String" direction="fixed">
+				<value>SFipa.REQUEST</value>
+			</parameter>
+			<parameter name="reply-with" class="String">
+				<value>SFipa.createUniqueId($scope.getAgentName())</value>
+			</parameter>
+		</messageevent>
+		
+		<!--default FIPA-messages needed to communicate with other agents-->
+		<messageevent name="inform" direction="send_receive" type="fipa">
+			<parameter name="performative" class="String" direction="fixed">
+				<value>SFipa.INFORM</value>
+			</parameter>
+		</messageevent>
+		<messageevent name="agree" direction="send_receive" type="fipa">
+			<parameter name="performative" class="String" direction="fixed">
+				<value>SFipa.AGREE</value>
+			</parameter>
+		</messageevent>
+		<messageevent name="failure" direction="send_receive" type="fipa">
+			<parameter name="performative" class="String" direction="fixed">
+				<value>SFipa.FAILURE</value>
+			</parameter>
+		</messageevent>
+		<messageevent name="n_u" direction="send_receive" type="fipa">
+			<parameter name="performative" class="String" direction="fixed">
+				<value>SFipa.NOT_UNDERSTOOD</value>
+			</parameter>
+		</messageevent>
+		<messageevent name="refuse" direction="send_receive" type="fipa">
+			<parameter name="performative" class="String" direction="fixed">
+				<value>SFipa.REFUSE</value>
+			</parameter>
+		</messageevent>
+
+	</events>
+	
+	<expressions>
+		<!--All expressions are not changed during the automatic code generation-->
+		<!-- This query selects the first matching entry from the dictionary,
+			whereby the parameter $eword is compared to the first element of
+			a belief set tuple. -->
+		<expression name="query_link">
+			select $link.getGoal(1)
+			from TLink $link in $beliefbase.decomp
+			where $link.get(0).equals($component)
+			order by $link.getPriority() desc
+			<parameter name="$component" class="String"/>
+		</expression>
+		<expression name="query_ME_link">
+			select $link.get(1)
+			from TLink $link in $beliefbase.meansend
+			where $link.get(0).equals($component)
+			<parameter name="$component" class="String"/>
+		</expression>
+		<expression name="query_contributions">
+			select $link
+			from TContrib $link in $beliefbase.contributions
+			where $link.get(0).equals($component)
+			<parameter name="$component" class="String"/>
+		</expression>
+		<expression name="query_dependencies">
+			select $link
+			from TDependency $link in $beliefbase.dependencies
+			where $link.getWhyGoal().equals($component)
+			<parameter name="$component" class="String"/>
+		</expression>
+	</expressions>
+	
+	<properties>
+ 		<!-- Only log outputs >= level are printed. -->
+       <property name="logging.level">Level.INFO</property>
+ 		<!-- The default parent handler prints out log messages on the console. -->
+       <property name="logging.useParentHandlers">true</property>
+	   <!--<property name="debugging">true</property>-->
+    </properties>
+	
+	<!-- initialstates changed to configurations in Jadex 0.96 -->	
+	<configurations>
+		<configuration name="default">
+		</configuration>
+	</configurations>
+
+</agent>
+

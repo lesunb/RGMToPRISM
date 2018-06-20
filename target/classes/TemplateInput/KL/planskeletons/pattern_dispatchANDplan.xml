@@ -1,0 +1,12 @@
+		<plan name="dispatchANDGoalPlan_$NAME">
+			<parameter name="param" class="String">
+				<goalmapping ref="$NAME.param"/>
+			</parameter>
+			<parameter name="result" class="String">
+				<goalmapping ref="$NAME.result"/>
+			</parameter>
+			<body>new ANDGoalPlan_$NAME()</body>
+			<trigger>
+				<goal ref="$NAME"/>
+			</trigger>
+		</plan>

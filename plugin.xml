@@ -3,7 +3,7 @@
 <plugin>
 	<extension point="org.eclipse.ui.preferencePages">
 		<page id="ATCPreferencePage"
-			name="PRISM Generator"
+			name="PRISM and BPMN Generators"
 			class="br.unb.cic.rtgoretoprism.preferences.ATCPreferencePage"
 			category="TAOM4EPreferencePage">
 		</page>
@@ -12,7 +12,7 @@
     <extension
          point="org.eclipse.ui.actionSets">
       <actionSet
-            label="PRISM Generator"
+            label="PRISM and BPMN Generators"
             visible="true"
             id="org.eclipse.ui.actionSets">
          <menu
@@ -23,13 +23,22 @@
             </separator>
          </menu>
          <action
-               label="&amp;Generate PRISM Model"
+               label="&amp;PRISM and BPMN Generators"
                icon="src/main/resources/icons/sample.gif"
                class="br.unb.cic.rtgoretoprism.action.PRISMCodeGenerationAction"
                tooltip="Generate PRISM Model"
                menubarPath="verificationMenu/prismGroup"
                toolbarPath="prismGroup"
                id="br.unb.cic.rtgoretoprism.action.PRISMCodeGenerationAction">
+         </action>
+         <action
+               label="&amp;Generate BPMN"
+               icon="src/main/resources/icons/sample.gif"
+               class="br.unb.cic.rtgoretoprism.action.BPMNGenerationAction"
+               tooltip="Generate BPMN"
+               menubarPath="verificationMenu/prismGroup"
+               toolbarPath="prismGroup"
+               id="br.unb.cic.rtgoretoprism.action.BPMNGenerationAction">
          </action>
          <action
                label="&amp;Evaluate PRISM verification"
@@ -86,7 +95,7 @@
 			
 			<menu
 				id="br.unb.cic.rtgoretoprism.vc.subMenu"         	
-         		label="PRISM Generator"
+         		label="PRISM and BPMN Generators"
          		path="additions">
 	      		<separator name="group1"/>
 	      	</menu>
@@ -119,6 +128,27 @@
 				enablesFor="+"
 				icon="icons/JadexGenerator.gif"
 				id="br.unb.cic.rtgoretoprism.action.PRISMCodeGenerationActionIn">
+				<selection
+					class="it.itc.sra.taom4e.platform.edit.parts.mixeddiagram.MD_ActorUIEditPart">
+				</selection>
+				<selection
+					class="it.itc.sra.taom4e.platform.edit.parts.mixeddiagram.MD_IntentionalUIEditPart">
+				</selection>
+			</action>
+		</viewerContribution>
+	</extension>
+	<extension point="org.eclipse.ui.popupMenus">
+		<viewerContribution
+			targetID="it.itc.sra.taom4e.platform.tropos.editor.contextmenu"
+			id="br.unb.cic.rtgoretoprism.vc.BPMNGen">
+			
+			<action
+				label="Generate BPMN"
+				class="br.unb.cic.rtgoretoprism.action.BPMNGenerationAction"
+				menubarPath="br.unb.cic.rtgoretoprism.vc.subMenu/group1"
+				enablesFor="+"
+				icon="icons/JadexGenerator.gif"
+				id="br.unb.cic.rtgoretoprism.action.BPMNGenerationActionIn">
 				<selection
 					class="it.itc.sra.taom4e.platform.edit.parts.mixeddiagram.MD_ActorUIEditPart">
 				</selection>

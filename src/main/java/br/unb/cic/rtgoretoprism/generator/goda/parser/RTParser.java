@@ -148,8 +148,9 @@ class CustomRTRegexVisitor extends  RTRegexBaseVisitor<String> {
 			Boolean [] pathTimeB = timeMemory.get(gidB);			
 			if(ctx.op.getType() == RTRegexParser.INT){
 				pathTimeB[0] = true;
-			}else if(ctx.op.getType() == RTRegexParser.SEQ)
+			}else if(ctx.op.getType() == RTRegexParser.SEQ){
 				pathTimeB[1] = true;
+			}
 		}
 		
 		if (decType.equals(Const.AND)) {

@@ -1,0 +1,12 @@
+		<plan name="realPlan_$PLANNAME">
+			<parameter name="param" class="String">
+				$PARAMS
+			</parameter>
+			<parameter name="result" class="String">
+				$RESULTS
+			</parameter>
+			<body>new RealPlan_$PLANNAME()</body>
+			<trigger>
+				$TRIGGERS
+			</trigger>
+		</plan>
