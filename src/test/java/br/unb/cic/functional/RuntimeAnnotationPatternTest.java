@@ -200,15 +200,16 @@ public class RuntimeAnnotationPatternTest {
 		}
 	}
 
-	private void createRegister(String[] elementsName, InformationRegister[] info) {
-
-		int aux = 0;
-		for(int i = 0; i < elementsName.length/3; i++){
-			info[i] = new InformationRegister();
-			info[i].id = elementsName[aux];
-			info[i].branch = Integer.parseInt(elementsName[aux+1]);
-			info[i].depth = Integer.parseInt(elementsName[aux+2]);
-			aux = aux + 3;
+	private void createRegister(String[] elementsName, InformationRegister[] infoArray) {	
+		int index = 0;
+		int index_infoArray = 0;
+		for (InformationRegister info : infoArray) {
+			info = new InformationRegister();
+			info.createRegister(elementsName, index);
+			index = index + 3;
+			
+			infoArray[index_infoArray] = info;
+			index_infoArray++;
 		}
 	}
 }
