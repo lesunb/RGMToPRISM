@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,6 +21,7 @@ import br.unb.cic.rtgoretoprism.generator.kl.AgentDefinition;
 import br.unb.cic.rtgoretoprism.model.kl.Const;
 import br.unb.cic.rtgoretoprism.model.kl.GoalContainer;
 import br.unb.cic.rtgoretoprism.model.kl.PlanContainer;
+import br.unb.cic.rtgoretoprism.paramformula.SymbolicParamAltGenerator;
 import br.unb.cic.rtgoretoprism.paramwrapper.ParamWrapper;
 import br.unb.cic.rtgoretoprism.util.FileUtility;
 import br.unb.cic.rtgoretoprism.util.PathLocation;
@@ -36,6 +39,7 @@ public class PARAMProducer {
 	private String agentName;
 	private List<String> leavesId = new ArrayList<String>();
 	private List<String> opts_formula = new ArrayList<String>();
+	private Map<String,String> ctxInformation = new HashMap<String,String>();
 
 	public PARAMProducer(Set<Actor> allActors, Set<FHardGoal> allGoals, String in, String out, String tools) {
 		
@@ -64,11 +68,21 @@ public class PARAMProducer {
 			
 			// Compose goal formula
 			String nodeForm = composeNodeForm(ad.rootlist.getFirst(), null);
+			nodeForm = cleanNodeForm(nodeForm);
 			
 			//Print formula
 			printFormula(nodeForm);
 		}
 		ATCConsole.println( "PARAM formulas created in " + (new Date().getTime() - startTime) + "ms.");
+	}
+
+	private String cleanNodeForm(String nodeForm) {
+		nodeForm = nodeForm.replaceAll("\\s+", "");
+		nodeForm = nodeForm.replaceAll("\\+1", " +1");
+		nodeForm = nodeForm.replaceAll("-1", " -1");
+		nodeForm = nodeForm.replaceAll("\\+(?!1)", " + ");
+		nodeForm = nodeForm.replaceAll("-(?!1)", " - ");
+		return nodeForm;
 	}
 
 	private void generatePctlFormula() throws IOException {
@@ -125,7 +139,12 @@ public class PARAMProducer {
 			body = body + "[0, 1]" + (leaf.equals(leavesId.get(leavesId.size()-1))? "]\n" : " ");
 		}
 		
-		body = body + "  " + nodeForm;
+		body = body + "  " + nodeForm + "\n\n";
+		
+		for (String ctxKey : ctxInformation.keySet()) {
+			
+			body = body + "//" + ctxKey + " = " + ctxInformation.get(ctxKey) + "\n";
+		}
 		
 		return body;
 	}
@@ -136,6 +155,7 @@ public class PARAMProducer {
 		String rtAnnot;
 		String nodeForm;
 		String nodeId;
+		List<String> ctxAnnot = new ArrayList<String>();
 		LinkedList<GoalContainer> decompGoal = new LinkedList<GoalContainer>();
 		LinkedList<PlanContainer> decompPlans = new LinkedList<PlanContainer>();
 		
@@ -145,6 +165,7 @@ public class PARAMProducer {
 			decompPlans = rootGoal.getDecompPlans();
 			decType = rootGoal.getDecomposition();
 			rtAnnot = rootGoal.getRtRegex();
+			ctxAnnot = rootGoal.getFulfillmentConditions();
 		} 
 		else {
 			nodeId = rootPlan.getClearElId();
@@ -152,6 +173,7 @@ public class PARAMProducer {
 			decompPlans = rootPlan.getDecompPlans();
 			decType = rootPlan.getDecomposition();
 			rtAnnot = rootPlan.getRtRegex();	
+			ctxAnnot = rootPlan.getFulfillmentConditions();
 		}
 		
 		nodeForm = getNodeForm(decType, rtAnnot, nodeId);
@@ -182,9 +204,56 @@ public class PARAMProducer {
 			//Call to param
 			ParamWrapper paramWrapper = new ParamWrapper(toolsFolder, nodeId);
 			nodeForm = paramWrapper.getFormula(model);
+			
+			if (!ctxAnnot.isEmpty()) {
+				nodeForm = insertCtxAnnotation(nodeForm, ctxAnnot, nodeId);
+			}	
 		}
 
 		return nodeForm;
+	}
+
+	private String insertCtxAnnotation(String nodeForm, List<String> ctxAnnot, String nodeId) {
+		
+		List<String> cleanCtx = clearCtxList(ctxAnnot);
+		
+		String ctxParamId = "CTX_" + nodeId;
+		nodeForm = ctxParamId + "*" + nodeForm;
+		
+		String ctxConcat = new String();
+		for (String ctx : cleanCtx) {
+			if (ctxConcat.length() == 0) {
+				ctxConcat = "(" + ctx + ")";
+			}
+			else {
+				ctxConcat = ctxConcat.concat(" & (" + ctx + ")");
+			}
+		}
+		
+		ctxInformation.put(ctxParamId, ctxConcat);
+		
+		if (!this.opts_formula.contains(ctxParamId)) {
+			this.opts_formula.add(ctxParamId);
+		}
+		
+		return nodeForm;
+	}
+
+	private List<String> clearCtxList(List<String> ctxAnnot) {
+		
+		List<String> clearCtx = new ArrayList<String>();
+		for (String ctx : ctxAnnot) {
+			String[] aux;
+			if (ctx.contains("assertion condition")) {
+				aux = ctx.split("^assertion condition\\s*");
+			}
+			else {
+				aux = ctx.split("^assertion trigger\\s*");
+			}
+			clearCtx.add(aux[1]);
+		}
+		
+		return clearCtx;
 	}
 
 	private String replaceSubForm(String nodeForm, String subNodeForm, String nodeId, String subNodeId) {
@@ -213,12 +282,12 @@ public class PARAMProducer {
 		
 		Object [] res = RTParser.parseRegex(uid, rtAnnot + '\n', decType);
 		
-		checkOptDeclaration((String) res[5]);
+		checkOptXorDeclaration((String) res[5]);
 		
 		return (String) res[5];
 	}
 
-	private void checkOptDeclaration(String formula) {
+	private void checkOptXorDeclaration(String formula) {
 		
 		if (formula.contains("OPT")) {
 			String regex = "OPT_(.*?) ";
@@ -229,6 +298,17 @@ public class PARAMProducer {
 					this.opts_formula.add(optDeclaration);
 				}
 			}
-		} 
+		}
+		
+		if (formula.contains("XOR")) {
+			String regex = "XOR_(.*?) ";
+			Matcher match = Pattern.compile(regex).matcher(formula);
+			while (match.find()) {
+				String optDeclaration = "XOR_" + match.group(1);
+				if (!this.opts_formula.contains(optDeclaration)) {
+					this.opts_formula.add(optDeclaration);
+				}
+			}
+		}
 	}
 }
