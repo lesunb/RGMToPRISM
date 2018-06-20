@@ -20,6 +20,7 @@ public class SymbolicParamAltGenerator {
 	public static String generateCombinations (Map<String, String> list, String[] xors) {
 
 		String formula = new String();
+		formula = "(";
 
 		int n = xors.length; 
 		for(int num = 0;num < (1 << n);num++) { 
@@ -33,15 +34,10 @@ public class SymbolicParamAltGenerator {
 			} 
 
 			if (combination.size() > 0) {
-				if (formula.length() == 0) {
-					formula = printFormula(list, combination);
-				}
-				else {
-					formula = formula + printFormula(list, combination);	
-				}
+				formula = formula + printFormula(list, combination);
 			}
 		}
-		return formula + " ";
+		return formula + " )";
 	}
 
 	private static String printFormula(Map<String, String> list, List<String> combination) {
